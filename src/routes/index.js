@@ -33,7 +33,11 @@ async function route(app){
     
     app.get('/', (req, res) => {
         res.render('index')
-    })   
+    })  
+              
+    app.get('/shop11', shop_routes)  
+    // app.get('/shop11', shop_routes)   
+    
     app.get('/login', (req, res) => {
         res.render('login1')
     })        

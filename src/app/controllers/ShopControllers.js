@@ -11,6 +11,12 @@ const pool = new Pool({
 class ShopControllers{
 
     index(req, res){
+        
+        const data = {}
+        var product_list
+        var category_list
+        // res.render('shop11', {hoten: "ngô Quang trường"})
+
         pool.connect(function(err, client, done){
             if(err){
                 return console.error('error fetching client from pool ', err)
@@ -18,16 +24,43 @@ class ShopControllers{
             // console.log('connected')
             // return res.send('connected')
             client.query('SELECT * FROM foods', (err, result) => {
-                done();
+                done()
             
                 if(err){
-                    res.end();
+                    res.end()
                     return console.error('error running query ', err)
                 }
-                console.log('Data = ', result.rows)
-                res.render('shop1', {data: result.rows})
+                product_list = result
+                data['product'] = result.rows
+                data['category'] = result.rows
+                console.log('product = ', product_list)
+                console.log('data = ', data)
+                res.render('shop11', {data: result.rows})
             });
         });
+
+        // pool.connect(function(err, client, done){
+        //     if(err){
+        //         return console.error('error fetching client from pool ', err)
+        //     }
+            
+        //     client.query('SELECT * FROM category', (err, result) => {
+        //         done();
+            
+        //         if(err){
+        //             res.end();
+        //             return console.error('error running query ', err)
+        //         }
+        //         let category_list = result.rows
+                
+        //         console.log('Category 1 = ', category_list)
+        //         res.end()
+        //     });
+        // });
+        // console.log('product list ở ngoài =', product_list)
+        // console.log('category list ở ngoài =', category_list)
+        // console.log('data ngoài = ', data)
+        // res.render('shop1', product_list, category_list)
         // res.render('shop1')
     }
 }
