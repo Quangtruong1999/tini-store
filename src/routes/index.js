@@ -40,7 +40,13 @@ async function route(app){
     
     app.get('/login', (req, res) => {
         res.render('login1')
-    })        
+    })       
+    app.get('/signup', (req, res) => {
+        res.render('signup')
+    })      
+    app.get('/forgot', (req, res) => {
+        res.render('forgot_password')
+    }) 
     app.get('/about', (req, res) => {
         res.render('about')
     })          
