@@ -78,7 +78,11 @@
 
 			  <li class="nav-item cta cta-colored" style="margin-left: 50px;">
 				  <div style="margin-top: 19px;">
-					  <span class="icon-user" style="color: rgb(59, 59, 59);">&nbsp; Nguyễn Văn Anh</span>
+					<% if(name != null){%>
+					  <span class="icon-user" style="color: rgb(59, 59, 59);">&nbsp; <%= name%></span>
+					<%}else {%>
+						<span class="icon-user" style="color: rgb(59, 59, 59);">&nbsp; <a href="signup">Đăng ký</a>/<a href="login">Đăng nhập</a></span>
+					<%}%>
 				  </div>
 			  </li>
 

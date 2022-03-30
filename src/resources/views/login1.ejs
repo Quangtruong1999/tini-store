@@ -120,12 +120,36 @@
             <div class="row">
                 <div class="col-12">
                     
-                    <form action="#" class="signin-form">
+                    <form action="/login" method="POST" class="signin-form">
+                        <% if(messages.success_msg){%>
+                            <div class="form-group input_form">
+                                <div>
+                                    <%= messages.success_msg %>
+                                </div>
+                            </div>
+                        <%}%>
+                        <% if(messages.error ){%>
+                                
+                            <div class="form-group input_form">
+                                <div>
+                                    <%= messages.error %>
+                                </div>
+                            </div>
+                        <%}%>
+                        <% if(typeof errors != 'undefined'){%>
+                            <% for(var i=0; i<errors.length; i++){ %>
+                                <div class="form-group input_form">
+                                    <div>
+                                        <%=errors[i]['message']%>
+                                    </div>
+                                </div>
+                            <%}%>
+                        <%}%>
                         <div class="form-group">
-                            <input type="text" class=" form-control input_form" placeholder="Email" required>
+                            <input type="text" name="email" class=" form-control input_form" placeholder="Email" required>
                         </div>
                         <div class="form-group">
-                            <input id="password-field" type="password" class=" form-control input_form" placeholder="Password" required>
+                            <input id="password-field" name="password" type="password" class=" form-control input_form" placeholder="Password" required>
                             <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                         </div>
     

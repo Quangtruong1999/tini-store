@@ -17,7 +17,7 @@
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
             integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
             crossorigin="anonymous"></script>
-        <title>Login form</title>
+        <title>Tini Store - Sign up</title>
         <style>
             .container .login_10{
                 margin-top: 100px;
@@ -119,18 +119,39 @@
             </div>
             <div class="row">
                 <div class="col-12">
-                    
-                    <form action="#" class="signin-form">
+                    <form action="signup" method="POST" class="signin-form">
+                            <% if(typeof errors != 'undefined'){%>
+                                <% for(var i=0; i<errors.length; i++){ %>
+                                    <div class="form-group input_form">
+                                        <div>
+                                            <%=errors[i]['message']%>
+                                        </div>
+                                    </div>
+                                <%}%>
+                            <%}%>
+                            <% if(typeof success != 'undefined'){%>
+                                <div class="form-group input_form">
+                                    <div>
+                                        <%=success[0]['message']%>
+                                    </div>
+                                </div>
+                            <%}%>
                         <div class="form-group">
-                            <input type="text" class=" form-control input_form" placeholder="Email" required>
+                            <input name="name" type="text" class=" form-control input_form" placeholder="Full name" required>
                         </div>
                         <div class="form-group">
-                            <input id="password-field" type="password" class=" form-control input_form" placeholder="Password" required>
+                            <input name="phone" type="text" class=" form-control input_form" placeholder="Phone number" required>
+                        </div>
+                        <div class="form-group">
+                            <input name="email" type="text" class=" form-control input_form" placeholder="Email" required>
+                        </div>
+                        <div class="form-group">
+                            <input name="password" id="password-field" type="password" class=" form-control input_form" placeholder="Password" required>
                             <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                         </div>
         
                         <div class="form-group">
-                            <input id="repassword-field" type="password" class=" form-control input_form" placeholder="Confirm password" required>
+                            <input id="repassword-field" name="repassword" type="password" class=" form-control input_form" placeholder="Confirm password" required>
                             <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                         </div>
                         <div class="form-group">

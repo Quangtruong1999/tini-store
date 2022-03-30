@@ -1,5 +1,6 @@
 const {Pool} = require('pg')
 const env = require('dotenv');
+const session = require('express-session');
 env.config({
     path:'./.env'
 })
@@ -35,7 +36,7 @@ class ShopControllers{
                 data['category'] = result.rows
                 console.log('product = ', product_list)
                 console.log('data = ', data)
-                res.render('shop11', {data: result.rows})
+                res.render('shop11', {data: result.rows, name:req.session.name})
             });
         });
 

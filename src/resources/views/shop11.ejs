@@ -75,7 +75,19 @@
 	          <li class="nav-item"><a href="/blog" class="nav-link">Blog</a></li>
 	          <li class="nav-item"><a href="/contact" class="nav-link">Contact</a></li>
 	          <li class="nav-item cta cta-colored"><a href="/cart" class="nav-link"><span class="icon-shopping_cart"></span>[0]</a></li>
+<!-- Sửa login -->
 
+<li class="nav-item cta cta-colored" style="margin-left: 50px;">
+	<div style="margin-top: 19px;">
+	  <% if(name != null){%>
+		<span class="icon-user" style="color: rgb(59, 59, 59);">&nbsp; <%= name%></span>
+	  <%}else {%>
+		  <span class="icon-user" style="color: rgb(59, 59, 59);">&nbsp; <a href="signup">Đăng ký</a>/<a href="login">Đăng nhập</a></span>
+	  <%}%>
+	</div>
+</li>
+
+  <!-- Sửa login -->
 	        </ul>
 	      </div>
 	    </div>
