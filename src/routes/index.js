@@ -14,6 +14,18 @@ initiablizePassport(passport);
 
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
+// const {Pool} = require('pg')
+// const {migrate} = require('postgres-migrations')
+// const env = require('dotenv');
+
+// env.config({
+//     path:'./.env'
+// })
+// const pool = new Pool({
+//     connectionString: process.env.DATABASE_URL,
+// })
+
 async function route(app){
     
 app.use(session({
@@ -57,6 +69,7 @@ app.use(session({
     app.get('/shop11', shop_routes)  
     // app.get('/shop11', shop_routes)   
     
+
     // app.get('/login', (req, res) => {
     //     res.render('login1')
     // })       
