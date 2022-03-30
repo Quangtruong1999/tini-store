@@ -8,7 +8,6 @@ const session = require('express-session');
 const flash = require('express-flash');
 const passport = require("passport");
 
-
 const initiablizePassport = require("./passportConfig");
 initiablizePassport(passport);
 
