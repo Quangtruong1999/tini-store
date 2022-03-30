@@ -1,6 +1,7 @@
 const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
+const session = require('express-session');
 /* const { engine } = require('express-handlebars');*/
 // const {Pool} = require('pg');
 

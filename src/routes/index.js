@@ -3,6 +3,7 @@ const blogs_router = require('./blogs')
 const {Pool} = require('pg')
 const {migrate} = require('postgres-migrations')
 const env = require('dotenv');
+const bodyParser = require('body-parser');
 
 env.config({
     path:'./.env'
@@ -10,6 +11,10 @@ env.config({
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
 })
+
+// create application/x-www-form-urlencoded parser
+const urlencodedParser = bodyParser.urlencoded({ extended: false })
+
 async function route(app){
     app.get('/db', (req, res) => {
         pool.connect(function(err, client, done){
@@ -40,10 +45,17 @@ async function route(app){
     
     app.get('/login', (req, res) => {
         res.render('login1')
-    })       
+    })     
+    app.post('/login',urlencodedParser, (req, res) => {
+        res.send('welcome, ' + req.body.username);
+    })  
     app.get('/signup', (req, res) => {
         res.render('signup')
-    })      
+    })       
+    app.post('/signup', (req, res) => {
+        // res.render('signup')
+        res.send('haha')
+    })    
     app.get('/forgot', (req, res) => {
         res.render('forgot_password')
     }) 
