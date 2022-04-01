@@ -65,7 +65,6 @@ app.set('views', path.join(__dirname,'resources/views'));
 // }));
 
 app.get('/login', (req, res) => {
-
   res.render('login1')
 }) 
 app.post('/login',urlencodedParser, async function(req, res) {
