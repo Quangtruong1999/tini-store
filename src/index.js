@@ -76,31 +76,40 @@ app.post('/login',urlencodedParser, async function(req, res) {
       if (rows.length<=0) { res.redirect("/login"); return;}
       let user = rows['rows'][0];    
       console.log('user = ', user);
-      let pass_fromdb = user.password;          
-      var kq = bcrypt.compareSync(password, pass_fromdb);
+      
       let errors = []
-      if (kq){ 
-          console.log("OK");   
-          var sess = req.session;  //initialize session variable
-          sess.user = true;
-          sess.id = user.id;
-          sess.name = user.name;
-          sess.email = user.email;  
+      if(typeof user != 'undefined'){
+        let pass_fromdb = user.password;          
+        var kq = bcrypt.compareSync(password, pass_fromdb);
+        if (kq){ 
+            console.log("OK");   
+            var sess = req.session;  //initialize session variable
+            sess.user = true;
+            sess.id = user.id;
+            sess.name = user.name;
+            sess.email = user.email;  
 
-          console.log('sess = ', sess)
-          if (sess.back){ 
-            console.log(sess.back);
-            res.redirect(sess.back);
-          }
-          else {
-              res.redirect("/");
-          }                   
-      }   
-      else {
-        errors.push({message: "Email/Password is not correct!"})
-        console.log("Not OK");
-        res.render("login1", {errors});
+            console.log('sess = ', sess)
+            if (sess.back){ 
+              console.log(sess.back);
+              res.redirect(sess.back);
+            }
+            else {
+                res.redirect("/");
+            }                   
+        }   
+        else {
+          errors.push({message: "Email/Password is not correct!"})
+          console.log("Not OK");
+          res.render("login1", {errors});
+        }
       }
+      
+      errors.push({message: "Email/Password is not correct!"})
+      console.log("Không có tài khoản trong hệ thống");
+      console.log("errors = ", errors);
+      res.render("login1", {errors});
+      
   });   
 });
 app.get('/logout', function(req, res) {
