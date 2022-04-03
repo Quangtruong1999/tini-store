@@ -165,6 +165,24 @@ app.use(session({
     app.get('/wishlist', (req, res) => {
         res.render("wishlist", {name: req.session.name});
     }) 
+    app.get('/product_dashboard', (req, res) => {
+        res.render("product_dashboard", {name: req.session.name});
+    })  
+    app.get('/product_add', (req, res) => {
+        res.render("product_add", {name: req.session.name});
+    })  
+    app.get('/category_dashboard', (req, res) => {
+        res.render("category_dashboard", {name: req.session.name});
+    })  
+    app.get('/category_dashboard_add', (req, res) => {
+        res.render("category_dashboard_add", {name: req.session.name});
+    })  
+    app.get('/customer_dashboard', (req, res) => {
+        res.render("customer_dashboard", {name: req.session.name});
+    })  
+    app.get('/customer_dashboard_add', (req, res) => {
+        res.render("customer_dashboard_add", {name: req.session.name});
+    }) 
 }
 
 module.exports = route
