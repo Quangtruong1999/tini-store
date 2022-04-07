@@ -11,35 +11,35 @@
         <title>Dashboard</title>
 
         <!-- Fontfaces CSS-->
-        <link href="css/font-face.css" rel="stylesheet" media="all">
-        <link href="vendor/font-awesome-4.7/css/font-awesome.min.css"
+        <link href="/css/font-face.css" rel="stylesheet" media="all">
+        <link href="/vendor/font-awesome-4.7/css/font-awesome.min.css"
             rel="stylesheet" media="all">
-        <link href="vendor/font-awesome-5/css/fontawesome-all.min.css"
+        <link href="/vendor/font-awesome-5/css/fontawesome-all.min.css"
             rel="stylesheet" media="all">
-        <link href="vendor/mdi-font/css/material-design-iconic-font.min.css"
+        <link href="/vendor/mdi-font/css/material-design-iconic-font.min.css"
             rel="stylesheet" media="all">
 
         <!-- Bootstrap CSS-->
-        <link href="vendor/bootstrap-4.1/bootstrap.min.css" rel="stylesheet"
+        <link href="/vendor/bootstrap-4.1/bootstrap.min.css" rel="stylesheet"
             media="all">
 
         <!-- Vendor CSS-->
-        <link href="vendor/animsition/animsition.min.css" rel="stylesheet"
+        <link href="/vendor/animsition/animsition.min.css" rel="stylesheet"
             media="all">
         <link
-            href="vendor/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css"
+            href="/vendor/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css"
             rel="stylesheet" media="all">
-        <link href="vendor/wow/animate.css" rel="stylesheet" media="all">
-        <link href="vendor/css-hamburgers/hamburgers.min.css" rel="stylesheet"
+        <link href="/vendor/wow/animate.css" rel="stylesheet" media="all">
+        <link href="/vendor/css-hamburgers/hamburgers.min.css" rel="stylesheet"
             media="all">
-        <link href="vendor/slick/slick.css" rel="stylesheet" media="all">
-        <link href="vendor/select2/select2.min.css" rel="stylesheet"
+        <link href="/vendor/slick/slick.css" rel="stylesheet" media="all">
+        <link href="/vendor/select2/select2.min.css" rel="stylesheet"
             media="all">
-        <link href="vendor/perfect-scrollbar/perfect-scrollbar.css"
+        <link href="/vendor/perfect-scrollbar/perfect-scrollbar.css"
             rel="stylesheet" media="all">
 
         <!-- Main CSS-->
-        <link href="css/theme.css" rel="stylesheet" media="all">
+        <link href="/css/theme.css" rel="stylesheet" media="all">
 
     </head>
     <div class="page-wrapper">
@@ -49,7 +49,7 @@
                 <div class="container-fluid">
                     <div class="header-mobile-inner">
                         <a class="logo" href="index.html">
-                            <img src="images/icon/logo.png" alt="CoolAdmin"
+                            <img src="/images/icon/logo.png" alt="CoolAdmin"
                                 />
                         </a>
                         <button class="hamburger hamburger--slider"
@@ -92,7 +92,7 @@
         <aside class="menu-sidebar d-none d-lg-block">
             <div class="logo">
                 <a href="#">
-                    <img src="images/icon/logo.png" alt="Cool Admin" />
+                    <img src="/images/icon/logo.png" alt="Cool Admin" />
                 </a>
             </div>
             <div class="menu-sidebar__content js-scrollbar1">
@@ -145,12 +145,11 @@
                                         js-item-menu">
                                         <div class="image">
                                             <img
-                                                src="images/icon/avatar-01.jpg"
+                                                src="/images/icon/avatar-01.jpg"
                                                 alt="John Doe" />
                                         </div>
                                         <div class="content">
-                                            <a class="js-acc-btn" href="#">john
-                                                doe</a>
+                                            <a class="js-acc-btn" href="#"><%=name%></a>
                                         </div>
                                         <div class="account-dropdown
                                             js-dropdown">
@@ -158,16 +157,16 @@
                                                 <div class="image">
                                                     <a href="#">
                                                         <img
-                                                            src="images/icon/avatar-01.jpg"
-                                                            alt="John Doe"
+                                                            src="/images/icon/avatar-01.jpg"
+                                                            alt="<%=name%>"
                                                             />
                                                     </a>
                                                 </div>
                                                 <div class="content">
                                                     <h5 class="name">
-                                                        <a href="#">john doe</a>
+                                                        <a href="#"><%=name%></a>
                                                     </h5>
-                                                    <span class="email">johndoe@example.com</span>
+                                                    <span class="email"><%=email%></span>
                                                 </div>
                                             </div>
                                             <div
@@ -217,7 +216,7 @@
                                         <label for="text-input" class=" form-control-label">Tên</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <input type="text" id="text-input" name="name" placeholder="Tên sản phẩm" class="form-control">
+                                        <input type="text" id="text-input" name="name" value="<%= data[0]['name']%>" placeholder="Tên sản phẩm" class="form-control">
                                     </div>
                                 </div>
                                 <div class="row form-group">
@@ -225,7 +224,7 @@
                                         <label for="textarea-input" class=" form-control-label">Mô tả</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <textarea name="description" id="textarea-input" rows="9" placeholder="Mô tả ..." class="form-control"></textarea>
+                                        <textarea name="description" id="textarea-input" rows="9" placeholder="Mô tả ..." class="form-control"><%=data[0]['description']%></textarea>
                                     </div>
                                 </div>
                                 <div class="row form-group">
@@ -233,7 +232,7 @@
                                         <label for="select" class=" form-control-label">Category</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <select name="category" id="select" class="form-control" required>
+                                        <select name="category" id="select" value="<%= data[0]['category_id']%>" class="form-control" required>
                                             <% for(var i=0; i<data.length;i++){%>
                                                 <option value="<%=data[i]['id']%>"><%=data[i]['name']%></option>
                                             <%}%>
@@ -245,10 +244,18 @@
                                         <label for="text-input" class=" form-control-label">Giá</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <input type="number" id="text-input" name="price" placeholder="Giá sản phẩm" class="form-control">
+                                        <input type="number" id="text-input" value="<%= data[0]['price']%>" name="price" placeholder="Giá sản phẩm" class="form-control">
                                     </div>
                                 </div>
                                 
+                                <div class="row form-group">
+                                    <div class="col col-md-3">
+                                        <label for="image" class=" form-control-label"></label>
+                                    </div>
+                                    <div class="col-12 col-md-9">
+                                        <img src="/<%=data[0]['images']%>" alt="<%=data[0]['name']%>">
+                                    </div>
+                                </div>
                                 <div class="row form-group">
                                     <div class="col col-md-3">
                                         <label for="image" class=" form-control-label">Hình ảnh</label>
@@ -274,28 +281,28 @@
     </div>
 
     <!-- Jquery JS-->
-    <script src="vendor/jquery-3.2.1.min.js"></script>
+    <script src="/vendor/jquery-3.2.1.min.js"></script>
     <!-- Bootstrap JS-->
-    <script src="vendor/bootstrap-4.1/popper.min.js"></script>
-    <script src="vendor/bootstrap-4.1/bootstrap.min.js"></script>
+    <script src="/vendor/bootstrap-4.1/popper.min.js"></script>
+    <script src="/vendor/bootstrap-4.1/bootstrap.min.js"></script>
     <!-- Vendor JS       -->
-    <script src="vendor/slick/slick.min.js">
+    <script src="/vendor/slick/slick.min.js">
 </script>
-    <script src="vendor/wow/wow.min.js"></script>
-    <script src="vendor/animsition/animsition.min.js"></script>
-    <script src="vendor/bootstrap-progressbar/bootstrap-progressbar.min.js">
+    <script src="/vendor/wow/wow.min.js"></script>
+    <script src="/vendor/animsition/animsition.min.js"></script>
+    <script src="/vendor/bootstrap-progressbar/bootstrap-progressbar.min.js">
 </script>
-    <script src="vendor/counter-up/jquery.waypoints.min.js"></script>
-    <script src="vendor/counter-up/jquery.counterup.min.js">
+    <script src="/vendor/counter-up/jquery.waypoints.min.js"></script>
+    <script src="/vendor/counter-up/jquery.counterup.min.js">
 </script>
-    <script src="vendor/circle-progress/circle-progress.min.js"></script>
-    <script src="vendor/perfect-scrollbar/perfect-scrollbar.js"></script>
-    <script src="vendor/chartjs/Chart.bundle.min.js"></script>
-    <script src="vendor/select2/select2.min.js">
+    <script src="/vendor/circle-progress/circle-progress.min.js"></script>
+    <script src="/vendor/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="/vendor/chartjs/Chart.bundle.min.js"></script>
+    <script src="/vendor/select2/select2.min.js">
 </script>
 
         <!-- Main JS-->
-        <script src="js/main copy.js"></script>
+        <script src="/js/main copy.js"></script>
 
 
 

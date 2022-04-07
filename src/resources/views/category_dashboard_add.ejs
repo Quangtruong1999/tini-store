@@ -5,7 +5,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1,
             shrink-to-fit=no">
         <meta name="description" content="au theme template">
-        <meta name="author" content="Hau Nguyen">
         <meta name="keywords" content="au theme template">
 
         <!-- Title Page-->
@@ -208,14 +207,14 @@
                                 <strong>Tạo danh mục</strong>
                             </div>
                             <div class="card-body card-block">
-                                <form action="" method="post" enctype="multipart/form-data" class="form-horizontal">
+                                <form action="/category_add" method="post" enctype="multipart/form-data" class="form-horizontal">
                                     <div class="row form-group">
                                         <div class="col col-md-3">
                                             <label for="text-input" class=" form-control-label">Tên</label>
                                         </div>
                                         <div class="col-12 col-md-9">
-                                            <input type="text" id="text-input" name="text-input" placeholder="Text" class="form-control">
-                                            <small class="form-text text-muted">Nhập tên</small>
+                                            <input type="text" id="text-input" name="name" placeholder="Text" class="form-control">
+                                            
                                         </div>
                                     </div>
                                     <div class="row form-group">
@@ -223,18 +222,16 @@
                                             <label for="textarea-input" class=" form-control-label">Mô tả</label>
                                         </div>
                                         <div class="col-12 col-md-9">
-                                            <textarea name="textarea-input" id="textarea-input" rows="9" placeholder="Mô tả ..." class="form-control"></textarea>
+                                            <textarea name="description" id="textarea-input" rows="9" placeholder="Mô tả ..." class="form-control"></textarea>
                                         </div>
-                                    </div>                                  
+                                    </div>    
+                                            
+                                    <div class="card-footer">
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="fa fa-dot-circle-o"></i> Tạo
+                                        </button>
+                                    </div>                              
                                 </form>
-                            </div>
-                            <div class="card-footer">
-                                <button type="submit" class="btn btn-primary btn-sm">
-                                    <i class="fa fa-dot-circle-o"></i> Tạo
-                                </button>
-                                <button type="reset" class="btn btn-danger btn-sm">
-                                    <i class="fa fa-ban"></i> Làm trống
-                                </button>
                             </div>
                         </div>
                     </div>

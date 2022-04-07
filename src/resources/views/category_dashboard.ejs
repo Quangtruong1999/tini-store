@@ -5,7 +5,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1,
             shrink-to-fit=no">
         <meta name="description" content="au theme template">
-        <meta name="author" content="Hau Nguyen">
         <meta name="keywords" content="au theme template">
 
         <!-- Title Page-->
@@ -137,7 +136,7 @@
                                                 <img src="images/icon/avatar-01.jpg" alt="John Doe" />
                                             </div>
                                             <div class="content">
-                                                <a class="js-acc-btn" href="#">john doe</a>
+                                                <a class="js-acc-btn" href="#"><%=name%></a>
                                             </div>
                                             <div class="account-dropdown js-dropdown">
                                                 <div class="info clearfix">
@@ -148,9 +147,9 @@
                                                     </div>
                                                     <div class="content">
                                                         <h5 class="name">
-                                                            <a href="#">john doe</a>
+                                                            <a href="#"><%=name%></a>
                                                         </h5>
-                                                        <span class="email">johndoe@example.com</span>
+                                                        <span class="email"><%=email%></span>
                                                     </div>
                                                 </div>
                                                 <div class="account-dropdown__body">
@@ -188,7 +187,7 @@
                         <h3 class="title-5 m-b-35">Quản lý danh mục</h3>
                         <div class="table-data__tool">
                             <div class="table-data__tool-left">
-                                <div class="rs-select2--light rs-select2--md">
+                                <!-- <div class="rs-select2--light rs-select2--md">
                                     <select class="js-select2" name="property">
                                         <option selected="selected">Thuộc tính</option>
                                         <option value="">Option 1</option>
@@ -205,7 +204,7 @@
                                     <div class="dropDownSelect2"></div>
                                 </div>
                                 <button class="au-btn-filter">
-                                    <i class="zmdi zmdi-filter-list"></i>Bộ lọc</button>
+                                    <i class="zmdi zmdi-filter-list"></i>Bộ lọc</button> -->
                             </div>
                             <div class="table-data__tool-right">
                                 <button class="au-btn au-btn-icon au-btn--green au-btn--small">
@@ -224,137 +223,33 @@
                             <table class="table table-borderless table-striped table-earning">
                                 <thead>
                                     <tr>
-                                        <th>
-                                            <label class="au-checkbox">
-                                                <input type="checkbox">
-                                                <span class="au-checkmark"></span>
-                                            </label>
-                                        </th>
                                         <th>name</th>
-                                    
                                         <th>description</th>
                                 
-                                        
-                                    
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <% for(var i=0; i<data.length; i++){%>
                                     <tr class="tr-shadow">
-                                        <td>
-                                            <label class="au-checkbox">
-                                                <input type="checkbox">
-                                                <span class="au-checkmark"></span>
-                                            </label>
-                                        </td>
-                                        <td>Trái cây</td>
+                                        <td><%= data[i]['name']%></td>
                                         
-                                        <td class="desc">Chứa những sản phẩm liên quan đến trái cây</td>
+                                        <td class="desc"><p style="text-overflow: ellipsis;width: 250px;overflow: hidden;white-space: nowrap;"><%= data[i]['description']%></p></td>
                                         
                                         <td>
                                             <div class="table-data-feature">
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="Send">
-                                                    <i class="zmdi zmdi-mail-send"></i>
-                                                </button>
                                                 <button class="item" data-toggle="tooltip" data-placement="top" title="Edit">
-                                                    <i class="zmdi zmdi-edit"></i>
+                                                    <a href="/edit_pro/<%=data[i]['id']%>"><i class="zmdi zmdi-edit"></i></a>
                                                 </button>
                                                 <button class="item" data-toggle="tooltip" data-placement="top" title="Delete">
-                                                    <i class="zmdi zmdi-delete"></i>
-                                                </button>
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="More">
-                                                    <i class="zmdi zmdi-more"></i>
+                                                    <a href="/del_category/<%=data[i]['id']%>"><i class="zmdi zmdi-delete"></i></a>
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr class="spacer"></tr>
-                                    <tr class="tr-shadow">
-                                        <td>
-                                            <label class="au-checkbox">
-                                                <input type="checkbox">
-                                                <span class="au-checkmark"></span>
-                                            </label>
-                                        </td>
-                                        <td>Lori Lynch</td>
-                                        
-                                        <td class="desc">Samsung S8 Black</td>
-                                        
-                                        <td>
-                                            <div class="table-data-feature">
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="Send">
-                                                    <i class="zmdi zmdi-mail-send"></i>
-                                                </button>
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="Edit">
-                                                    <i class="zmdi zmdi-edit"></i>
-                                                </button>
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="Delete">
-                                                    <i class="zmdi zmdi-delete"></i>
-                                                </button>
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="More">
-                                                    <i class="zmdi zmdi-more"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr class="spacer"></tr>
-                                    <tr class="tr-shadow">
-                                        <td>
-                                            <label class="au-checkbox">
-                                                <input type="checkbox">
-                                                <span class="au-checkmark"></span>
-                                            </label>
-                                        </td>
-                                        <td>Lori Lynch</td>
-                                        
-                                        <td class="desc">Samsung S8 Black</td>
-                                        
-                                        <td>
-                                            <div class="table-data-feature">
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="Send">
-                                                    <i class="zmdi zmdi-mail-send"></i>
-                                                </button>
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="Edit">
-                                                    <i class="zmdi zmdi-edit"></i>
-                                                </button>
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="Delete">
-                                                    <i class="zmdi zmdi-delete"></i>
-                                                </button>
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="More">
-                                                    <i class="zmdi zmdi-more"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr class="spacer"></tr>
-                                    <tr class="tr-shadow">
-                                        <td>
-                                            <label class="au-checkbox">
-                                                <input type="checkbox">
-                                                <span class="au-checkmark"></span>
-                                            </label>
-                                        </td>
-                                        <td>Lori Lynch</td>
-                                        
-                                        <td class="desc">Samsung S8 Black</td>
-                                        
-                                        <td>
-                                            <div class="table-data-feature">
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="Send">
-                                                    <i class="zmdi zmdi-mail-send"></i>
-                                                </button>
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="Edit">
-                                                    <i class="zmdi zmdi-edit"></i>
-                                                </button>
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="Delete">
-                                                    <i class="zmdi zmdi-delete"></i>
-                                                </button>
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="More">
-                                                    <i class="zmdi zmdi-more"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    
+                                    <%}%>
                                 </tbody>
                             </table>
                         </div>

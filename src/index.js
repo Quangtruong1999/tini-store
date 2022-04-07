@@ -32,7 +32,7 @@ app.use(session({
   secret: 'secrect',
   resave: true,
   saveUninitialized: true,
-  cookie: { maxAge: 60000 }
+  cookie: { maxAge: 60000000 }
 }));
 
 app.use(passport.initialize());
@@ -88,27 +88,35 @@ app.post('/login',urlencodedParser, async function(req, res) {
             sess.id = user.id;
             sess.name = user.name;
             sess.email = user.email;  
-
+            sess.roles = user.roles;
             console.log('sess = ', sess)
-            if (sess.back){ 
-              console.log(sess.back);
-              res.redirect(sess.back);
-            }
-            else {
-                res.redirect("/");
-            }                   
+
+            // if (sess.back){ 
+            //   console.log(sess.back);
+            //   res.redirect(sess.back);
+            // }
+            // else {
+            //     res.redirect("/");
+            // }
+            if (user.roles == 1){
+              res.redirect("/");   
+            }else{
+              res.redirect('/product_dashboard');
+            }           
         }   
         else {
           errors.push({message: "Email/Password is not correct!"})
           console.log("Not OK");
           res.render("login1", {errors});
         }
-      }
+      }else{
       
-      errors.push({message: "Email/Password is not correct!"})
-      console.log("Không có tài khoản trong hệ thống");
-      console.log("errors = ", errors);
-      res.render("login1", {errors});
+        errors.push({message: "Email/Password is not correct!"})
+        console.log("Không có tài khoản trong hệ thống");
+        console.log("errors = ", errors);
+        res.render("login1", {errors});
+
+      }
       
   });   
 });
