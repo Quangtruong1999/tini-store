@@ -180,7 +180,6 @@ async function route(app){
                 if(err){
                     throw err;
                 }
-
                 console.log('xóa thành công');
                 res.redirect('/product_dashboard');
             })
