@@ -184,6 +184,20 @@ app.use(session({
     app.get('/customer_dashboard_add', (req, res) => {
         res.render("customer_dashboard_add", {name: req.session.name});
     }) 
+
+
+    app.get('/information_user', (req, res) => {
+        res.render("information_user", {name: req.session.name});
+    }) 
+    app.get('/dia_chi', (req, res) => {
+        res.render("dia_chi", {name: req.session.name});
+    }) 
+    app.get('/quen_mat_khau', (req, res) => {
+        res.render("quen_mat_khau", {name: req.session.name});
+    }) 
+    app.get('/show_dia_chi', (req, res) => {
+        res.render("show_dia_chi", {name: req.session.name});
+    }) 
 }
 
 module.exports = route
