@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS foods(
     name VARCHAR(255),
     description TEXT,
     price BIGINT,
-    image TEXT,
+    images TEXT,
     CONSTRAINT A_FOODS_PK PRIMARY KEY (ID)
 );
 --Create a order_items

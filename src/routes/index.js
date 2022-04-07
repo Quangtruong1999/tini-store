@@ -163,8 +163,18 @@ async function route(app){
     app.get('/contact', (req, res) => {
         res.render("contact", {name: req.session.name});
     })          
-    app.get('/product-single', (req, res) => {
-        res.render("product-single", {name: req.session.name});
+    app.get('/product-single/:id', (req, res) => {
+        pool.connect(function(err, client, done){
+            done();
+            if(err){
+                throw err;
+            }
+
+            pool.query(`select * from foods where id = $1`, [req.params.id], (err, result)=>{
+                res.render("product-single", {data: result.rows, name: req.session.name});
+            })
+            
+        });
     })          
     app.get('/shop', shop_routes)          
     app.get('/wishlist', (req, res) => {
