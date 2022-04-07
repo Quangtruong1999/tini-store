@@ -185,7 +185,6 @@ async function route(app){
             })
         })
     }) 
-
     app.get('/edit_pro/:id', urlencodedParser, (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
