@@ -83,9 +83,9 @@
 				  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Shop</a>
 				<div class="dropdown-menu" aria-labelledby="dropdown04">
 				  <a class="dropdown-item" href="/shop">Shop</a>
-				  <a class="dropdown-item" href="/product_dashboard">Dashboard</a>
+				  
 				  <a class="dropdown-item" href="/wishlist">Wishlist</a>
-				  <a class="dropdown-item" href="product-single">Single Product</a>
+				  
 				  <a class="dropdown-item" href="/cart">Cart</a>
 				  <a class="dropdown-item" href="/checkout">Checkout</a>
 				</div>
@@ -94,33 +94,44 @@
 			  <li class="nav-item"><a href="/blog" class="nav-link">Blog</a></li>
 			  <li class="nav-item"><a href="/contact" class="nav-link">Contact</a></li>
 	
-			  <li class="nav-item dropdown">
+			  <!-- <li class="nav-item dropdown">
+
+							<a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
+								aria-haspopup="true" aria-expanded="false">User</a>
+							<div class="dropdown-menu" aria-labelledby="dropdown04">
+								<a class="dropdown-item" href="/information_user">Edit profile</a>
+								<a class="dropdown-item" href="/show_dia_chi">Addresses</a>
+              <a class="dropdown-item" href="/logout">Log out</a>
+							</div>
 	
-				<a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
-				  aria-haspopup="true" aria-expanded="false">User</a>
-				<div class="dropdown-menu" aria-labelledby="dropdown04">
-				  <a class="dropdown-item" href="/information_user">Thông tin</a>
-				  <a class="dropdown-item" href="/show_dia_chi">Địa chỉ</a>
-				</div>
-	
-			  </li>
+						</li> -->
 	
 			  <li class="nav-item cta cta-colored"><a href="/cart" class="nav-link"><span
 					class="icon-shopping_cart"></span>[0]</a></li>
 	
 			  <!-- Sửa login -->
 	
-			  <li class="nav-item cta cta-colored" style="margin-left: 50px;">
-				<div style="margin-top: 19px;">
-				  <% if(name != null){%>
-					<span class="icon-user" style="color: rgb(59, 59, 59);">&nbsp; <%=
-						name%></span>
-					  <%}else {%>
-						<span class="icon-user" style="color: rgb(59, 59, 59);">&nbsp; <a
-							href="signup">Đăng ký</a>/<a href="login">Đăng nhập</a></span>
-						<%}%>
-						</div>
-					  </li>
+			  <% if(name != null){%>
+          <li class="nav-item cta cta-colored dropdown" style="margin-left: 50px;">
+              <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false"><%= name%></a>
+              
+            <div class="dropdown-menu" aria-labelledby="dropdown04">
+              <a class="dropdown-item" href="/information_user">Edit profile</a>
+              <a class="dropdown-item" href="/show_dia_chi">Addresses</a>
+              <a class="dropdown-item" href="/logout">Log out</a>
+            </div>
+          </li>
+        <%}else {%>
+          <li class="nav-item cta cta-colored" style="margin-left: 50px;">
+            <div style="margin-top: 19px;">
+              <span class="icon-user" style="color: rgb(59, 59, 59);">&nbsp; 
+                <a href="signup">Đăng ký</a>/<a href="login">Đăng nhập</a>
+              </span>
+              
+            </div>
+          </li>
+        <%}%>
 	
 					  <!-- Sửa login -->
 	
@@ -136,17 +147,41 @@
     <div class="container box-content mb-5">
         <div class="row">
             <div class="col-md-6 col-sm-12">
-                <img src="" alt="Hình ảnh" width="203px" height="203px">
-            </div>
-            <div class="col-md-6 col-sm-12">
-                <h5>Name: Nguyễn Văn Anh</h5>
-                <p>Email: anhnguyen@gmail.com</p>
-                <p>Phone: 03659595954</p>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12 text-center">
-                <a href="/quen_mat_khau" class="btn btn-success" type="button" title="Thay đổi mật khẩu" style="color: #ffffff; margin: 15px">Đổi mật khẩu</a>
+              <form action="" method="post">
+                <div class="row form-group">
+                  <div class="col col-md-3">
+                      <label for="text-input" class=" form-control-label">Name</label>
+                  </div>
+                  <div class="col-12 col-md-9">
+                      <input type="text" id="text-input" name="name" value="<%=data[0]['name']%>" placeholder="Họ và tên" class="form-control">
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col col-md-3">
+                      <label for="text-input" class=" form-control-label">Email</label>
+                  </div>
+                  <div class="col-12 col-md-9">
+                      <input type="text" id="text-input" name="email" value="<%=data[0]['email']%>" placeholder="email" class="form-control" readonly>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col col-md-3">
+                      <label for="text-input" class=" form-control-label">Phone</label>
+                  </div>
+                  <div class="col-12 col-md-9">
+                      <input type="number" id="text-input" name="phone" value="<%=data[0]['phone']%>" placeholder="Phone" class="form-control">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-12 text-center">
+                      <a class="btn btn-success" type="submit" title="Thay đổi mật khẩu" style="color: #ffffff; margin: 15px">Update</a>
+                  </div>
+                  
+                  <div class="col-12 text-center">
+                    <a href="/quen_mat_khau" class="btn btn-success" type="button" title="Thay đổi mật khẩu" style="color: #ffffff; margin: 15px">Change password</a>
+                </div>
+              </div>
+              </form>
             </div>
         </div>
     </div>

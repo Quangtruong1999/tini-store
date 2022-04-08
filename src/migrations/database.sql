@@ -58,8 +58,25 @@ CREATE TABLE IF NOT EXISTS foods(
     name VARCHAR(255),
     description TEXT,
     price BIGINT,
-    image TEXT,
+    images TEXT,
     CONSTRAINT A_FOODS_PK PRIMARY KEY (ID)
+);
+
+--Create a cart
+CREATE TABLE IF NOT EXISTS cart(
+    ID SERIAL,
+    product_id INT,
+    quantity INT,
+    user_id INT,
+    CONSTRAINT A_CART_PK PRIMARY KEY (ID)
+);
+
+--Create a wishlist
+CREATE TABLE IF NOT EXISTS wishlist(
+    ID SERIAL,
+    product_id INT,
+    user_id INT,
+    CONSTRAINT A_WISHLIST_PK PRIMARY KEY (ID)
 );
 --Create a order_items
 CREATE TABLE IF NOT EXISTS order_items(
