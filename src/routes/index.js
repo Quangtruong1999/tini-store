@@ -12,6 +12,7 @@ const upload = require('./uploadMiddleware');
 const Resize = require('./Resize');
 
 const initiablizePassport = require("./passportConfig");
+const e = require('express');
 initiablizePassport(passport);
 
 // create application/x-www-form-urlencoded parser
@@ -190,9 +191,23 @@ async function route(app){
                 if(err){
                     throw err;
                 }
-
                 console.log('xóa thành công');
                 res.redirect('/product_dashboard');
+            })
+        })
+    }) 
+
+    app.get('/del_users/:id', urlencodedParser, (req, res) => {
+        pool.connect(function(err,client, done){
+            if(err){
+                throw err;
+            }
+            pool.query(`DELETE FROM users WHERE id = $1`, [req.params.id], (err, result)=>{
+                if(err){
+                    throw err;
+                }
+                console.log('xóa thành công');
+                res.redirect('/customer_dashboard');
             })
         })
     }) 
@@ -366,7 +381,16 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            res.render("customer_dashboard", {name: req.session.name});
+            pool.connect(function(err, client, done){
+                if(err){
+                    throw err;
+                }
+
+                pool.query(`select * from users`, (err, result)=>{
+
+                    res.render("customer_dashboard", {data: result.rows, name: req.session.name});
+                })
+            })
         }
     })  
     app.get('/customer_dashboard_add', (req, res) => {
@@ -379,8 +403,27 @@ async function route(app){
 
 
     app.get('/information_user', (req, res) => {
-        res.render("information_user", {name: req.session.name});
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            pool.connect(function(err, client, done){
+                done()
+                if(err){
+                    throw err;
+                }
+
+                pool.query(`select * from users where email = $1`, [req.session.email], (err, result)=>{
+                    if(err){
+                        throw err;
+                    }
+
+                    console.log('info = ', result.rows)
+                    res.render('information_user', {data: result.rows, name: req.session.name})
+                })
+            });
+        }
     }) 
+
     app.get('/dia_chi', (req, res) => {
         res.render("dia_chi", {name: req.session.name});
     }) 
