@@ -10,10 +10,11 @@ const flash = require('express-flash');
 const passport = require("passport");
 const upload = require('./uploadMiddleware');
 const Resize = require('./Resize');
+const foods_controller = require('../app/controllers/foods')
 
-const initiablizePassport = require("./passportConfig");
+// const initiablizePassport = require("./passportConfig"); 
 const e = require('express');
-initiablizePassport(passport);
+// initiablizePassport(passport);
 
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
@@ -37,8 +38,13 @@ async function route(app){
         saveUninitialized: true,
         cookie: { maxAge: 60000000 }
     }));
-    app.get('/db', (req, res) => {
+    app.get('/db', async (req, res) => {
         console.log('Kết nối thành công')
+        const foods = await pool.query(`SELECT * FROM foods`);
+        const category = await pool.query(`SELECT * FROM foods`);
+        console.log('foods = ', foods.rows)
+        console.log('category = ', category.rows)
+        res.render('db', {foods: foods.rows, category: category.rows})
         // pool.connect(function(err, client, done){
         //     if(err){
         //         return console.error('error fetching client from pool ', err)
@@ -143,6 +149,43 @@ async function route(app){
         }
         
     })  
+    
+    app.post('/update/:id', urlencodedParser, (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            let errors = []
+            var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
+
+            if(regex.test(req.body.phone) != true){
+                errors.push({message: "Phone invalid!"})
+            }
+            if (errors.length > 0){
+                console.log('vào lỗi')
+                res.render('information_user', {errors: errors, name: req.session.name, user_id: req.session.user_id});
+            }else{
+                pool.connect(function(err, client, done){
+                    done()
+                    if(err){
+                        throw err;
+                    }
+        
+                    pool.query(`update users set name = $1, phone = $2 where id = $3`, [req.body.name, req.body.phone, req.session.user_id], (err, result)=>{
+                        if(err){
+                            throw err;
+                        }
+    
+                        console.log('info = ', result.rows)
+                        console.log('update thành công')
+                        res.render('information_user', {data: result.rows, name: req.session.name, user_id: req.session.user_id})
+                    })
+                });
+            }
+            
+
+
+        }
+    })
     app.get('/forgot', (req, res) => {
         res.render("forgot_password", {name: req.session.name});
     }) 
@@ -153,13 +196,21 @@ async function route(app){
         res.render("blog", {name: req.session.name});
     })          
     app.get('/cart', (req, res) => {
-        res.render("cart", {name: req.session.name});
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            res.render("cart", {name: req.session.name});
+        }
     })          
     app.get('/blog-single', (req, res) => {
         res.render("blog-single", {name: req.session.name});
     })          
     app.get('/checkout', (req, res) => {
-        res.render("checkout", {name: req.session.name});
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            res.render("checkout", {name: req.session.name});
+        }
     })          
     app.get('/contact', (req, res) => {
         res.render("contact", {name: req.session.name});
@@ -177,9 +228,33 @@ async function route(app){
             
         });
     })          
-    app.get('/shop', shop_routes)          
+    app.get('/shop/:id', async(req, res) =>{
+        const category_id = req.params.id;
+        if(category_id == 0){
+            const foods = await pool.query(`SELECT * FROM foods`);
+            const category = await pool.query(`SELECT * FROM category`);
+            res.render('shop11', {foods: foods.rows, 
+                category: category.rows, 
+                name:req.session.name,
+                category_id: category_id
+            })
+        }else{
+            const foods = await pool.query(`SELECT * FROM foods where category_id = $1`,[category_id]);
+            const category = await pool.query(`SELECT * FROM category`);
+            res.render('shop11', {foods: foods.rows, 
+                category: category.rows, 
+                name:req.session.name,
+                category_id: category_id
+            })
+        }
+        
+    })          
     app.get('/wishlist', (req, res) => {
-        res.render("wishlist", {name: req.session.name});
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            res.render("wishlist", {name: req.session.name});
+        }
     }) 
 
     app.get('/del_pro/:id', urlencodedParser, (req, res) => {
@@ -418,7 +493,7 @@ async function route(app){
                     }
 
                     console.log('info = ', result.rows)
-                    res.render('information_user', {data: result.rows, name: req.session.name})
+                    res.render('information_user', {data: result.rows, name: req.session.name, user_id: req.session.user_id})
                 })
             });
         }

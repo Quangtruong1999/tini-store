@@ -18,9 +18,9 @@ const route = require('./routes');
 const app = express()
 const port = process.env.PORT
 
-const initiablizePassport = require("./routes/passportConfig");
+// const initiablizePassport = require("./routes/passportConfig");
 // const initiablizePassport = require("/src/routes/passportConfig");
-initiablizePassport(passport);
+// initiablizePassport(passport);
 
 // app.use(session({
 //   secret: 'secrect',
@@ -85,7 +85,7 @@ app.post('/login',urlencodedParser, async function(req, res) {
             console.log("OK");   
             var sess = req.session;  //initialize session variable
             sess.user = true;
-            sess.id = user.id;
+            sess.user_id = user.id;
             sess.name = user.name;
             sess.email = user.email;  
             sess.roles = user.roles;

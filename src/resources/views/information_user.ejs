@@ -82,7 +82,7 @@
 				<a class="nav-link dropdown-toggle" href="#" id="dropdown04"
 				  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Shop</a>
 				<div class="dropdown-menu" aria-labelledby="dropdown04">
-				  <a class="dropdown-item" href="/shop">Shop</a>
+				  <a class="dropdown-item" href="/shop/<%=0%>">Shop</a>
 				  
 				  <a class="dropdown-item" href="/wishlist">Wishlist</a>
 				  
@@ -147,10 +147,10 @@
     <div class="container box-content mb-5">
         <div class="row">
             <div class="col-md-6 col-sm-12">
-              <form action="" method="post">
+              <form action="/update/<%= user_id%>" method="post">
                 <div class="row form-group">
                   <div class="col col-md-3">
-                      <label for="text-input" class=" form-control-label">Name</label>
+                      <label for="text-input" class="form-control-label">Name</label>
                   </div>
                   <div class="col-12 col-md-9">
                       <input type="text" id="text-input" name="name" value="<%=data[0]['name']%>" placeholder="Họ và tên" class="form-control">
@@ -158,12 +158,23 @@
                 </div>
                 <div class="row form-group">
                   <div class="col col-md-3">
-                      <label for="text-input" class=" form-control-label">Email</label>
+                      <label for="text-input" class="form-control-label">Email</label>
                   </div>
                   <div class="col-12 col-md-9">
                       <input type="text" id="text-input" name="email" value="<%=data[0]['email']%>" placeholder="email" class="form-control" readonly>
                   </div>
                 </div>
+                <div class="row form-group">
+                  <% if(typeof errors != 'undefined'){%>
+                                
+                    <div class="form-group input_form">
+                        <div>
+                            <%= errors[0] %>
+                        </div>
+                    </div>
+                <%}%>
+                </div>
+                
                 <div class="row form-group">
                   <div class="col col-md-3">
                       <label for="text-input" class=" form-control-label">Phone</label>
@@ -174,11 +185,11 @@
                 </div>
                 <div class="row">
                   <div class="col-12 text-center">
-                      <a class="btn btn-success" type="submit" title="Thay đổi mật khẩu" style="color: #ffffff; margin: 15px">Update</a>
+                      <button class="btn btn-success" type="submit" title="Update" style="color: #ffffff; margin: 15px">Update</button>
                   </div>
                   
                   <div class="col-12 text-center">
-                    <a href="/quen_mat_khau" class="btn btn-success" type="button" title="Thay đổi mật khẩu" style="color: #ffffff; margin: 15px">Change password</a>
+                    <a href="/quen_mat_khau" class="btn btn-success" type="button" title="Change password" style="color: #ffffff; margin: 15px">Change password</a>
                 </div>
               </div>
               </form>
