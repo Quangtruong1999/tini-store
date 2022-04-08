@@ -162,7 +162,22 @@ async function route(app){
             }
             if (errors.length > 0){
                 console.log('vào lỗi')
-                res.render('information_user', {errors: errors, name: req.session.name, user_id: req.session.user_id});
+                pool.connect(function(err, client, done){
+                    done()
+                    if(err){
+                        throw err;
+                    }
+    
+                    pool.query(`select * from users where email = $1`, [req.session.email], (err, result)=>{
+                        if(err){
+                            throw err;
+                        }
+    
+                        console.log('info = ', result.rows)
+                        console.log('error = ', errors)
+                        res.render('information_user', {data: result.rows, errors: errors, name: req.session.name, user_id: req.session.user_id})
+                    })
+                });
             }else{
                 pool.connect(function(err, client, done){
                     done()
@@ -177,7 +192,8 @@ async function route(app){
     
                         console.log('info = ', result.rows)
                         console.log('update thành công')
-                        res.render('information_user', {data: result.rows, name: req.session.name, user_id: req.session.user_id})
+                        res.redirect('/information_user')
+                        // res.render('information_user', {data: result.rows, name: req.session.name, user_id: req.session.user_id})
                     })
                 });
             }
