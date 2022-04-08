@@ -203,6 +203,8 @@ async function route(app){
         }
     })
     app.get('/forgot', (req, res) => {
+                  
+        // var kq = bcrypt.compareSync(password, pass_fromdb);
         res.render("forgot_password", {name: req.session.name});
     }) 
     app.get('/about', (req, res) => {
@@ -211,11 +213,19 @@ async function route(app){
     app.get('/blog', (req, res) => {
         res.render("blog", {name: req.session.name});
     })          
-    app.get('/cart', (req, res) => {
+    app.get('/cart', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            res.render("cart", {name: req.session.name});
+            const cart_user = await pool.query(`select cart.product_id, cart.quantity, foods.name, foods.images, foods.price, foods.description
+            from cart, foods
+            where cart.product_id = foods.id and cart.user_id = $1`,[req.session.user_id]);
+            if(typeof cart_user != 'undefined'){
+                
+                res.render("cart", {data: cart_user, name: req.session.name});
+            }else{
+                res.render("cart", {data: cart_user, name: req.session.name});
+            }
         }
     })          
     app.get('/blog-single', (req, res) => {
@@ -269,7 +279,10 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            res.render("wishlist", {name: req.session.name});
+            const wishlist_user = await pool.query(`SELECT * FROM wishlist where user_id = $1`,[req.session.user_id]);
+            if(typeof wishlist_user != 'undefined'){
+                res.render("wishlist", {name: req.session.name});
+            }
         }
     }) 
 
