@@ -89,24 +89,24 @@ CREATE TABLE IF NOT EXISTS order_items(
     CONSTRAINT A_ORDERITEMS_PK PRIMARY KEY (ID)
 );
 --Create a order
+-- states: draft, sale order, delivering, done
 CREATE TABLE IF NOT EXISTS orders(
     ID SERIAL,
     owner_id INT,
-    amount_not_fee BIGINT,
     delivery_time TIMESTAMP,
-    delivery_instruction INT,
     delivery_type_id INT,
     delivery_fee BIGINT,
     amount BIGINT,
+    states TEXT
     CONSTRAINT A_ORDER_PK PRIMARY KEY (ID)
 );
 --Create a delivery type
 CREATE TABLE IF NOT EXISTS type_of_delivery(
     ID SERIAL,
-    name INT,
+    name TEXT,
     description TEXT,
     fee BIGINT,
-    CONSTRAINT A_ORDERS_PK PRIMARY KEY (ID)
+    CONSTRAINT A_type_of_delivery_PK PRIMARY KEY (ID)
 );
 
 --set foreign key
