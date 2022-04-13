@@ -241,50 +241,100 @@ async function route(app){
     app.get('/contact', (req, res) => {
         res.render("contact", {name: req.session.name});
     })          
-    app.get('/product-single/:id', (req, res) => {
-        pool.connect(function(err, client, done){
-            done();
-            if(err){
-                throw err;
-            }
-
-            pool.query(`select * from foods where id = $1`, [req.params.id], (err, result)=>{
-                res.render("product-single", {data: result.rows, name: req.session.name});
-            })
-            
-        });
-    })          
-    app.get('/shop/:id', async(req, res) =>{
-        const category_id = req.params.id;
-        if(category_id == 0){
-            const foods = await pool.query(`SELECT * FROM foods`);
-            const category = await pool.query(`SELECT * FROM category`);
-            res.render('shop11', {foods: foods.rows, 
-                category: category.rows, 
-                name:req.session.name,
-                category_id: category_id
-            })
-        }else{
-            const foods = await pool.query(`SELECT * FROM foods where category_id = $1`,[category_id]);
-            const category = await pool.query(`SELECT * FROM category`);
-            res.render('shop11', {foods: foods.rows, 
-                category: category.rows, 
-                name:req.session.name,
-                category_id: category_id
-            })
-        }
+    app.get('/product-single/:id', async (req, res) => {
+        const product_signle = await pool.query(`select * from foods where id = $1`, [req.params.id])
+        const wishlist = await pool.query(`select count(*)
+        from wishlist
+        where user_id = $1;`, [req.params.id])
+        
+        res.render('product-single', {
+            data: product_signle.rows,
+            name: req.session.name,
+            wishlist: wishlist.rows,
+        })
         
     })          
+    app.get('/shop/:id', async(req, res) =>{
+        if(typeof req.session.user == 'undefined'){
+            const category_id = req.params.id;
+            if(category_id == 0){
+                const foods = await pool.query(`SELECT * FROM foods`);
+                const category = await pool.query(`SELECT * FROM category`);
+                res.render('shop11', {foods: foods.rows, 
+                    category: category.rows, 
+                    name:req.session.name,
+                    category_id: category_id
+                })
+            }else{
+                const foods = await pool.query(`SELECT * FROM foods where category_id = $1`,[category_id]);
+                const category = await pool.query(`SELECT * FROM category`);
+                res.render('shop11', {foods: foods.rows, 
+                    category: category.rows, 
+                    name:req.session.name,
+                    category_id: category_id
+                })
+            }
+        }else{
+            
+            const category_id = req.params.id;
+            const wishlist = await pool.query(`select * from wishlist where user_id = $1`, [req.session.user_id])
+
+            if(category_id == 0){
+                const foods = await pool.query(`SELECT * FROM foods`);
+                const category = await pool.query(`SELECT * FROM category`);
+                
+                res.render('shop11', {foods: foods.rows, 
+                    category: category.rows, 
+                    name:req.session.name,
+                    category_id: category_id,
+                    wishlist: wishlist.rows
+                })
+            }else{
+                const foods = await pool.query(`SELECT * FROM foods where category_id = $1`,[category_id]);
+                const category = await pool.query(`SELECT * FROM category`);
+                res.render('shop11', {foods: foods.rows, 
+                    category: category.rows, 
+                    name:req.session.name,
+                    category_id: category_id,
+                    wishlist: wishlist.rows
+                })
+            }
+        }
+    })   
+           
+    app.get('/add_wishlist/:id', urlencodedParser, async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const wishlist_user = await pool.query(`insert into wishlist (product_id, user_id)
+            values ($1, $2);`,[req.params.id, req.session.user_id]);
+            res.redirect("/wishlist");
+            
+        }
+    })   
+
     app.get('/wishlist', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            const wishlist_user = await pool.query(`SELECT * FROM wishlist where user_id = $1`,[req.session.user_id]);
-            if(typeof wishlist_user != 'undefined'){
-                res.render("wishlist", {name: req.session.name});
-            }
+            
+            const wishlist_user = await pool.query(`select wishlist.id,wishlist.user_id, wishlist.product_id, foods.name, foods.description, foods.category_id, foods.images, foods.price
+            from wishlist, foods
+            where wishlist.product_id = foods.id and wishlist.user_id = $1`,[req.session.user_id]);
+            console.log('wishlist = ', wishlist_user.rows)
+            res.render("wishlist", {wishlist: wishlist_user.rows,name: req.session.name});
+            
         }
     }) 
+
+    app.get('/del_wishlist/:id', urlencodedParser, async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const del_wishlist = await pool.query(`DELETE FROM wishlist WHERE id = $1`,[req.params.id]);
+            res.redirect("/wishlist")
+        }
+    })
 
     app.get('/del_pro/:id', urlencodedParser, (req, res) => {
         pool.connect(function(err,client, done){

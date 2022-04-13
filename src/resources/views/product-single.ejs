@@ -155,8 +155,15 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-lg-6 mb-5 ftco-animate">
-						<a href="/<%=data[0]['images']%>" class="image-popup"><img
-								src="/<%=data[0]['images']%>" class="img-fluid" alt="<%=data[0]['name']%>"></a>
+						<%if(data[0]['images'] != ''){%>
+							<a href="/<%=data[0]['images']%>" class="image-popup">
+								<img src="/<%=data[0]['images']%>" class="img-fluid" alt="<%=data[0]['name']%>"/>
+							</a>
+						<%}else{%>
+							<a href="/<%=data[0]['images']%>" class="image-popup">
+								<img src="/images/product_trang.jpg" class="img-fluid" alt="<%=data[0]['name']%>"/>
+							</a>
+						<%}%>
 					</div>
 					<div class="col-lg-6 product-details pl-md-5 ftco-animate">
 						<h3><%=data[0]['name']%></h3>
