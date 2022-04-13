@@ -359,6 +359,7 @@ async function route(app){
                 if(err){
                     throw err;
                 }
+
                 pool.query(`select * FROM foods WHERE id = $1`, [req.params.id], (err, result)=>{
                     if(err){
                         throw err;
@@ -553,7 +554,30 @@ async function route(app){
         }
     }) 
     app.get('/dia_chi', (req, res) => {
-        res.render("dia_chi", {name: req.session.name});
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            pool.connect(function(err, client, done){
+                if(err){
+                    return console.error('error fetching client from pool ', err)
+                }
+                client.query(`select * from district`, (err, result) => {
+                    done();
+                
+                    if(err){
+                        res.end();
+                        return console.error('error running query ', err)
+                    }
+                    console.log('category = ', result.rows);
+                    res.render('dia_chi', {
+                        data: result.rows,
+                        name: req.session.name, 
+                        email: req.session.email
+                    });
+                });
+            });
+        }
+
     }) 
     app.get('/quen_mat_khau', (req, res) => {
         res.render("quen_mat_khau", {name: req.session.name});

@@ -168,11 +168,9 @@
                     <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
                         onmousedown="if(this.options.length>8){this.size=8;}" onchange='this.size=0;'
                         onblur="this.size=0;">
-                        <option selected>Tỉnh / Thành phố</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="1">Tree</option>
-                        <option value="2">Fore</option>
+                        <%for(var i=0; i<data.length; i++){%>
+                            <option value="<%=data[i]['districtid'] %>"><%=data[i]['name'] %></option>
+                            <%}%>
                     </select>
                 </div>  
             </div>
@@ -183,11 +181,9 @@
                     <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
                         onmousedown="if(this.options.length>8){this.size=8;}" onchange='this.size=0;'
                         onblur="this.size=0;">
-                        <option selected>Quận / Huyện</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="1">Tree</option>
-                        <option value="2">Fore</option>
+                        <%for(var i=0; i<data.length; i++){%>
+                            <option value="<%=data[i]['districtid'] %>"><%=data[i]['name'] %></option>
+                            <%}%>
                     </select>
                 </div>
             </div>
@@ -198,11 +194,9 @@
                     <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
                         onmousedown="if(this.options.length>8){this.size=8;}" onchange='this.size=0;'
                         onblur="this.size=0;">
-                        <option selected>Phường / xã</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="1">Tree</option>
-                        <option value="2">Fore</option>
+                        <%for(var i=0; i<data.length; i++){%>
+                            <option value="<%=data[i]['districtid'] %>"><%=data[i]['name'] %></option>
+                            <%}%>
                     </select>
                 </div>
             </div>
