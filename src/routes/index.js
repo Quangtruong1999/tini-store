@@ -246,6 +246,7 @@ async function route(app){
                     flag_order_items = 1
                 }
             }
+            // kiểm tra sản phẩm có tồn tại trong giỏ hàng chưa
             if(flag_order_items > 0){
                 quantity_new = order_items.rows[0]['quantity'] + 1
                 const update_quantity = await pool.query(`update order_items
@@ -255,19 +256,38 @@ async function route(app){
                 res.redirect('/shop/0');
             }else{
                 const fee = fee_delivery.rows
-                const create_order = await pool.query(`insert into orders (owner_id, delivery_type_id, delivery_fee, states)
-                values ($1,2,$2,'draft');`, [req.session.user_id, fee[0]['fee']])
-                const search_order_new = await pool.query(`select * 
-                from orders
-                where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-                const order_new = search_order_new.rows
-                const search_food = await pool.query(`select * from foods where id = $1`, [req.params.id])
-                const price_food = search_food.rows
-                console.log('search_order_new = ', order_new)
-                const add_to_cart = await pool.query(`insert into order_items (order_id, food_id, quantity, price)
-                values ($1,$2,1,$3);`, [order_new[0]['id'], req.params.id, price_food[0]['price']])
+                // kiểm tra giỏ hàng có trạng thái là draft
+                const orders = await pool.query(`select * from orders where owner_id = $1 and states = 'draft'`,[req.session.user_id])
+                const orders_vals = orders.rows
+                if(typeof orders_vals != 'undefined'){
+                    
+                    const search_order_new = await pool.query(`select * 
+                    from orders
+                    where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                    const order_new = search_order_new.rows
+                    const search_food = await pool.query(`select * from foods where id = $1`, [req.params.id])
+                    const price_food = search_food.rows
+                    console.log('search_order_new = ', order_new)
+                    const add_to_cart = await pool.query(`insert into order_items (order_id, food_id, quantity, price)
+                    values ($1,$2,1,$3);`, [order_new[0]['id'], req.params.id, price_food[0]['price']])
 
-                res.redirect('/shop/0')
+                    res.redirect('/shop/0')
+                }else{
+                    const create_order = await pool.query(`insert into orders (owner_id, delivery_type_id, delivery_fee, states)
+                    values ($1,2,$2,'draft');`, [req.session.user_id, fee[0]['fee']])
+                    const search_order_new = await pool.query(`select * 
+                    from orders
+                    where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                    const order_new = search_order_new.rows
+                    const search_food = await pool.query(`select * from foods where id = $1`, [req.params.id])
+                    const price_food = search_food.rows
+                    console.log('search_order_new = ', order_new)
+                    const add_to_cart = await pool.query(`insert into order_items (order_id, food_id, quantity, price)
+                    values ($1,$2,1,$3);`, [order_new[0]['id'], req.params.id, price_food[0]['price']])
+
+                    res.redirect('/shop/0')
+                }
+                
                 
             }
         }
