@@ -563,7 +563,7 @@ async function route(app){
                 }
                 client.query(`select * from district`, (err, result) => {
                     done();
-                
+            
                     if(err){
                         res.end();
                         return console.error('error running query ', err)
