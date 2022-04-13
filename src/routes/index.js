@@ -10,9 +10,11 @@ const flash = require('express-flash');
 const passport = require("passport");
 const upload = require('./uploadMiddleware');
 const Resize = require('./Resize');
+const foods_controller = require('../app/controllers/foods')
 
-const initiablizePassport = require("./passportConfig");
-initiablizePassport(passport);
+// const initiablizePassport = require("./passportConfig"); 
+const e = require('express');
+// initiablizePassport(passport);
 
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
@@ -36,8 +38,13 @@ async function route(app){
         saveUninitialized: true,
         cookie: { maxAge: 60000000 }
     }));
-    app.get('/db', (req, res) => {
+    app.get('/db', async (req, res) => {
         console.log('Kết nối thành công')
+        const foods = await pool.query(`SELECT * FROM foods`);
+        const category = await pool.query(`SELECT * FROM foods`);
+        console.log('foods = ', foods.rows)
+        console.log('category = ', category.rows)
+        res.render('db', {foods: foods.rows, category: category.rows})
         // pool.connect(function(err, client, done){
         //     if(err){
         //         return console.error('error fetching client from pool ', err)
@@ -142,7 +149,62 @@ async function route(app){
         }
         
     })  
+    
+    app.post('/update/:id', urlencodedParser, (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            let errors = []
+            var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
+
+            if(regex.test(req.body.phone) != true){
+                errors.push({message: "Phone invalid!"})
+            }
+            if (errors.length > 0){
+                console.log('vào lỗi')
+                pool.connect(function(err, client, done){
+                    done()
+                    if(err){
+                        throw err;
+                    }
+    
+                    pool.query(`select * from users where email = $1`, [req.session.email], (err, result)=>{
+                        if(err){
+                            throw err;
+                        }
+    
+                        console.log('info = ', result.rows)
+                        console.log('error = ', errors)
+                        res.render('information_user', {data: result.rows, errors: errors, name: req.session.name, user_id: req.session.user_id})
+                    })
+                });
+            }else{
+                pool.connect(function(err, client, done){
+                    done()
+                    if(err){
+                        throw err;
+                    }
+        
+                    pool.query(`update users set name = $1, phone = $2 where id = $3`, [req.body.name, req.body.phone, req.session.user_id], (err, result)=>{
+                        if(err){
+                            throw err;
+                        }
+    
+                        console.log('info = ', result.rows)
+                        console.log('update thành công')
+                        res.redirect('/information_user')
+                        // res.render('information_user', {data: result.rows, name: req.session.name, user_id: req.session.user_id})
+                    })
+                });
+            }
+            
+
+
+        }
+    })
     app.get('/forgot', (req, res) => {
+                  
+        // var kq = bcrypt.compareSync(password, pass_fromdb);
         res.render("forgot_password", {name: req.session.name});
     }) 
     app.get('/about', (req, res) => {
@@ -151,25 +213,128 @@ async function route(app){
     app.get('/blog', (req, res) => {
         res.render("blog", {name: req.session.name});
     })          
-    app.get('/cart', (req, res) => {
-        res.render("cart", {name: req.session.name});
+    app.get('/cart', async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const cart_user = await pool.query(`select cart.product_id, cart.quantity, foods.name, foods.images, foods.price, foods.description
+            from cart, foods
+            where cart.product_id = foods.id and cart.user_id = $1`,[req.session.user_id]);
+            if(typeof cart_user != 'undefined'){
+                
+                res.render("cart", {data: cart_user, name: req.session.name});
+            }else{
+                res.render("cart", {data: cart_user, name: req.session.name});
+            }
+        }
     })          
     app.get('/blog-single', (req, res) => {
         res.render("blog-single", {name: req.session.name});
     })          
     app.get('/checkout', (req, res) => {
-        res.render("checkout", {name: req.session.name});
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            res.render("checkout", {name: req.session.name});
+        }
     })          
     app.get('/contact', (req, res) => {
         res.render("contact", {name: req.session.name});
     })          
-    app.get('/product-single', (req, res) => {
-        res.render("product-single", {name: req.session.name});
+    app.get('/product-single/:id', async (req, res) => {
+        const product_signle = await pool.query(`select * from foods where id = $1`, [req.params.id])
+        const wishlist = await pool.query(`select count(*)
+        from wishlist
+        where user_id = $1;`, [req.params.id])
+        
+        res.render('product-single', {
+            data: product_signle.rows,
+            name: req.session.name,
+            wishlist: wishlist.rows,
+        })
+        
     })          
-    app.get('/shop', shop_routes)          
-    app.get('/wishlist', (req, res) => {
-        res.render("wishlist", {name: req.session.name});
+    app.get('/shop/:id', async(req, res) =>{
+        if(typeof req.session.user == 'undefined'){
+            const category_id = req.params.id;
+            if(category_id == 0){
+                const foods = await pool.query(`SELECT * FROM foods`);
+                const category = await pool.query(`SELECT * FROM category`);
+                res.render('shop11', {foods: foods.rows, 
+                    category: category.rows, 
+                    name:req.session.name,
+                    category_id: category_id
+                })
+            }else{
+                const foods = await pool.query(`SELECT * FROM foods where category_id = $1`,[category_id]);
+                const category = await pool.query(`SELECT * FROM category`);
+                res.render('shop11', {foods: foods.rows, 
+                    category: category.rows, 
+                    name:req.session.name,
+                    category_id: category_id
+                })
+            }
+        }else{
+            
+            const category_id = req.params.id;
+            const wishlist = await pool.query(`select * from wishlist where user_id = $1`, [req.session.user_id])
+
+            if(category_id == 0){
+                const foods = await pool.query(`SELECT * FROM foods`);
+                const category = await pool.query(`SELECT * FROM category`);
+                
+                res.render('shop11', {foods: foods.rows, 
+                    category: category.rows, 
+                    name:req.session.name,
+                    category_id: category_id,
+                    wishlist: wishlist.rows
+                })
+            }else{
+                const foods = await pool.query(`SELECT * FROM foods where category_id = $1`,[category_id]);
+                const category = await pool.query(`SELECT * FROM category`);
+                res.render('shop11', {foods: foods.rows, 
+                    category: category.rows, 
+                    name:req.session.name,
+                    category_id: category_id,
+                    wishlist: wishlist.rows
+                })
+            }
+        }
+    })   
+           
+    app.get('/add_wishlist/:id', urlencodedParser, async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const wishlist_user = await pool.query(`insert into wishlist (product_id, user_id)
+            values ($1, $2);`,[req.params.id, req.session.user_id]);
+            res.redirect("/wishlist");
+            
+        }
+    })   
+
+    app.get('/wishlist', async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            
+            const wishlist_user = await pool.query(`select wishlist.id,wishlist.user_id, wishlist.product_id, foods.name, foods.description, foods.category_id, foods.images, foods.price
+            from wishlist, foods
+            where wishlist.product_id = foods.id and wishlist.user_id = $1`,[req.session.user_id]);
+            console.log('wishlist = ', wishlist_user.rows)
+            res.render("wishlist", {wishlist: wishlist_user.rows,name: req.session.name});
+            
+        }
     }) 
+
+    app.get('/del_wishlist/:id', urlencodedParser, async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const del_wishlist = await pool.query(`DELETE FROM wishlist WHERE id = $1`,[req.params.id]);
+            res.redirect("/wishlist")
+        }
+    })
 
     app.get('/del_pro/:id', urlencodedParser, (req, res) => {
         pool.connect(function(err,client, done){
@@ -367,7 +532,25 @@ async function route(app){
 
 
     app.get('/information_user', (req, res) => {
-        res.render("information_user", {name: req.session.name});
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            pool.connect(function(err, client, done){
+                done()
+                if(err){
+                    throw err;
+                }
+
+                pool.query(`select * from users where email = $1`, [req.session.email], (err, result)=>{
+                    if(err){
+                        throw err;
+                    }
+
+                    console.log('info = ', result.rows)
+                    res.render('information_user', {data: result.rows, name: req.session.name, user_id: req.session.user_id})
+                })
+            });
+        }
     }) 
     app.get('/dia_chi', (req, res) => {
         res.render("dia_chi", {name: req.session.name});

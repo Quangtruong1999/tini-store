@@ -13,32 +13,34 @@ class ShopControllers{
 
     index(req, res){
         
-        const data = {}
-        var product_list
-        var category_list
-        // res.render('shop11', {hoten: "ngô Quang trường"})
+        const foods = pool.query(`SELECT * FROM foods`);
+        const category =  pool.query(`SELECT * FROM foods`);
+        console.log('foods = ', foods.rows)
+        console.log('category = ', category.rows)
+        // res.render('db', {foods: foods.rows, category: category.rows})
+        res.render('shop11', {foods: foods.rows, category: category.rows, name:req.session.name})
 
-        pool.connect(function(err, client, done){
-            if(err){
-                return console.error('error fetching client from pool ', err)
-            }
-            // console.log('connected')
-            // return res.send('connected')
-            client.query('SELECT * FROM foods', (err, result) => {
-                done()
+        // pool.connect(function(err, client, done){
+        //     if(err){
+        //         return console.error('error fetching client from pool ', err)
+        //     }
+        //     // console.log('connected')
+        //     // return res.send('connected')
+        //     client.query('SELECT * FROM foods', (err, result) => {
+        //         done()
             
-                if(err){
-                    res.end()
-                    return console.error('error running query ', err)
-                }
-                product_list = result
-                data['product'] = result.rows
-                data['category'] = result.rows
-                console.log('product = ', product_list)
-                console.log('data = ', data)
-                res.render('shop11', {data: result.rows, name:req.session.name})
-            });
-        });
+        //         if(err){
+        //             res.end()
+        //             return console.error('error running query ', err)
+        //         }
+        //         product_list = result
+        //         data['product'] = result.rows
+        //         data['category'] = result.rows
+        //         console.log('product = ', product_list)
+        //         console.log('data = ', data)
+        //         res.render('shop11', {data: result.rows, name:req.session.name})
+        //     });
+        // });
 
         // pool.connect(function(err, client, done){
         //     if(err){

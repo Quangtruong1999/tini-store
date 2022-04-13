@@ -1,18 +1,20 @@
 <table border="1">
             <tr>
                 <td>ID</td>
-                <td>Category</td>
+                <td>Category ID</td>
                 <td>Name</td>
                 <td>Description</td>
                 <td>Price</td>
+                <td>Image</td>
             </tr>
-            {{#each data}}
-            <tr>
-                <td>{{this.id}}</td>
-                <td>{{this.category_id}}</td>
-                <td>{{this.name}}</td>
-                <td>{{this.description}}</td>
-                <td>{{this.price}}</td>
-            </tr>
-            {{/each}}
+            <% for(var i=0; i<foods.length; i++){%>
+                <tr>
+                    <td><%= foods[i]['id']%></td>
+                    <td><%= foods[i]['category_id']%></td>
+                    <td><%= foods[i]['name']%></td>
+                    <td><%= foods[i]['description']%></td>
+                    <td><%= foods[i]['price']%></td>
+                    <td><%= foods[i]['images']%></td>
+                </tr>
+            <%}%>
         </table>
