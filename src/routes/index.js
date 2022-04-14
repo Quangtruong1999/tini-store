@@ -654,28 +654,48 @@ async function route(app){
             })
         })
     }) 
-    app.get('/edit_pro/:id', urlencodedParser, (req, res) => {
+
+    app.get('/edit_pro/:id', urlencodedParser,async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            pool.connect(function(err,client, done){
-                done()
-                if(err){
-                    throw err;
-                }
+            const food = await pool.query(`select * FROM foods WHERE id = $1`, [req.params.id])
+            const category = await pool.query(`select * FROM category`)
 
-                pool.query(`select * FROM foods WHERE id = $1`, [req.params.id], (err, result)=>{
-                    if(err){
-                        throw err;
-                    }
-
-                    console.log('lấy thành công = ', result.rows);
-                    res.render('product_edit', {data: result.rows, name: req.session.name, email: req.session.email});
-                })
-            })
+            res.render('product_edit', {
+                data: food.rows, 
+                name: req.session.name, 
+                email: req.session.email,
+                category: category.rows
+            });
         }
-        
-    
+    })
+
+    app.post('/edit_pro/:id', urlencodedParser,  upload.single('image'), async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+
+            const imagePath = path.join(__dirname, '../public/images/');
+            const fileUpload = new Resize(imagePath);
+            if (!req.file) {
+                // res.status(401).json({error: 'Please provide an image'});
+                const update_product = await pool.query(`update foods
+                set name=$1, description=$2,category_id=$3, price = $4
+                where id=$5;`, [req.body.name, req.body.description, req.body.category, req.body.price, req.params.id])
+
+                console.log('Cập nhật thành công')
+                res.redirect('/product_dashboard');
+            }else{
+                const filename = await fileUpload.save(req.file.buffer);
+                const update_product = pool.query(`update foods
+                set name=$1, description=$2,category_id=$3, price = $4, images=$5
+                where id=$6;`, [req.body.name, req.body.description, req.body.category, req.body.price, 'images/'+filename, req.params.id])
+                console.log('Cập nhật thành công')
+                res.redirect('/product_dashboard');
+                
+            }
+        }
     })
 
     app.get('/del_category/:id', urlencodedParser, (req, res) => {
@@ -747,6 +767,34 @@ async function route(app){
             where id = $3;`, [req.body.name, req.body.description, req.params.id])
             console.log('cập nhật thành công')
             res.redirect('/category_dashboard')
+        }
+    })
+
+    
+    app.get('/edit_users/:id', urlencodedParser, async(req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+
+            const user = await pool.query(`select * from users where id = $1`, [req.params.id])
+            res.render('customer_dashboard_edit', {
+                user: user.rows,
+                name: req.session.name,
+                email: req.session.email
+            })
+        }
+    })
+    
+    app.post('/edit_users/:id', urlencodedParser, async(req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            
+            const category = await pool.query(`update users
+            set name = $1 , phone=$2
+            where id = $3;`, [req.body.name, req.body.phone, req.params.id])
+            console.log('cập nhật thành công')
+            res.redirect('/customer_dashboard')
         }
     })
 
@@ -849,11 +897,16 @@ async function route(app){
             res.render("category_dashboard_add", {name: req.session.name});
         }
     })  
-    app.get('/customer_dashboard', (req, res) => {
+    app.get('/customer_dashboard', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            res.render("customer_dashboard", {name: req.session.name});
+            const users = await pool.query(`select * from users where roles = 1`);
+            res.render("customer_dashboard", {
+                users: users.rows,
+                email: req.session.email,
+                name: req.session.name
+            });
         }
     })  
     app.get('/customer_dashboard_add', (req, res) => {
