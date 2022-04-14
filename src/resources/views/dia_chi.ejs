@@ -70,33 +70,32 @@
     <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark
         ftco-navbar-light" id="ftco-navbar">
         <div class="container">
-          <a class="navbar-brand" href="/">Tini Store</a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false"
-            aria-label="Toggle navigation">
-            <span class="oi oi-menu"></span> Menu
-          </button>
-    
-          <div class="collapse navbar-collapse" id="ftco-nav">
-            <ul class="navbar-nav ml-auto">
-              <li class="nav-item active"><a href="/" class="nav-link">Home</a></li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown04"
-                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Shop</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown04">
-                  <a class="dropdown-item" href="/shop/<%=0%>">Shop</a>
-                  
-                  <a class="dropdown-item" href="/wishlist">Wishlist</a>
-                  
-                  <a class="dropdown-item" href="/cart">Cart</a>
-                  <a class="dropdown-item" href="/checkout">Checkout</a>
-                </div>
-              </li>
-              <li class="nav-item"><a href="/about" class="nav-link">About</a></li>
-              <li class="nav-item"><a href="/blog" class="nav-link">Blog</a></li>
-              <li class="nav-item"><a href="/contact" class="nav-link">Contact</a></li>
-    
-              <!-- <li class="nav-item dropdown">
+            <a class="navbar-brand" href="/">Tini Store</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav"
+                aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="oi oi-menu"></span> Menu
+            </button>
+
+            <div class="collapse navbar-collapse" id="ftco-nav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item active"><a href="/" class="nav-link">Home</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">Shop</a>
+                        <div class="dropdown-menu" aria-labelledby="dropdown04">
+                            <a class="dropdown-item" href="/shop/<%=0%>">Shop</a>
+
+                            <a class="dropdown-item" href="/wishlist">Wishlist</a>
+
+                            <a class="dropdown-item" href="/cart">Cart</a>
+                            <a class="dropdown-item" href="/checkout">Checkout</a>
+                        </div>
+                    </li>
+                    <li class="nav-item"><a href="/about" class="nav-link">About</a></li>
+                    <li class="nav-item"><a href="/blog" class="nav-link">Blog</a></li>
+                    <li class="nav-item"><a href="/contact" class="nav-link">Contact</a></li>
+
+                    <!-- <li class="nav-item dropdown">
 
 							<a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
 								aria-haspopup="true" aria-expanded="false">User</a>
@@ -107,46 +106,48 @@
 							</div>
 	
 						</li> -->
-    
-                        <% if(name != null){%>
+
+                    <% if(name !=null){%>
+                        <li class="nav-item cta cta-colored"><a href="/cart" class="nav-link"><span
+                                    class="icon-shopping_cart"></span>[<%= quantity_foods[0]['count']%>]</a></li>
+                        <%}else {%>
                             <li class="nav-item cta cta-colored"><a href="/cart" class="nav-link"><span
-                                  class="icon-shopping_cart"></span>[<%= quantity_foods[0]['count']%>]</a></li>
-                          <%}else {%>
-                            <li class="nav-item cta cta-colored"><a href="/cart" class="nav-link"><span
-                              class="icon-shopping_cart"></span>[0]</a></li>
-                                      <%}%>
-                          
-              <!-- Sửa login -->
-    
-              <% if(name != null){%>
-                <li class="nav-item cta cta-colored dropdown" style="margin-left: 50px;">
-                        <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false"><%= name%></a>
-                        
-                    <div class="dropdown-menu" aria-labelledby="dropdown04">
-                        <a class="dropdown-item" href="/information_user">Edit profile</a>
-                        <a class="dropdown-item" href="/show_dia_chi">Addresses</a>
-              <a class="dropdown-item" href="/logout">Log out</a>
-                    </div>
-                </li>
-            <%}else {%>
-                <li class="nav-item cta cta-colored" style="margin-left: 50px;">
-                    <div style="margin-top: 19px;">
-                        <span class="icon-user" style="color: rgb(59, 59, 59);">&nbsp; 
-                            <a href="signup">Đăng ký</a>/<a href="login">Đăng nhập</a>
-                        </span>
-                        
-                    </div>
-                </li>
-            <%}%>
-    
-                      <!-- Sửa login -->
-    
-                    </ul>
-                  </div>
-                </div>
-              </nav>
-              <!-- END nav -->
+                                        class="icon-shopping_cart"></span>[0]</a></li>
+                            <%}%>
+
+                                <!-- Sửa login -->
+
+                                <% if(name !=null){%>
+                                    <li class="nav-item cta cta-colored dropdown" style="margin-left: 50px;">
+                                        <a class="nav-link dropdown-toggle" href="#" id="dropdown04"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <%= name%>
+                                        </a>
+
+                                        <div class="dropdown-menu" aria-labelledby="dropdown04">
+                                            <a class="dropdown-item" href="/information_user">Edit profile</a>
+                                            <a class="dropdown-item" href="/show_dia_chi">Addresses</a>
+                                            <a class="dropdown-item" href="/logout">Log out</a>
+                                        </div>
+                                    </li>
+                                    <%}else {%>
+                                        <li class="nav-item cta cta-colored" style="margin-left: 50px;">
+                                            <div style="margin-top: 19px;">
+                                                <span class="icon-user" style="color: rgb(59, 59, 59);">&nbsp;
+                                                    <a href="signup">Đăng ký</a>/<a href="login">Đăng nhập</a>
+                                                </span>
+
+                                            </div>
+                                        </li>
+                                        <%}%>
+
+                                            <!-- Sửa login -->
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- END nav -->
 
 
 
@@ -176,10 +177,12 @@
                     <select id="select_province" class="form-select form-select-lg mb-3" name="province" aria-label=".form-select-lg example">
                         <option value="none" selected>Tỉnh / Thành phố</option>
                         <%for(var i=0; i<province.length; i++){%>
-                            <option value="<%= province[i]['provinceid']%>"><%= province[i]['name']%></option>
-                        <%}%>
+                            <option value="<%= province[i]['provinceid']%>">
+                                <%= province[i]['name']%>
+                            </option>
+                            <%}%>
                     </select>
-                </div>  
+                </div>
             </div>
         </div>
         <div class="row">
@@ -197,8 +200,10 @@
                     <select id="select_district" disabled class="form-select form-select-lg mb-3" name="district" aria-label=".form-select-lg example">
                         <option value="none" selected>Quận / Huyện</option>
                         <%for(var i=0; i<district.length; i++){%>
-                            <option value="<%= district[i]['provinceid']%>"><%= district[i]['name']%></option>
-                        <%}%>
+                            <option value="<%= district[i]['provinceid']%>">
+                                <%= district[i]['name']%>
+                            </option>
+                            <%}%>
                     </select>
                 </div>
             </div>
@@ -218,8 +223,10 @@
                     <select id="select_ward" disabled class="form-select form-select-lg mb-3" name="ward" aria-label=".form-select-lg example">
                         <option value="none" selected>Phường / Xã</option>
                         <%for(var i=0; i<ward.length; i++){%>
-                            <option value="<%= ward[i]['provinceid']%>"><%= ward[i]['name']%></option>
-                        <%}%>
+                            <option value="<%= ward[i]['provinceid']%>">
+                                <%= ward[i]['name']%>
+                            </option>
+                            <%}%>
                     </select>
                 </div>
             </div>
@@ -234,7 +241,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="form-group">
-                    <input type="checkbox" name="address_default" placeholder="Địa chỉ mặc định" required> Địa chỉ mặc định
+                    <input type="checkbox" name="address_default" placeholder="Địa chỉ mặc định" required> Địa chỉ mặc
+                    định
                 </div>
             </div>
         </div>
@@ -346,7 +354,7 @@
     <script src="js/google-map.js"></script>
     <script src="js/main.js"></script>
     <script>
-        
+
     </script>
 </body>
 

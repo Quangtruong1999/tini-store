@@ -75,14 +75,23 @@ async function route(app){
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
             console.log('search_order = ', search_order.rows)
-            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+            if (search_order.rows == '') {
+                    
+                res.render('index', {
+                    quantity_foods: [{"count": 0}],
+                    name: req.session.name
+                })
+            }else{
 
-            res.render('index', {
-                quantity_foods: quantity_foods.rows,
-                name: req.session.name
-            })
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']]) 
+                res.render('index', {
+                    quantity_foods: search_order.rows,
+                    name: req.session.name
+                })
+            }
+
         }
         // if (req.session.user) {
         //     res.render("index", {name: req.session.name});
@@ -318,7 +327,7 @@ async function route(app){
                 res.render("cart", {
                     cart_user: cart_user.rows, 
                     name: req.session.name,
-                    // quantity_foods: quantity_foods.rows
+                    quantity_foods: [{"count": 0}]
                 });
             }
         }
@@ -558,22 +567,6 @@ async function route(app){
             })
         })
     }) 
-
-    app.get('/del_users/:id', urlencodedParser, (req, res) => {
-        pool.connect(function(err,client, done){
-            if(err){
-                throw err;
-            }
-            pool.query(`DELETE FROM users WHERE id = $1`, [req.params.id], (err, result)=>{
-                if(err){
-                    throw err;
-                }
-                console.log('xóa thành công');
-                res.redirect('/customer_dashboard');
-            })
-        })
-    }) 
-
     app.get('/edit_pro/:id', urlencodedParser, (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -583,6 +576,7 @@ async function route(app){
                 if(err){
                     throw err;
                 }
+
                 pool.query(`select * FROM foods WHERE id = $1`, [req.params.id], (err, result)=>{
                     if(err){
                         throw err;
@@ -594,7 +588,7 @@ async function route(app){
             })
         }
         
-        
+    
     })
 
     app.get('/del_category/:id', urlencodedParser, (req, res) => {
@@ -743,16 +737,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            pool.connect(function(err, client, done){
-                if(err){
-                    throw err;
-                }
-
-                pool.query(`select * from users`, (err, result)=>{
-
-                    res.render("customer_dashboard", {data: result.rows, name: req.session.name});
-                })
-            })
+            res.render("customer_dashboard", {name: req.session.name});
         }
     })  
     app.get('/customer_dashboard_add', (req, res) => {

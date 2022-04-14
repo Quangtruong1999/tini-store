@@ -235,6 +235,10 @@
                                         <select name="category" id="select" value="<%= data[0]['category_id']%>" class="form-control" required>
                                             <% for(var i=0; i<data.length;i++){%>
                                                 <option value="<%=data[i]['id']%>"><%=data[i]['name']%></option>
+                                                <% for (var item=0; item<data1.length; item++){%>
+                                                    <option value="<%=data[item]['id']%>"><%=data1[item]['name']%></option>
+                                                    
+                                                <%}%>
                                             <%}%>
                                         </select>
                                     </div>
