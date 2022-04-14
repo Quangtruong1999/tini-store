@@ -187,31 +187,21 @@
 														<%=cart_user[i]['description']%>
 													</p>
 												</td>
+
+												<td><%=cart_user[i]['price']%> đ</td>
 		
-												<td class="price"><%=cart_user[i]['price']%> đ</td>
+												<option class="price" id="price1" value="<%=cart_user[i]['price']%>"></option>
 												<!-- Sửa nút tăng giảm sp -->
 												<td class="quantity">
 													<div class="input-group d-flex mb-3">
-														<span class="input-group-btn mr-2">
-															<button type="button" class="quantity-left-minus btn"
-																data-type="minus"
-																data-field="" style="border-radius: 1px;">
-																<i class="ion-ios-remove"></i>
-															</button>
-														</span>
-														<input type="text" id="quantity" name="quantity" class="form-control
-															input-number" value="<%=cart_user[i]['quantity']%>" min="1" max="100"/>
-														<span class="input-group-btn ml-2">
-															<button type="button" class="quantity-right-plus btn"
-																data-type="plus"
-																data-field="" style="border-radius: 1px;">
-																<i class="ion-ios-add"></i>
-															</button>
-														</span>
+														
+														<input type="number" id="quantity" name="quantity" class="form-control
+															input-number" value="<%=cart_user[i]['quantity']%>" min="1" max="100" onclick="Tinh()"/>
+														
 													</div>
 												</td>
 												<!-- Sửa nút tăng giảm sp -->
-												<td class="total"><%=cart_user[i]['price']%> đ</td>
+												<td id="total">VND</td>
 											</tr><!-- END TR-->
 										<%}%>
 
@@ -415,6 +405,13 @@
 			<script src="js/main.js"></script>
 
 			<script>
+				function Tinh(){
+						var sl = document.getElementById("quantity").value;
+						var price = document.getElementById("price1").value;
+						var totalx = Number(sl) * Number(price)
+						console.log('Helo'+totalx)
+						document.getElementById("total").innerHTML = totalx;
+					}
 				$(document).ready(function(){
 
 				var quantitiy=0;
@@ -443,6 +440,8 @@
 							$('#quantity').val(quantity - 1);
 							}
 					});
+
+					
 					
 				});
 			</script>
