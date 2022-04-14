@@ -82,12 +82,11 @@ async function route(app){
                     name: req.session.name
                 })
             }else{
-
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
                 GROUP BY order_id = $1`, [search_order.rows[0]['id']]) 
                 res.render('index', {
-                    quantity_foods: search_order.rows,
+                    quantity_foods: quantity_foods.rows,
                     name: req.session.name
                 })
             }
@@ -938,14 +937,22 @@ async function route(app){
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-    
-            res.render("show_dia_chi", {
-                name: req.session.name,
-                quantity_foods: quantity_foods.rows
-            });
+            if (search_order.rows == ''){
+                    
+                res.render("show_dia_chi", {
+                    name: req.session.name,
+                    quantity_foods: [{"count": 0}]
+                });
+            }else{
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+        
+                res.render("show_dia_chi", {
+                    name: req.session.name,
+                    quantity_foods: quantity_foods.rows
+                });
+            }
         }else{
             res.redirect("/login");
         }
