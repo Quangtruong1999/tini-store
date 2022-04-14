@@ -151,110 +151,117 @@
 
 
 
-
-    <div class="container box-content mb-5">
-        <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <input type="text" name="name" class=" form-control input_form" placeholder="Họ và Tên" required>
+    <form action="/dia_chi" method="post" class="form-horizontal">
+        <div class="container box-content mb-5">
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="name" class=" form-control-label">Họ và tên</label>
+                        <input type="text" name="name" class=" form-control input_form" placeholder="Họ và tên" required>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <% if(typeof errors != 'undefined'){%>
+                    <% for(var i=0; i<errors.length; i++){ %>
+                        <div class="form-group input_form">
+                            <div>
+                                <a style="color: red;"><%=errors[i]['message']%></a>
+                            </div>
+                        </div>
+                    <%}%>
+                <%}%>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="phone" class=" form-control-label">Số điện thoại</label>
+                        <input type="number" name="phone" class=" form-control input_form" placeholder="Số điện thoại"
+                            required>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <!-- <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
+                            onmousedown="if(this.options.length>8){this.size=8;}" onchange='this.size=0;'
+                            onblur="this.size=0;"> -->
+                        
+                        
+                        <label for="calc_shipping_provinces" class=" form-control-label">Tỉnh / Thành phố</label>
+                        <select name="calc_shipping_provinces" class="form-select form-select-lg mb-3" required="">
+                            <option value="">Tỉnh / Thành phố</option>
+                        </select>
+                        
+                        <input class="billing_address_1" name="" type="hidden" value="">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <!-- <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
+                            onmousedown="if(this.options.length>8){this.size=8;}" onchange='this.size=0;'
+                            onblur="this.size=0;">
+                            <option selected>Quận / Huyện</option>
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="1">Tree</option>
+                            <option value="2">Fore</option>
+                        </select> -->
+                        
+                        <label for="calc_shipping_district" class=" form-control-label">Quận / Huyện</label>
+                        <select name="calc_shipping_district" class="form-select form-select-lg mb-3" required="">
+                            <option value="">Quận / Huyện</option>
+                        </select>
+                        <input class="billing_address_2" name="" type="hidden" value="">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <!-- <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
+                            onmousedown="if(this.options.length>8){this.size=8;}" onchange='this.size=0;'
+                            onblur="this.size=0;">
+                            <option selected>Phường / xã</option>
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="1">Tree</option>
+                            <option value="2">Fore</option>
+                        </select> -->
+                        <label for="ward" class=" form-control-label">Phường / Xã</label>
+                        <input type="text" name="ward" class=" form-control input_form" placeholder="Phường / Xã"
+                            required>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="street" class=" form-control-label">Số nhà, tên đường</label>
+                        <input type="text" name="street" class=" form-control input_form" placeholder="Địa chỉ" required>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <input type="checkbox" name="address_default" placeholder="Địa chỉ mặc định"> Địa chỉ mặc
+                        định
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        Save</button>
+                    <a href="/show_dia_chi" class="btn btn-success" type="button" title="Thay đổi mật khẩu"
+                        style="color: #ffffff; margin: 15px; width: 100px;">Cancel</a>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <input type="text" name="phone" class=" form-control input_form" placeholder="Số điện thoại"
-                        required>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <!-- <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
-                        onmousedown="if(this.options.length>8){this.size=8;}" onchange='this.size=0;'
-                        onblur="this.size=0;"> -->
-                    <select id="select_province" class="form-select form-select-lg mb-3" name="province" aria-label=".form-select-lg example">
-                        <option value="none" selected>Tỉnh / Thành phố</option>
-                        <%for(var i=0; i<province.length; i++){%>
-                            <option value="<%= province[i]['provinceid']%>">
-                                <%= province[i]['name']%>
-                            </option>
-                            <%}%>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <!-- <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
-                        onmousedown="if(this.options.length>8){this.size=8;}" onchange='this.size=0;'
-                        onblur="this.size=0;">
-                        <option selected>Quận / Huyện</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="1">Tree</option>
-                        <option value="2">Fore</option>
-                    </select> -->
-                    <select id="select_district" disabled class="form-select form-select-lg mb-3" name="district" aria-label=".form-select-lg example">
-                        <option value="none" selected>Quận / Huyện</option>
-                        <%for(var i=0; i<district.length; i++){%>
-                            <option value="<%= district[i]['provinceid']%>">
-                                <%= district[i]['name']%>
-                            </option>
-                            <%}%>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <!-- <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
-                        onmousedown="if(this.options.length>8){this.size=8;}" onchange='this.size=0;'
-                        onblur="this.size=0;">
-                        <option selected>Phường / xã</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="1">Tree</option>
-                        <option value="2">Fore</option>
-                    </select> -->
-                    <select id="select_ward" disabled class="form-select form-select-lg mb-3" name="ward" aria-label=".form-select-lg example">
-                        <option value="none" selected>Phường / Xã</option>
-                        <%for(var i=0; i<ward.length; i++){%>
-                            <option value="<%= ward[i]['provinceid']%>">
-                                <%= ward[i]['name']%>
-                            </option>
-                            <%}%>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <input type="text" name="street" class=" form-control input_form" placeholder="Địa chỉ" required>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <input type="checkbox" name="address_default" placeholder="Địa chỉ mặc định" required> Địa chỉ mặc
-                    định
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12 text-center">
-                <a href="/" class="btn btn-success" type="button" title="Thay đổi mật khẩu"
-                    style="color: #ffffff; margin: 15px; width: 100px;">Save</a>
-                <a href="/" class="btn btn-success" type="button" title="Thay đổi mật khẩu"
-                    style="color: #ffffff; margin: 15px; width: 100px;">Cancel</a>
-            </div>
-        </div>
-    </div>
+    </form>
+        
 
 
 
@@ -336,7 +343,7 @@
         </div>
     </footer>
 
-    <script src="js/jquery.min.js"></script>
+    <!-- <script src="js/jquery.min.js"></script> -->
     <script src="js/jquery-migrate-3.0.1.min.js"></script>
     <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
@@ -353,9 +360,80 @@
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
     <script src="js/google-map.js"></script>
     <script src="js/main.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/gh/vietblogdao/js/districts.min.js'></script>
     <script>
-
-    </script>
+        //<![CDATA[
+            if (address_2 = localStorage.getItem('address_2_saved')) {
+            $('select[name="calc_shipping_district"] option').each(function() {
+                if ($(this).text() == address_2) {
+                $(this).attr('selected', '')
+                }
+            })
+            $('input.billing_address_2').attr('value', address_2)
+            }
+            if (district = localStorage.getItem('district')) {
+            $('select[name="calc_shipping_district"]').html(district)
+            $('select[name="calc_shipping_district"]').on('change', function() {
+                var target = $(this).children('option:selected')
+                target.attr('selected', '')
+                $('select[name="calc_shipping_district"] option').not(target).removeAttr('selected')
+                address_2 = target.text()
+                $('input.billing_address_2').attr('value', address_2)
+                district = $('select[name="calc_shipping_district"]').html()
+                localStorage.setItem('district', district)
+                localStorage.setItem('address_2_saved', address_2)
+            })
+            }
+            $('select[name="calc_shipping_provinces"]').each(function() {
+            var $this = $(this),
+                stc = ''
+            c.forEach(function(i, e) {
+                e += +1
+                stc += '<option value=' + e + '>' + i + '</option>'
+                $this.html('<option value="">Tỉnh / Thành phố</option>' + stc)
+                if (address_1 = localStorage.getItem('address_1_saved')) {
+                $('select[name="calc_shipping_provinces"] option').each(function() {
+                    if ($(this).text() == address_1) {
+                    $(this).attr('selected', '')
+                    }
+                })
+                $('input.billing_address_1').attr('value', address_1)
+                }
+                $this.on('change', function(i) {
+                i = $this.children('option:selected').index() - 1
+                var str = '',
+                    r = $this.val()
+                if (r != '') {
+                    arr[i].forEach(function(el) {
+                    str += '<option value="' + el + '">' + el + '</option>'
+                    $('select[name="calc_shipping_district"]').html('<option value="">Quận / Huyện</option>' + str)
+                    })
+                    var address_1 = $this.children('option:selected').text()
+                    var district = $('select[name="calc_shipping_district"]').html()
+                    localStorage.setItem('address_1_saved', address_1)
+                    localStorage.setItem('district', district)
+                    $('select[name="calc_shipping_district"]').on('change', function() {
+                    var target = $(this).children('option:selected')
+                    target.attr('selected', '')
+                    $('select[name="calc_shipping_district"] option').not(target).removeAttr('selected')
+                    var address_2 = target.text()
+                    $('input.billing_address_2').attr('value', address_2)
+                    district = $('select[name="calc_shipping_district"]').html()
+                    localStorage.setItem('district', district)
+                    localStorage.setItem('address_2_saved', address_2)
+                    })
+                } else {
+                    $('select[name="calc_shipping_district"]').html('<option value="">Quận / Huyện</option>')
+                    district = $('select[name="calc_shipping_district"]').html()
+                    localStorage.setItem('district', district)
+                    localStorage.removeItem('address_1_saved', address_1)
+                }
+                })
+            })
+            })
+        //]]>
+</script>
 </body>
 
 </html>

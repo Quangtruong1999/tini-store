@@ -121,6 +121,7 @@ async function route(app){
         // Zack Steffen
         let errors = []
         let success = []
+        // regex email
         var regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
         
         if (regex.test(email) != true){
@@ -769,7 +770,6 @@ async function route(app){
             res.redirect('/category_dashboard')
         }
     })
-
     
     app.get('/edit_users/:id', urlencodedParser, async(req, res) => {
         if(typeof req.session.user == 'undefined'){
@@ -795,6 +795,20 @@ async function route(app){
             where id = $3;`, [req.body.name, req.body.phone, req.params.id])
             console.log('cập nhật thành công')
             res.redirect('/customer_dashboard')
+        }
+    })
+
+    app.get('/addresses_dashboard', urlencodedParser, async(req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+
+            const addresses = await pool.query(`select * from users where id = $1`, [req.params.id])
+            res.render('customer_dashboard_edit', {
+                user: user.rows,
+                name: req.session.name,
+                email: req.session.email
+            })
         }
     })
 
@@ -957,14 +971,8 @@ async function route(app){
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
             if (search_order.rows == '') {
-                const province = await pool.query(`select * from province;`)
-                const district = await pool.query(`select * from district;`)
-                const ward = await pool.query(`select * from ward;`)
                 res.render("dia_chi", {
                     name: req.session.name,
-                    province: province.rows,
-                    district: district.rows,
-                    ward: ward.rows,
                     quantity_foods: [{'count': 0}]
                 });
             }else{
@@ -972,22 +980,71 @@ async function route(app){
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
                 GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-                const province = await pool.query(`select * from province;`)
-                const district = await pool.query(`select * from district;`)
-                const ward = await pool.query(`select * from ward;`)
+
                 res.render("dia_chi", {
                     name: req.session.name,
-                    province: province.rows,
-                    district: district.rows,
-                    ward: ward.rows,
                     quantity_foods: quantity_foods.rows
                 });
             }
         }else{
             res.redirect('/login')
         }
-        
     }) 
+
+    app.post('/dia_chi', urlencodedParser, async(req, res) => {
+        if(typeof req.session.name != 'undefined'){
+
+            let errors = []
+            var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
+
+            if(regex.test(req.body.phone) != true){
+                errors.push({message: "Phone invalid!"})
+                
+                const search_order = await pool.query(`select * 
+                from orders
+                where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                if (search_order.rows == '') {
+
+                    res.render("dia_chi", {
+                        name: req.session.name,
+                        quantity_foods: [{'count': 0}],
+                        errors: errors
+                    });
+                }else{
+
+                    const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                    FROM order_items
+                    GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+
+                    res.render("dia_chi", {
+                        name: req.session.name,
+                        quantity_foods: quantity_foods.rows,
+                        errors: errors
+                    });
+                }
+            }else{
+                console.log('address_default = ', req.body.address_default);
+                if(typeof address_default != 'undefined'){
+
+                    const add_address = await pool.query(`insert into addresses (user_id, address_default, phone, name, wardid, districtid, provinceid)
+                    values ($1,$2,$3,$4,$5,$6,$7);`, [req.session.user_id,true, req.body.phone, req.body.name, req.body.ward, req.body.calc_shipping_district, req.body.calc_shipping_provinces])
+
+                    console.log('Thêm thành công')
+                    res.redirect('/show_dia_chi')
+                }else{
+                    
+                    const add_address = await pool.query(`insert into addresses (user_id, address_default, phone, name, wardid, districtid, provinceid)
+                    values ($1,$2,$3,$4,$5,$6,$7);`, [req.session.user_id,false, req.body.phone, req.body.name, req.body.ward, req.body.calc_shipping_district, req.body.calc_shipping_provinces])
+
+                    console.log('Thêm thành công')
+                    res.redirect('/show_dia_chi')
+                }
+            }
+        }else{
+            res.redirect('/login')
+        }
+    }) 
+
     app.get('/quen_mat_khau', urlencodedParser,async (req, res) => {
         if(typeof req.session.name != 'undefined'){
             const search_order = await pool.query(`select * 
