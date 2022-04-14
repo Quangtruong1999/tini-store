@@ -794,9 +794,14 @@ async function route(app){
             const quantity_foods = await pool.query(`SELECT COUNT (food_id)
             FROM order_items
             GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-    
+            const province = await pool.query(`select * from province;`)
+            const district = await pool.query(`select * from district;`)
+            const ward = await pool.query(`select * from ward;`)
             res.render("dia_chi", {
                 name: req.session.name,
+                province: province.rows,
+                district: district.rows,
+                ward: ward.rows,
                 quantity_foods: quantity_foods.rows
             });
         }else{

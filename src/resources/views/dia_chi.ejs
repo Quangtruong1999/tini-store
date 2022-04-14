@@ -155,14 +155,14 @@
         <div class="row">
             <div class="col-12">
                 <div class="form-group">
-                    <input type="text" name="Name" class=" form-control input_form" placeholder="Tên" required>
+                    <input type="text" name="name" class=" form-control input_form" placeholder="Họ và Tên" required>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-12">
                 <div class="form-group">
-                    <input type="text" name="Phone" class=" form-control input_form" placeholder="Số điện thoại"
+                    <input type="text" name="phone" class=" form-control input_form" placeholder="Số điện thoại"
                         required>
                 </div>
             </div>
@@ -170,14 +170,14 @@
         <div class="row">
             <div class="col-12">
                 <div class="form-group">
-                    <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
+                    <!-- <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
                         onmousedown="if(this.options.length>8){this.size=8;}" onchange='this.size=0;'
-                        onblur="this.size=0;">
+                        onblur="this.size=0;"> -->
+                    <select class="form-select form-select-lg mb-3" name="province" aria-label=".form-select-lg example">
                         <option selected>Tỉnh / Thành phố</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="1">Tree</option>
-                        <option value="2">Fore</option>
+                        <%for(var i=0; i<province.length; i++){%>
+                            <option value="<%= province[i]['provinceid']%>"><%= province[i]['name']%></option>
+                        <%}%>
                     </select>
                 </div>  
             </div>
@@ -185,7 +185,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="form-group">
-                    <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
+                    <!-- <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
                         onmousedown="if(this.options.length>8){this.size=8;}" onchange='this.size=0;'
                         onblur="this.size=0;">
                         <option selected>Quận / Huyện</option>
@@ -193,6 +193,12 @@
                         <option value="2">Two</option>
                         <option value="1">Tree</option>
                         <option value="2">Fore</option>
+                    </select> -->
+                    <select class="form-select form-select-lg mb-3" name="district" aria-label=".form-select-lg example">
+                        <option selected>Quận / Huyện</option>
+                        <%for(var i=0; i<district.length; i++){%>
+                            <option value="<%= district[i]['provinceid']%>"><%= district[i]['name']%></option>
+                        <%}%>
                     </select>
                 </div>
             </div>
@@ -200,7 +206,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="form-group">
-                    <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
+                    <!-- <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
                         onmousedown="if(this.options.length>8){this.size=8;}" onchange='this.size=0;'
                         onblur="this.size=0;">
                         <option selected>Phường / xã</option>
@@ -208,6 +214,12 @@
                         <option value="2">Two</option>
                         <option value="1">Tree</option>
                         <option value="2">Fore</option>
+                    </select> -->
+                    <select class="form-select form-select-lg mb-3" name="ward" aria-label=".form-select-lg example">
+                        <option selected>Phường / Xã</option>
+                        <%for(var i=0; i<ward.length; i++){%>
+                            <option value="<%= ward[i]['provinceid']%>"><%= ward[i]['name']%></option>
+                        <%}%>
                     </select>
                 </div>
             </div>
@@ -215,14 +227,14 @@
         <div class="row">
             <div class="col-12">
                 <div class="form-group">
-                    <input type="text" name="Address" class=" form-control input_form" placeholder="Địa chỉ" required>
+                    <input type="text" name="street" class=" form-control input_form" placeholder="Địa chỉ" required>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-12">
                 <div class="form-group">
-                    <input type="text" name="AddressDefault" class=" form-control input_form" placeholder="Địa chỉ mặc định" required>
+                    <input type="checkbox" name="address_default" placeholder="Địa chỉ mặc định" required> Địa chỉ mặc định
                 </div>
             </div>
         </div>
