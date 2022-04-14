@@ -75,14 +75,23 @@ async function route(app){
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
             console.log('search_order = ', search_order.rows)
-            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+            if (search_order.rows == '') {
+                    
+                res.render('index', {
+                    quantity_foods: [{"count": 0}],
+                    name: req.session.name
+                })
+            }else{
 
-            res.render('index', {
-                quantity_foods: quantity_foods.rows,
-                name: req.session.name
-            })
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']]) 
+                res.render('index', {
+                    quantity_foods: search_order.rows,
+                    name: req.session.name
+                })
+            }
+
         }
         // if (req.session.user) {
         //     res.render("index", {name: req.session.name});
@@ -318,7 +327,7 @@ async function route(app){
                 res.render("cart", {
                     cart_user: cart_user.rows, 
                     name: req.session.name,
-                    // quantity_foods: quantity_foods.rows
+                    quantity_foods: [{"count": 0}]
                 });
             }
         }
@@ -770,9 +779,14 @@ async function route(app){
             const quantity_foods = await pool.query(`SELECT COUNT (food_id)
             FROM order_items
             GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-    
+            const province = await pool.query(`select * from province;`)
+            const district = await pool.query(`select * from district;`)
+            const ward = await pool.query(`select * from ward;`)
             res.render("dia_chi", {
                 name: req.session.name,
+                province: province.rows,
+                district: district.rows,
+                ward: ward.rows,
                 quantity_foods: quantity_foods.rows
             });
         }else{
