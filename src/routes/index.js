@@ -377,12 +377,14 @@ async function route(app){
                 // kiểm tra giỏ hàng có trạng thái là draft
                 const orders = await pool.query(`select * from orders where owner_id = $1 and states = 'draft'`,[req.session.user_id])
                 const orders_vals = orders.rows
-                if(typeof orders_vals != 'undefined'){
+                console.log('orders_vals = ', orders_vals)
+                if(orders_vals != ''){
 
                     const search_order_new = await pool.query(`select * 
                     from orders
                     where owner_id = $1 and states = 'draft'`, [req.session.user_id])
                     const order_new = search_order_new.rows
+                    console.log('order_new = ', order_new)
                     const search_food = await pool.query(`select * from foods where id = $1`, [req.params.id])
                     const price_food = search_food.rows
                     console.log('search_order_new = ', order_new)
