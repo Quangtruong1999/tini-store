@@ -238,15 +238,23 @@ async function route(app){
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            if (search_order.rows == '') {
+                    
+                res.render('about', {
+                    quantity_foods: [{"count": 0}],
+                    name: req.session.name
+                })
+            }else{
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+    
+                res.render("about", {
+                    name: req.session.name,
+                    quantity_foods: quantity_foods.rows
+                });
+            }
             
-            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-
-            res.render("about", {
-                name: req.session.name,
-                quantity_foods: quantity_foods.rows
-            });
         }else{
             res.render("about", {name: req.session.name});
         }
@@ -258,15 +266,22 @@ async function route(app){
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            if (search_order.rows == '') {
+                    
+                res.render('blog', {
+                    quantity_foods: [{"count": 0}],
+                    name: req.session.name
+                })
+            }else{
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
 
-            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-
-            res.render("blog", {
-                name: req.session.name,
-                quantity_foods: quantity_foods.rows
-            });
+                res.render("blog", {
+                    name: req.session.name,
+                    quantity_foods: quantity_foods.rows
+                });
+            }
         }else{
             res.render("blog", {name: req.session.name});
         }
@@ -407,14 +422,22 @@ async function route(app){
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+            if (search_order.rows == '') {
+                    
+                res.render('checkout', {
+                    quantity_foods: [{"count": 0}],
+                    name: req.session.name
+                })
+            }else{
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
 
-            res.render("checkout", {
-                name: req.session.name,
-                quantity_foods: quantity_foods.rows
-            });
+                res.render("checkout", {
+                    name: req.session.name,
+                    quantity_foods: quantity_foods.rows
+                });
+            }
         }
     })          
     app.get('/contact', urlencodedParser,async (req, res) => {
@@ -423,14 +446,22 @@ async function route(app){
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+            if (search_order.rows == '') {
+                    
+                res.render('contact', {
+                    quantity_foods: [{"count": 0}],
+                    name: req.session.name
+                })
+            }else{
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
 
-            res.render("contact", {
-                name: req.session.name,
-                quantity_foods: quantity_foods.rows
-            });
+                res.render("contact", {
+                    name: req.session.name,
+                    quantity_foods: quantity_foods.rows
+                });
+            }
         }else{
             res.render("contact", {name: req.session.name});
         }
@@ -441,12 +472,28 @@ async function route(app){
         from wishlist
         where user_id = $1;`, [req.params.id])
         
-        res.render('product-single', {
-            data: product_signle.rows,
-            name: req.session.name,
-            wishlist: wishlist.rows,
-        })
-        
+        const search_order = await pool.query(`select * 
+        from orders
+        where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+        if (search_order.rows == '') {
+                
+            res.render('product-single', {
+                quantity_foods: [{"count": 0}],
+                name: req.session.name
+            })
+        }else{
+            
+            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+            FROM order_items
+            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+
+            res.render('product-single', {
+                data: product_signle.rows,
+                name: req.session.name,
+                quantity_foods: quantity_foods.rows,
+                wishlist: wishlist.rows,
+            })
+        }
     })          
     app.get('/shop/:id', async(req, res) =>{
         if(typeof req.session.user == 'undefined'){
@@ -476,31 +523,59 @@ async function route(app){
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-
-            if(category_id == 0){
-                const foods = await pool.query(`SELECT * FROM foods`);
-                const category = await pool.query(`SELECT * FROM category`);
+            if (search_order.rows == '') {
                 
-                res.render('shop11', {foods: foods.rows, 
-                    category: category.rows, 
-                    name:req.session.name,
-                    category_id: category_id,
-                    quantity_foods: quantity_foods.rows,
-                    wishlist: wishlist.rows
-                })
+                if(category_id == 0){
+                    const foods = await pool.query(`SELECT * FROM foods`);
+                    const category = await pool.query(`SELECT * FROM category`);
+                    
+                    res.render('shop11', {
+                        foods: foods.rows, 
+                        category: category.rows, 
+                        name:req.session.name,
+                        category_id: category_id,
+                        quantity_foods: [{"count": 0}],
+                        wishlist: wishlist.rows
+                    })
+                }else{
+                    const foods = await pool.query(`SELECT * FROM foods where category_id = $1`,[category_id]);
+                    const category = await pool.query(`SELECT * FROM category`);
+                    res.render('shop11', {foods: foods.rows, 
+                        category: category.rows, 
+                        name:req.session.name,
+                        category_id: category_id,
+                        quantity_foods: [{"count": 0}],
+                        wishlist: wishlist.rows
+                    })
+                }
             }else{
-                const foods = await pool.query(`SELECT * FROM foods where category_id = $1`,[category_id]);
-                const category = await pool.query(`SELECT * FROM category`);
-                res.render('shop11', {foods: foods.rows, 
-                    category: category.rows, 
-                    name:req.session.name,
-                    category_id: category_id,
-                    quantity_foods: quantity_foods.rows,
-                    wishlist: wishlist.rows
-                })
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+
+                if(category_id == 0){
+                    const foods = await pool.query(`SELECT * FROM foods`);
+                    const category = await pool.query(`SELECT * FROM category`);
+                    
+                    res.render('shop11', {
+                        foods: foods.rows, 
+                        category: category.rows, 
+                        name:req.session.name,
+                        category_id: category_id,
+                        quantity_foods: quantity_foods.rows,
+                        wishlist: wishlist.rows
+                    })
+                }else{
+                    const foods = await pool.query(`SELECT * FROM foods where category_id = $1`,[category_id]);
+                    const category = await pool.query(`SELECT * FROM category`);
+                    res.render('shop11', {foods: foods.rows, 
+                        category: category.rows, 
+                        name:req.session.name,
+                        category_id: category_id,
+                        quantity_foods: quantity_foods.rows,
+                        wishlist: wishlist.rows
+                    })
+                }
             }
         }
     })   
@@ -529,17 +604,28 @@ async function route(app){
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+            if (search_order.rows == '') {
 
+                console.log('wishlist = ', wishlist_user.rows)
+                res.render("wishlist", {
+                    wishlist: wishlist_user.rows,
+                    name: req.session.name,
+                    quantity_foods: [{"count": 0}]
+                });
+            }else{
 
-            console.log('wishlist = ', wishlist_user.rows)
-            res.render("wishlist", {
-                wishlist: wishlist_user.rows,
-                name: req.session.name,
-                quantity_foods: quantity_foods.rows
-            });
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+    
+    
+                console.log('wishlist = ', wishlist_user.rows)
+                res.render("wishlist", {
+                    wishlist: wishlist_user.rows,
+                    name: req.session.name,
+                    quantity_foods: quantity_foods.rows
+                });
+            }
             
         }
     }) 
@@ -758,16 +844,27 @@ async function route(app){
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+            if (search_order.rows == '') {
+            
+                res.render('information_user', {
+                    data: information_user.rows, 
+                    name: req.session.name, 
+                    user_id: req.session.user_id,
+                    quantity_foods: [{"count": 0}]
+                })
+            }else{
 
-            res.render('information_user', {
-                data: information_user.rows, 
-                name: req.session.name, 
-                user_id: req.session.user_id,
-                quantity_foods: quantity_foods.rows
-            })
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+    
+                res.render('information_user', {
+                    data: information_user.rows, 
+                    name: req.session.name, 
+                    user_id: req.session.user_id,
+                    quantity_foods: quantity_foods.rows
+                })
+            }
         }
     }) 
 
@@ -776,19 +873,33 @@ async function route(app){
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-            const province = await pool.query(`select * from province;`)
-            const district = await pool.query(`select * from district;`)
-            const ward = await pool.query(`select * from ward;`)
-            res.render("dia_chi", {
-                name: req.session.name,
-                province: province.rows,
-                district: district.rows,
-                ward: ward.rows,
-                quantity_foods: quantity_foods.rows
-            });
+            if (search_order.rows == '') {
+                const province = await pool.query(`select * from province;`)
+                const district = await pool.query(`select * from district;`)
+                const ward = await pool.query(`select * from ward;`)
+                res.render("dia_chi", {
+                    name: req.session.name,
+                    province: province.rows,
+                    district: district.rows,
+                    ward: ward.rows,
+                    quantity_foods: [{'count': 0}]
+                });
+            }else{
+
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                const province = await pool.query(`select * from province;`)
+                const district = await pool.query(`select * from district;`)
+                const ward = await pool.query(`select * from ward;`)
+                res.render("dia_chi", {
+                    name: req.session.name,
+                    province: province.rows,
+                    district: district.rows,
+                    ward: ward.rows,
+                    quantity_foods: quantity_foods.rows
+                });
+            }
         }else{
             res.redirect('/login')
         }
@@ -799,14 +910,24 @@ async function route(app){
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-    
-            res.render("quen_mat_khau", {
-                name: req.session.name,
-                quantity_foods: quantity_foods.rows
-            });
+            if (search_order.rows == ''){
+                    
+                res.render("quen_mat_khau", {
+                    name: req.session.name,
+                    quantity_foods: quantity_foods.rows
+                });
+            }else{
+
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+        
+                res.render("quen_mat_khau", {
+                    name: req.session.name,
+                    quantity_foods: quantity_foods.rows
+                });
+            }
+
         }else{
             res.redirect('/login')
         }
