@@ -176,14 +176,26 @@
 											<tr class="text-center">
 												<td class="product-remove"><a href="/del_wishlist/<%=wishlist[i]['id']%>"><span class="ion-ios-close"></span></a></td>
 												<td class="image-prod">
-													<%var img = wishlist[i]['images']%>
-													<div class="img"
-														style="background-image:url(<%=img%>);">
-													</div>
+													<%if(wishlist[i]['images'] != ''){%>
+														<%var img = wishlist[i]['images']%>
+														<div class="img"
+															style="background-image:url(<%=img%>);">
+															<a href="/product-single/<%=wishlist[i]['product_id']%>">
+															</a>
+														</div>
+													<%}else{%>
+														<div class="img"
+															style="background-image:url(images/product_trang.jpg);">
+															<a href="/product-single/<%=wishlist[i]['product_id']%>">
+															</a>
+														</div>
+													<%}%>
 												</td>
 												<td class="product-name">
-													<h3><%=wishlist[i]['name']%></h3>
-													<p style="text-overflow: ellipsis;width: 500px;overflow: hidden;white-space: nowrap;"><%=wishlist[i]['description']%></p>
+													<h3><a href="/product-single/<%=wishlist[i]['product_id']%>"><%=wishlist[i]['name']%></a></h3>
+													<p style="text-overflow: ellipsis;width: 500px;overflow: hidden;white-space: nowrap;">
+														<%=wishlist[i]['description']%>
+													</p>
 												</td>
 
 												<td class="price"><%=wishlist[i]['price']%> đ</td>

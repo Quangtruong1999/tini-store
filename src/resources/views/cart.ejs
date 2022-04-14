@@ -168,42 +168,46 @@
 									</tr>
 								</thead>
 								<tbody>
-									<tr class="text-center">
-										<td class="product-remove"><a href="#"><span class="ion-ios-close"></span></a></td>
-										<td class="image-prod"><div class="img"
-												style="background-image:url(images/product-3.jpg);"></div></td>
-
-										<td class="product-name">
-											<h3>Bell Pepper</h3>
-											<p>Far far away, behind the word mountains, far from the countries</p>
-										</td>
-
-										<td class="price">$4.90</td>
-										<!-- Sửa nút tăng giảm sp -->
-										<td class="quantity">
-											<div class="input-group d-flex mb-3">
-												<span class="input-group-btn mr-2">
-													<button type="button" class="quantity-left-minus btn"
-														data-type="minus"
-														data-field="" style="border-radius: 1px;">
-														<i class="ion-ios-remove"></i>
-													</button>
-												</span>
-												<input type="text" id="quantity" name="quantity" class="form-control
-													input-number" value="1" min="1" max="100">
-												<span class="input-group-btn ml-2">
-													<button type="button" class="quantity-right-plus btn"
-														data-type="plus"
-														data-field="" style="border-radius: 1px;">
-														<i class="ion-ios-add"></i>
-													</button>
-												</span>
-											</div>
-										</div>
-									</td>
-									<!-- Sửa nút tăng giảm sp -->
-									<td class="total">$4.90</td>
-								</tr><!-- END TR-->
+									<%for(var i=0; i<cart_user.length; i++){%>
+										<tr class="text-center">
+											<td class="product-remove"><a href="#"><span class="ion-ios-close"></span></a></td>
+											<%var img = cart_user[i]['images']%>
+											<td class="image-prod"><div class="img"
+													style="background-image:url(<%=img%>);"></div></td>
+	
+											<td class="product-name">
+												<h3><%=cart_user[i]['name']%></h3>
+												<p style="text-overflow: ellipsis;width: 500px;overflow: hidden;white-space: nowrap;">
+													<%=cart_user[i]['description']%>
+												</p>
+											</td>
+	
+											<td class="price"><%=cart_user[i]['price']%> đ</td>
+											<!-- Sửa nút tăng giảm sp -->
+											<td class="quantity">
+												<div class="input-group d-flex mb-3">
+													<span class="input-group-btn mr-2">
+														<button type="button" class="quantity-left-minus btn"
+															data-type="minus"
+															data-field="" style="border-radius: 1px;">
+															<i class="ion-ios-remove"></i>
+														</button>
+													</span>
+													<input type="text" id="quantity" name="quantity" class="form-control
+														input-number" value="<%=cart_user[i]['quantity']%>" min="1" max="100"/>
+													<span class="input-group-btn ml-2">
+														<button type="button" class="quantity-right-plus btn"
+															data-type="plus"
+															data-field="" style="border-radius: 1px;">
+															<i class="ion-ios-add"></i>
+														</button>
+													</span>
+												</div>
+											</td>
+											<!-- Sửa nút tăng giảm sp -->
+											<td class="total"><%=cart_user[i]['price']%> đ</td>
+										</tr><!-- END TR-->
+									<%}%>
 
 								<!-- <tr class="text-center">
 									<td class="product-remove"><a href="#"><span class="ion-ios-close"></span></a></td>
@@ -417,40 +421,36 @@
 			<script src="js/main.js"></script>
 
 			<script>
-		$(document).ready(function(){
+				$(document).ready(function(){
 
-		var quantitiy=0;
-		   $('.quantity-right-plus').click(function(e){
-		        
-		        // Stop acting like a button
-		        e.preventDefault();
-		        // Get the field name
-		        var quantity = parseInt($('#quantity').val());
-		        
-		        // If is not undefined
-		            
-		            $('#quantity').val(quantity + 1);
+				var quantitiy=0;
+				$('.quantity-right-plus').click(function(e){
+						// Stop acting like a button
+						e.preventDefault();
+						// Get the field name
+						var quantity = parseInt($('#quantity').val()) + 1;
+						// If is not undefined
+						$('#quantity').val(quantity);
+						// var total = quantity * 
+							// Increment
+						
+					});
 
-		          
-		            // Increment
-		        
-		    });
-
-		     $('.quantity-left-minus').click(function(e){
-		        // Stop acting like a button
-		        e.preventDefault();
-		        // Get the field name
-		        var quantity = parseInt($('#quantity').val());
-		        
-		        // If is not undefined
-		      
-		            // Increment
-		            if(quantity>0){
-		            $('#quantity').val(quantity - 1);
-		            }
-		    });
-		    
-		});
-	</script>
+					$('.quantity-left-minus').click(function(e){
+						// Stop acting like a button
+						e.preventDefault();
+						// Get the field name
+						var quantity = parseInt($('#quantity').val());
+						
+						// If is not undefined
+					
+							// Increment
+							if(quantity>0){
+							$('#quantity').val(quantity - 1);
+							}
+					});
+					
+				});
+			</script>
 		</body>
 	</html>
