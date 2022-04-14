@@ -14,6 +14,7 @@ const foods_controller = require('../app/controllers/foods')
 
 // const initiablizePassport = require("./passportConfig"); 
 const e = require('express');
+const { type } = require('os');
 // initiablizePassport(passport);
 
 // create application/x-www-form-urlencoded parser
@@ -64,10 +65,25 @@ async function route(app){
         // });
     })
 
-    app.get('/', (req, res) => {
+    app.get('/',urlencodedParser, async (req, res) => {
         console.log('name = ', req.session.name);
         console.log('check session = ', req.session);
-        res.render("index", {name: req.session.name});
+        if(typeof req.session.name == 'undefined'){
+            res.render("index", {name: req.session.name});
+        }else{
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            console.log('search_order = ', search_order.rows)
+            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+            FROM order_items
+            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+
+            res.render('index', {
+                quantity_foods: quantity_foods.rows,
+                name: req.session.name
+            })
+        }
         // if (req.session.user) {
         //     res.render("index", {name: req.session.name});
         // }
@@ -207,11 +223,44 @@ async function route(app){
         // var kq = bcrypt.compareSync(password, pass_fromdb);
         res.render("forgot_password", {name: req.session.name});
     }) 
-    app.get('/about', (req, res) => {
-        res.render("about", {name: req.session.name});
-    })          
-    app.get('/blog', (req, res) => {
-        res.render("blog", {name: req.session.name});
+    app.get('/about', urlencodedParser, async (req, res) => {
+        if(typeof req.session.name != 'undefined'){
+            
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            
+            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+            FROM order_items
+            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+
+            res.render("about", {
+                name: req.session.name,
+                quantity_foods: quantity_foods.rows
+            });
+        }else{
+            res.render("about", {name: req.session.name});
+        }
+    }) 
+
+    app.get('/blog', urlencodedParser,async (req, res) => {
+        if(typeof req.session.name != 'undefined'){
+            
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+
+            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+            FROM order_items
+            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+
+            res.render("blog", {
+                name: req.session.name,
+                quantity_foods: quantity_foods.rows
+            });
+        }else{
+            res.render("blog", {name: req.session.name});
+        }
     }) 
 
     app.get('/cart', async (req, res) => {
@@ -225,22 +274,51 @@ async function route(app){
             from orders, order_items, foods
             where orders.id = order_items.order_id and order_items.food_id = foods.id and orders.owner_id = $1 and orders.states='draft'`,[req.session.user_id]);
         
-            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+            if(cart_user.rows.length > 0){ 
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                const total = await pool.query(`SELECT sum (price)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                const discount = 1
+                if(total.rows[0]['sum'] >= 350000){
+                    discount = 0
+                }
 
-            console.log('quantity_foods = ', quantity_foods.rows)
-            if(typeof cart_user != 'undefined'){
-                res.render("cart", {
-                    cart_user: cart_user.rows,
-                    name: req.session.name,
-                    quantity_foods: quantity_foods.rows
-                });
+                console.log('quantity_foods = ', quantity_foods.rows)
+                console.log('subtotal = ', total.rows[0]['sum'])
+                console.log('fee_ship = ', search_order.rows[0]['delivery_fee'])
+                if(discount>0){
+                    const totals = Number(total.rows[0]['sum']) + Number(search_order.rows[0]['delivery_fee'])
+                    
+                    res.render("cart", {
+                        cart_user: cart_user.rows,
+                        name: req.session.name,
+                        quantity_foods: quantity_foods.rows,
+                        subtotal: total.rows[0]['sum'],
+                        fee_ship: search_order.rows[0]['delivery_fee'],
+                        total: totals,
+                        discount: discount
+                    });
+                }else{
+                    const totals = (Number(total.rows[0]['sum']) + Number(search_order.rows[0]['delivery_fee'])) - Number(search_order.rows[0]['delivery_fee'])
+                    console.log('total = ', total);
+                    res.render("cart", {
+                        cart_user: cart_user.rows,
+                        name: req.session.name,
+                        quantity_foods: quantity_foods.rows,
+                        subtotal: total.rows[0]['sum'],
+                        fee_ship: search_order.rows[0]['delivery_fee'],
+                        total: totals,
+                        discount: discount
+                    });
+                }
             }else{
                 res.render("cart", {
                     cart_user: cart_user.rows, 
                     name: req.session.name,
-                    quantity_foods: quantity_foods.rows
+                    // quantity_foods: quantity_foods.rows
                 });
             }
         }
@@ -312,15 +390,41 @@ async function route(app){
     app.get('/blog-single', (req, res) => {
         res.render("blog-single", {name: req.session.name});
     })          
-    app.get('/checkout', (req, res) => {
+    app.get('/checkout', async(req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            res.render("checkout", {name: req.session.name});
+            
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+            FROM order_items
+            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+
+            res.render("checkout", {
+                name: req.session.name,
+                quantity_foods: quantity_foods.rows
+            });
         }
     })          
-    app.get('/contact', (req, res) => {
-        res.render("contact", {name: req.session.name});
+    app.get('/contact', urlencodedParser,async (req, res) => {
+        if(typeof req.session.name != 'undefined'){
+            
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+            FROM order_items
+            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+
+            res.render("contact", {
+                name: req.session.name,
+                quantity_foods: quantity_foods.rows
+            });
+        }else{
+            res.render("contact", {name: req.session.name});
+        }
     })          
     app.get('/product-single/:id', async (req, res) => {
         const product_signle = await pool.query(`select * from foods where id = $1`, [req.params.id])
@@ -359,6 +463,13 @@ async function route(app){
             
             const category_id = req.params.id;
             const wishlist = await pool.query(`select * from wishlist where user_id = $1`, [req.session.user_id])
+            
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+            FROM order_items
+            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
 
             if(category_id == 0){
                 const foods = await pool.query(`SELECT * FROM foods`);
@@ -368,6 +479,7 @@ async function route(app){
                     category: category.rows, 
                     name:req.session.name,
                     category_id: category_id,
+                    quantity_foods: quantity_foods.rows,
                     wishlist: wishlist.rows
                 })
             }else{
@@ -377,6 +489,7 @@ async function route(app){
                     category: category.rows, 
                     name:req.session.name,
                     category_id: category_id,
+                    quantity_foods: quantity_foods.rows,
                     wishlist: wishlist.rows
                 })
             }
@@ -402,8 +515,22 @@ async function route(app){
             const wishlist_user = await pool.query(`select wishlist.id,wishlist.user_id, wishlist.product_id, foods.name, foods.description, foods.category_id, foods.images, foods.price
             from wishlist, foods
             where wishlist.product_id = foods.id and wishlist.user_id = $1`,[req.session.user_id]);
+
+            
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+            FROM order_items
+            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+
+
             console.log('wishlist = ', wishlist_user.rows)
-            res.render("wishlist", {wishlist: wishlist_user.rows,name: req.session.name});
+            res.render("wishlist", {
+                wishlist: wishlist_user.rows,
+                name: req.session.name,
+                quantity_foods: quantity_foods.rows
+            });
             
         }
     }) 
@@ -613,58 +740,81 @@ async function route(app){
     }) 
 
 
-    app.get('/information_user', (req, res) => {
+    app.get('/information_user', urlencodedParser, async(req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            pool.connect(function(err, client, done){
-                done()
-                if(err){
-                    throw err;
-                }
-
-                pool.query(`select * from users where email = $1`, [req.session.email], (err, result)=>{
-                    if(err){
-                        throw err;
-                    }
-
-                    console.log('info = ', result.rows)
-                    res.render('information_user', {data: result.rows, name: req.session.name, user_id: req.session.user_id})
-                })
-            });
-        }
-    }) 
-    app.get('/dia_chi', (req, res) => {
-        if(typeof req.session.user == 'undefined'){
-            res.redirect('/login');
-        }else{
-            pool.connect(function(err, client, done){
-                if(err){
-                    return console.error('error fetching client from pool ', err)
-                }
-                client.query(`select * from district`, (err, result) => {
-                    done();
+            const information_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
             
-                    if(err){
-                        res.end();
-                        return console.error('error running query ', err)
-                    }
-                    console.log('category = ', result.rows);
-                    res.render('dia_chi', {
-                        data: result.rows,
-                        name: req.session.name, 
-                        email: req.session.email
-                    });
-                });
-            });
-        }
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+            FROM order_items
+            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
 
+            res.render('information_user', {
+                data: information_user.rows, 
+                name: req.session.name, 
+                user_id: req.session.user_id,
+                quantity_foods: quantity_foods.rows
+            })
+        }
     }) 
-    app.get('/quen_mat_khau', (req, res) => {
-        res.render("quen_mat_khau", {name: req.session.name});
+
+    app.get('/dia_chi', urlencodedParser, async(req, res) => {
+        if(typeof req.session.name != 'undefined'){
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+            FROM order_items
+            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+    
+            res.render("dia_chi", {
+                name: req.session.name,
+                quantity_foods: quantity_foods.rows
+            });
+        }else{
+            res.redirect('/login')
+        }
+        
     }) 
-    app.get('/show_dia_chi', (req, res) => {
-        res.render("show_dia_chi", {name: req.session.name});
+    app.get('/quen_mat_khau', urlencodedParser,async (req, res) => {
+        if(typeof req.session.name != 'undefined'){
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+            FROM order_items
+            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+    
+            res.render("quen_mat_khau", {
+                name: req.session.name,
+                quantity_foods: quantity_foods.rows
+            });
+        }else{
+            res.redirect('/login')
+        }
+    
+    }) 
+    app.get('/show_dia_chi', urlencodedParser,async (req, res) => {
+        if(typeof req.session.name != 'undefined'){
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+            FROM order_items
+            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+    
+            res.render("show_dia_chi", {
+                name: req.session.name,
+                quantity_foods: quantity_foods.rows
+            });
+        }else{
+            res.redirect("/login");
+        }
+        
     }) 
 }
 

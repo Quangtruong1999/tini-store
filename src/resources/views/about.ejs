@@ -95,9 +95,15 @@
 	
 						</li> -->
   
-            <li class="nav-item cta cta-colored"><a href="/cart" class="nav-link"><span
-                  class="icon-shopping_cart"></span>[0]</a></li>
-  
+            <% if(name != null){%>
+              <li class="nav-item cta cta-colored"><a href="/cart" class="nav-link"><span
+                    class="icon-shopping_cart"></span>[<%= quantity_foods[0]['count']%>]</a></li>
+                
+						<%}else {%>
+              
+              <li class="nav-item cta cta-colored"><a href="/cart" class="nav-link"><span
+                class="icon-shopping_cart"></span>[0]</a></li>
+              <%}%>
             <!-- Sửa login -->
   
             <% if(name != null){%>

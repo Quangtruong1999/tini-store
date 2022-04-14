@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS food_tag(
 CREATE TABLE IF NOT EXISTS addresses(
     ID SERIAL,
     user_id INT,
+    phone TEXT,
     provinceid INT,
     districtid INT,
     wardid INT,
@@ -93,6 +94,7 @@ CREATE TABLE IF NOT EXISTS order_items(
 CREATE TABLE IF NOT EXISTS orders(
     ID SERIAL,
     owner_id INT,
+    address_id INT,
     delivery_time TIMESTAMP,
     delivery_type_id INT,
     delivery_fee BIGINT,
