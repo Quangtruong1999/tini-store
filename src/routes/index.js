@@ -719,6 +719,35 @@ async function route(app){
             });
         }
     })  
+
+    
+    app.get('/edit_category/:id', urlencodedParser, async(req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+
+            const category = await pool.query(`select * from category where id = $1`, [req.params.id])
+            res.render('category_dashboard_edit', {
+                category: category.rows,
+                name: req.session.name,
+                email: req.session.email
+            })
+        }
+    })
+    
+    app.post('/edit_category/:id', urlencodedParser, async(req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+
+            const category = await pool.query(`update category
+            set name = $1 , description=$2
+            where id = $3;`, [req.body.name, req.body.description, req.params.id])
+            console.log('cập nhật thành công')
+            res.redirect('/category_dashboard')
+        }
+    })
+
     app.post('/category_add', urlencodedParser, upload.single('image'),async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');

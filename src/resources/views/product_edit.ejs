@@ -48,7 +48,7 @@
             <div class="header-mobile__bar">
                 <div class="container-fluid">
                     <div class="header-mobile-inner">
-                        <a class="logo" href="index.html">
+                        <a class="logo" href="index">
                             <img src="/images/icon/logo.png" alt="CoolAdmin"
                                 />
                         </a>
@@ -70,7 +70,7 @@
                             <ul class="navbar-mobile-sub__list list-unstyled
                                 js-sub-list">
                                 <li>
-                                    <a href="/product_dashboard">Products</a>>
+                                    <a href="/product_dashboard">Products</a>
                                 </li>
                                 <li>
                                     <a href="/category_dashboard">Category</a>
@@ -104,7 +104,7 @@
                             <ul class="list-unstyled navbar__sub-list
                                 js-sub-list">
                                 <li>
-                                    <a href="/product_dashboard">Products</a>>
+                                    <a href="/product_dashboard">Products</a>
                                 </li>
                                 <li>
                                     <a href="/category_dashboard">Category</a>
@@ -235,8 +235,8 @@
                                         <select name="category" id="select" value="<%= data[0]['category_id']%>" class="form-control" required>
                                             <% for(var i=0; i<data.length;i++){%>
                                                 <option value="<%=data[i]['id']%>"><%=data[i]['name']%></option>
-                                                <% for (var item=0; item<data1.length; item++){%>
-                                                    <option value="<%=data[item]['id']%>"><%=data1[item]['name']%></option>
+                                                <% for (var item=0; item<data.length; item++){%>
+                                                    <option value="<%=data[item]['id']%>"><%=data[item]['name']%></option>
                                                     
                                                 <%}%>
                                             <%}%>
