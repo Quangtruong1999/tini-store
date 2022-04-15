@@ -48,7 +48,7 @@
             <div class="header-mobile__bar">
                 <div class="container-fluid">
                     <div class="header-mobile-inner">
-                        <a class="logo" href="index.html">
+                        <a class="logo" href="index">
                             <img src="/images/icon/logo.png" alt="CoolAdmin"
                                 />
                         </a>
@@ -70,7 +70,7 @@
                             <ul class="navbar-mobile-sub__list list-unstyled
                                 js-sub-list">
                                 <li>
-                                    <a href="/product_dashboard">Products</a>>
+                                    <a href="/product_dashboard">Products</a>
                                 </li>
                                 <li>
                                     <a href="/category_dashboard">Category</a>
@@ -78,9 +78,18 @@
                             </ul>
                         </li>
                         <li>
-                            <a href="/category_dashboard_add">
-                                <i class="fas fa-chart-bar"></i>Quản lý
-                                người dùng</a>
+                            <a class="js-arrow" href="#">
+                                <i class="fas fa-chart-bar"></i>User management
+                            </a>
+                                
+                            <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                <li>
+                                    <a href="/customer_dashboard">Users</a>
+                                </li>
+                                <li>
+                                    <a href="/addresses_dashboard">Address of user</a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </div>
@@ -104,7 +113,7 @@
                             <ul class="list-unstyled navbar__sub-list
                                 js-sub-list">
                                 <li>
-                                    <a href="/product_dashboard">Products</a>>
+                                    <a href="/product_dashboard">Products</a>
                                 </li>
                                 <li>
                                     <a href="/category_dashboard">Category</a>
@@ -112,9 +121,18 @@
                             </ul>
                         </li>
                         <li>
-                            <a href="/customer_dashboard">
-                                <i class="fas fa-chart-bar"></i>Quản lý
-                                người dùng</a>
+                            <a class="js-arrow" href="#">
+                                <i class="fas fa-chart-bar"></i>User management
+                            </a>
+                                
+                            <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                <li>
+                                    <a href="/customer_dashboard">Users</a>
+                                </li>
+                                <li>
+                                    <a href="/addresses_dashboard">Address of user</a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </nav>
@@ -207,24 +225,24 @@
                 <div class="col-lg-6 mx-auto">
                     <div class="card">
                         <div class="card-header">
-                            <strong>Tạo sản phẩm</strong>
+                            <strong>Edit product</strong>
                         </div>
                         <div class="card-body card-block">
-                            <form action="/pro_add" method="post" enctype="multipart/form-data" class="form-horizontal">
+                            <form action="/edit_pro/<%= data[0]['id']%>" method="post" enctype="multipart/form-data" class="form-horizontal">
                                 <div class="row form-group">
                                     <div class="col col-md-3">
-                                        <label for="text-input" class=" form-control-label">Tên</label>
+                                        <label for="text-input" class=" form-control-label">Name</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <input type="text" id="text-input" name="name" value="<%= data[0]['name']%>" placeholder="Tên sản phẩm" class="form-control">
+                                        <input type="text" id="text-input" name="name" value="<%= data[0]['name']%>" placeholder="Name" class="form-control">
                                     </div>
                                 </div>
                                 <div class="row form-group">
                                     <div class="col col-md-3">
-                                        <label for="textarea-input" class=" form-control-label">Mô tả</label>
+                                        <label for="textarea-input" class=" form-control-label">Description</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <textarea name="description" id="textarea-input" rows="9" placeholder="Mô tả ..." class="form-control"><%=data[0]['description']%></textarea>
+                                        <textarea name="description" id="textarea-input" rows="9" placeholder="Description ..." class="form-control"><%=data[0]['description']%></textarea>
                                     </div>
                                 </div>
                                 <div class="row form-group">
@@ -232,12 +250,12 @@
                                         <label for="select" class=" form-control-label">Category</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <select name="category" id="select" value="<%= data[0]['category_id']%>" class="form-control" required>
-                                            <% for(var i=0; i<data.length;i++){%>
-                                                <option value="<%=data[i]['id']%>"><%=data[i]['name']%></option>
-                                                <% for (var item=0; item<data1.length; item++){%>
-                                                    <option value="<%=data[item]['id']%>"><%=data1[item]['name']%></option>
-                                                    
+                                        <select name="category" id="select" class="form-control" required>
+                                            <% for(var i=0; i<category.length;i++){%>
+                                                <%if(data[0]['category_id'] == category[i]['id']){%>
+                                                    <option value="<%= category[i]['id']%>" selected><%= category[i]['name']%></option>
+                                                <%}else{%>
+                                                    <option value="<%=category[i]['id']%>"><%=category[i]['name']%></option>
                                                 <%}%>
                                             <%}%>
                                         </select>
@@ -245,7 +263,7 @@
                                 </div>
                                 <div class="row form-group">
                                     <div class="col col-md-3">
-                                        <label for="text-input" class=" form-control-label">Giá</label>
+                                        <label for="text-input" class=" form-control-label">Price</label>
                                     </div>
                                     <div class="col-12 col-md-9">
                                         <input type="number" id="text-input" value="<%= data[0]['price']%>" name="price" placeholder="Giá sản phẩm" class="form-control">
@@ -262,7 +280,7 @@
                                 </div>
                                 <div class="row form-group">
                                     <div class="col col-md-3">
-                                        <label for="image" class=" form-control-label">Hình ảnh</label>
+                                        <label for="image" class=" form-control-label">Picture</label>
                                     </div>
                                     <div class="col-12 col-md-9">
                                         <input type="file" name="image" class="input-group input-file"/>
@@ -270,7 +288,7 @@
                                 </div>
                                 <div class="card-footer">
                                     <button type="submit" class="btn btn-primary btn-sm">
-                                        <i class="fa fa-dot-circle-o"></i> Tạo
+                                        <i class="fa fa-dot-circle-o"></i> Edit
                                     </button>
                                 </div>
                             </form>

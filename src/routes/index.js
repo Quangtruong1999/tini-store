@@ -82,12 +82,11 @@ async function route(app){
                     name: req.session.name
                 })
             }else{
-
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
                 GROUP BY order_id = $1`, [search_order.rows[0]['id']]) 
                 res.render('index', {
-                    quantity_foods: search_order.rows,
+                    quantity_foods: quantity_foods.rows,
                     name: req.session.name
                 })
             }
@@ -122,6 +121,7 @@ async function route(app){
         // Zack Steffen
         let errors = []
         let success = []
+        // regex email
         var regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
         
         if (regex.test(email) != true){
@@ -655,28 +655,152 @@ async function route(app){
             })
         })
     }) 
-    app.get('/edit_pro/:id', urlencodedParser, (req, res) => {
+
+    app.get('/edit_pro/:id', urlencodedParser,async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            pool.connect(function(err,client, done){
-                done()
-                if(err){
-                    throw err;
-                }
+            const food = await pool.query(`select * FROM foods WHERE id = $1`, [req.params.id])
+            const category = await pool.query(`select * FROM category`)
 
-                pool.query(`select * FROM foods WHERE id = $1`, [req.params.id], (err, result)=>{
-                    if(err){
-                        throw err;
-                    }
-
-                    console.log('lấy thành công = ', result.rows);
-                    res.render('product_edit', {data: result.rows, name: req.session.name, email: req.session.email});
-                })
-            })
+            res.render('product_edit', {
+                data: food.rows, 
+                name: req.session.name, 
+                email: req.session.email,
+                category: category.rows
+            });
         }
-        
+    })
+
+    app.post('/edit_pro/:id', urlencodedParser,  upload.single('image'), async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+
+            const imagePath = path.join(__dirname, '../public/images/');
+            const fileUpload = new Resize(imagePath);
+            if (!req.file) {
+                // res.status(401).json({error: 'Please provide an image'});
+                const update_product = await pool.query(`update foods
+                set name=$1, description=$2,category_id=$3, price = $4
+                where id=$5;`, [req.body.name, req.body.description, req.body.category, req.body.price, req.params.id])
+
+                console.log('Cập nhật thành công')
+                res.redirect('/product_dashboard');
+            }else{
+                const filename = await fileUpload.save(req.file.buffer);
+                const update_product = pool.query(`update foods
+                set name=$1, description=$2,category_id=$3, price = $4, images=$5
+                where id=$6;`, [req.body.name, req.body.description, req.body.category, req.body.price, 'images/'+filename, req.params.id])
+                console.log('Cập nhật thành công')
+                res.redirect('/product_dashboard');
+                
+            }
+        }
+    })
+
+    app.get('/edit_addresses/:id', urlencodedParser,async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const address = await pool.query(`select * FROM addresses WHERE id = $1`, [req.params.id])
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            if(search_order.rows != ''){
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
     
+                res.render('edit_dia_chi', {
+                    name: req.session.name, 
+                    user_id: req.session.user_id,
+                    quantity_foods: quantity_foods.rows,
+                    address: address.rows
+                })
+            }else{
+                res.render('edit_dia_chi', {
+                    address: address.rows,
+                    quantity_foods: [{"count": 0}]
+                });
+            }
+        }
+    })
+
+    app.post('/edit_addresses/:id', urlencodedParser,  upload.single('image'), async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const address = await pool.query(`select * FROM addresses WHERE id = $1`, [req.params.id])
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+
+            var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
+            let errors = []
+            if(regex.test(req.body.phone) != true){
+                errors.push({message: "Phone invalid!"})
+                const search_order = await pool.query(`select * 
+                from orders
+                where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                if (search_order.rows == '') {
+
+                    res.render("edit_dia_chi", {
+                        name: req.session.name,
+                        address: address.rows,
+                        quantity_foods: [{'count': 0}],
+                        errors: errors
+                    });
+                }else{
+    
+                    const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                    FROM order_items
+                    GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+    
+                    res.render("edit_dia_chi", {
+                        name: req.session.name,
+                        address: address.rows,
+                        quantity_foods: quantity_foods.rows,
+                        errors: errors
+                    });
+                }
+            }else{
+
+                if(search_order.rows != ''){
+                    const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                    FROM order_items
+                    GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                    console.log('address = ', address.rows)
+                    if(typeof req.body.address_default != 'undefined'){
+                        for(var i=0; i<address.rows; i++){
+                            if(address.rows[i]['address_default'] == true){
+                                const update_address_default = await pool.query(`update addresses
+                                set address_default = false
+                                where id = $1`, [address.rows[i]['id']])
+                            }
+                        } 
+                        const update_address = await pool.query(`update addresses
+                                set provinceid = $1, districtid = $2, wardid=$3, name=$4, phone=$5, address_default=true
+                                where id = $6`, [req.body.calc_shipping_provinces, req.body.calc_shipping_district,req.body.ward, req.body.name,req.body.phone,req.params.id])
+                        console.log('Cập nhật địa chỉ thành công')
+                        res.redirect('/show_dia_chi')
+                    }else{
+                        
+                        const update_address = await pool.query(`update addresses
+                                set provinceid = $1, districtid = $2, wardid=$3, name=$4, phone=$5, address_default=false
+                                where id = $6`, [req.body.calc_shipping_provinces, req.body.calc_shipping_district,req.body.ward, req.body.name,req.body.phone,req.params.id])
+                        console.log('Cập nhật địa chỉ thành công')
+                        res.redirect('/show_dia_chi')
+                    }
+                }else{
+                    res.render('edit_dia_chi', {
+                        address: address.rows,
+                        quantity_foods: [{"count": 0}]
+                    });
+                }
+            }
+
+        }
     })
 
     app.get('/del_category/:id', urlencodedParser, (req, res) => {
@@ -722,6 +846,76 @@ async function route(app){
             });
         }
     })  
+
+    
+    app.get('/edit_category/:id', urlencodedParser, async(req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+
+            const category = await pool.query(`select * from category where id = $1`, [req.params.id])
+            res.render('category_dashboard_edit', {
+                category: category.rows,
+                name: req.session.name,
+                email: req.session.email
+            })
+        }
+    })
+    
+    app.post('/edit_category/:id', urlencodedParser, async(req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+
+            const category = await pool.query(`update category
+            set name = $1 , description=$2
+            where id = $3;`, [req.body.name, req.body.description, req.params.id])
+            console.log('cập nhật thành công')
+            res.redirect('/category_dashboard')
+        }
+    })
+    
+    app.get('/edit_users/:id', urlencodedParser, async(req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+
+            const user = await pool.query(`select * from users where id = $1`, [req.params.id])
+            res.render('customer_dashboard_edit', {
+                user: user.rows,
+                name: req.session.name,
+                email: req.session.email
+            })
+        }
+    })
+    
+    app.post('/edit_users/:id', urlencodedParser, async(req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            
+            const category = await pool.query(`update users
+            set name = $1 , phone=$2
+            where id = $3;`, [req.body.name, req.body.phone, req.params.id])
+            console.log('cập nhật thành công')
+            res.redirect('/customer_dashboard')
+        }
+    })
+
+    app.get('/addresses_dashboard', urlencodedParser, async(req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+
+            const addresses = await pool.query(`select * from users where id = $1`, [req.params.id])
+            res.render('customer_dashboard_edit', {
+                user: user.rows,
+                name: req.session.name,
+                email: req.session.email
+            })
+        }
+    })
+
     app.post('/category_add', urlencodedParser, upload.single('image'),async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -821,11 +1015,16 @@ async function route(app){
             res.render("category_dashboard_add", {name: req.session.name});
         }
     })  
-    app.get('/customer_dashboard', (req, res) => {
+    app.get('/customer_dashboard', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            res.render("customer_dashboard", {name: req.session.name});
+            const users = await pool.query(`select * from users where roles = 1`);
+            res.render("customer_dashboard", {
+                users: users.rows,
+                email: req.session.email,
+                name: req.session.name
+            });
         }
     })  
     app.get('/customer_dashboard_add', (req, res) => {
@@ -876,14 +1075,8 @@ async function route(app){
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
             if (search_order.rows == '') {
-                const province = await pool.query(`select * from province;`)
-                const district = await pool.query(`select * from district;`)
-                const ward = await pool.query(`select * from ward;`)
                 res.render("dia_chi", {
                     name: req.session.name,
-                    province: province.rows,
-                    district: district.rows,
-                    ward: ward.rows,
                     quantity_foods: [{'count': 0}]
                 });
             }else{
@@ -891,22 +1084,70 @@ async function route(app){
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
                 GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-                const province = await pool.query(`select * from province;`)
-                const district = await pool.query(`select * from district;`)
-                const ward = await pool.query(`select * from ward;`)
+
                 res.render("dia_chi", {
                     name: req.session.name,
-                    province: province.rows,
-                    district: district.rows,
-                    ward: ward.rows,
                     quantity_foods: quantity_foods.rows
                 });
             }
         }else{
             res.redirect('/login')
         }
-        
     }) 
+
+    app.post('/dia_chi', urlencodedParser, async(req, res) => {
+        if(typeof req.session.name != 'undefined'){
+
+            let errors = []
+            var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
+
+            if(regex.test(req.body.phone) != true){
+                errors.push({message: "Phone invalid!"})
+                const search_order = await pool.query(`select * 
+                from orders
+                where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                if (search_order.rows == '') {
+
+                    res.render("dia_chi", {
+                        name: req.session.name,
+                        quantity_foods: [{'count': 0}],
+                        errors: errors
+                    });
+                }else{
+    
+                    const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                    FROM order_items
+                    GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+    
+                    res.render("dia_chi", {
+                        name: req.session.name,
+                        quantity_foods: quantity_foods.rows,
+                        errors: errors
+                    });
+                }
+            }else{
+                console.log('address_default = ', req.body.address_default);
+                if(typeof address_default != 'undefined'){
+
+                    const add_address = await pool.query(`insert into addresses (user_id, address_default, phone, name, wardid, districtid, provinceid)
+                    values ($1,$2,$3,$4,$5,$6,$7);`, [req.session.user_id,true, req.body.phone, req.body.name, req.body.ward, req.body.calc_shipping_district, req.body.calc_shipping_provinces])
+
+                    console.log('Thêm thành công')
+                    res.redirect('/show_dia_chi')
+                }else{
+                    
+                    const add_address = await pool.query(`insert into addresses (user_id, address_default, phone, name, wardid, districtid, provinceid)
+                    values ($1,$2,$3,$4,$5,$6,$7);`, [req.session.user_id,false, req.body.phone, req.body.name, req.body.ward, req.body.calc_shipping_district, req.body.calc_shipping_provinces])
+
+                    console.log('Thêm thành công')
+                    res.redirect('/show_dia_chi')
+                }
+            }
+        }else{
+            res.redirect('/login')
+        }
+    }) 
+
     app.get('/quen_mat_khau', urlencodedParser,async (req, res) => {
         if(typeof req.session.name != 'undefined'){
             const search_order = await pool.query(`select * 
@@ -940,14 +1181,26 @@ async function route(app){
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-    
-            res.render("show_dia_chi", {
-                name: req.session.name,
-                quantity_foods: quantity_foods.rows
-            });
+            const list_address = await pool.query(`select * from addresses where user_id = $1`, [req.session.user_id])
+            if (search_order.rows == ''){
+
+                
+                res.render("show_dia_chi", {
+                    name: req.session.name,
+                    list_address: list_address.rows
+                });
+                    
+            }else{
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+        
+                res.render("show_dia_chi", {
+                    name: req.session.name,
+                    quantity_foods: quantity_foods.rows,
+                    list_address: list_address.rows
+                });
+            }
         }else{
             res.redirect("/login");
         }

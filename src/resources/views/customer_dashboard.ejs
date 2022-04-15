@@ -66,7 +66,7 @@
                                             <i class="fas fa-tachometer-alt"></i>Management</a>
                                         <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
                                             <li>
-                                                <a href="/product_dashboard">Products</a>>
+                                                <a href="/product_dashboard">Products</a>
                                             </li>
                                             <li>
                                                 <a href="/category_dashboard">Category</a>
@@ -74,8 +74,18 @@
                                         </ul>
                                     </li>
                                     <li>
-                                        <a href="/customer_dashboard">
-                                        <i class="fas fa-chart-bar"></i>User management</a>
+                                        <a class="js-arrow" href="#">
+                                            <i class="fas fa-chart-bar"></i>User management
+                                        </a>
+                                            
+                                        <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                            <li>
+                                                <a href="/customer_dashboard">Users</a>
+                                            </li>
+                                            <li>
+                                                <a href="/addresses_dashboard">Address of user</a>
+                                            </li>
+                                        </ul>
                                     </li>
                                 </ul>
                             </div>
@@ -96,7 +106,7 @@
                                             <i class="fas fa-tachometer-alt"></i>Management</a>
                                         <ul class="list-unstyled navbar__sub-list js-sub-list">
                                             <li>
-                                                <a href="/product_dashboard">Products</a>>
+                                                <a href="/product_dashboard">Products</a>
                                             </li>
                                             <li>
                                                 <a href="/category_dashboard">Category</a>
@@ -104,8 +114,18 @@
                                         </ul>
                                     </li>
                                     <li>
-                                        <a href="/customer_dashboard">
-                                            <i class="fas fa-chart-bar"></i>User management</a>
+                                        <a class="js-arrow" href="#">
+                                            <i class="fas fa-chart-bar"></i>User management
+                                        </a>
+                                            
+                                        <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                            <li>
+                                                <a href="/customer_dashboard">Users</a>
+                                            </li>
+                                            <li>
+                                                <a href="/addresses_dashboard">Address of user</a>
+                                            </li>
+                                        </ul>
                                     </li>
                                 </ul>
                             </nav>
@@ -140,8 +160,7 @@
                                                     alt="John Doe" />
                                             </div>
                                             <div class="content">
-                                                <a class="js-acc-btn" href="#">john
-                                                    doe</a>
+                                                <a class="js-acc-btn" href="#"><%= name%></a>
                                             </div>
                                             <div class="account-dropdown
                                                 js-dropdown">
@@ -150,15 +169,15 @@
                                                         <a href="#">
                                                             <img
                                                                 src="images/icon/avatar-01.jpg"
-                                                                alt="John Doe"
+                                                                alt="<%= name%>"
                                                                 />
                                                         </a>
                                                     </div>
                                                     <div class="content">
                                                         <h5 class="name">
-                                                            <a href="#">john doe</a>
+                                                            <a href="#"><%= name%></a>
                                                         </h5>
-                                                        <span class="email">johndoe@example.com</span>
+                                                        <span class="email"><%= email%></span>
                                                     </div>
                                                 </div>
                                                 <div class="account-dropdown__body">
@@ -196,33 +215,29 @@
                     <div class="table-data__tool">
                         <div class="table-data__tool-left">
                             <div class="rs-select2--light rs-select2--md">
-                                <select class="js-select2" name="property">
+                                <!-- <select class="js-select2" name="property">
                                     <option selected="selected">Thuộc tính</option>
                                     <option value="">Option 1</option>
                                     <option value="">Option 2</option>
-                                </select>
+                                </select> -->
                                 <div class="dropDownSelect2"></div>
                             </div>
                             <div class="rs-select2--light rs-select2--sm">
-                                <select class="js-select2" name="time">
-                                    <option selected="selected">Hôm nay</option>
-                                    <option value="">3 Days</option>
-                                    <option value="">1 Week</option>
-                                </select>
+                                
                                 <div class="dropDownSelect2"></div>
                             </div>
-                            <button class="au-btn-filter">
-                                <i class="zmdi zmdi-filter-list"></i>Bộ lọc</button>
+                            <!-- <button class="au-btn-filter">
+                                <i class="zmdi zmdi-filter-list"></i>Bộ lọc</button> -->
                         </div>
                         <div class="table-data__tool-right">
                             <button class="au-btn au-btn-icon au-btn--green au-btn--small" >
                                 <i class="zmdi zmdi-plus"></i><a href="/customer_dashboard_add" style="text-decoration: none; color: rgb(255, 255, 255);">Thêm người dùng</a></button>
                             <div class="rs-select2--dark rs-select2--sm rs-select2--dark2">
-                                <select class="js-select2" name="type">
+                                <!-- <select class="js-select2" name="type">
                                     <option selected="selected">Xuất file</option>
                                     <option value="">Option 1</option>
                                     <option value="">Option 2</option>
-                                </select>
+                                </select> -->
                                 <div class="dropDownSelect2"></div>
                             </div>
                         </div>
@@ -231,44 +246,28 @@
                         <table class="table table-borderless table-striped table-earning">
                             <thead>
                                 <tr>
-                                    <th>
-                                        <label class="au-checkbox">
-                                            <input type="checkbox">
-                                            <span class="au-checkmark"></span>
-                                        </label>
-                                    </th>
                                     <th>name</th>
-                                
                                     <th>Email</th>
                                     <th>Phone</th>
-                                    <th>Roles</th>
-                            
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 
-                                <% for(var i=0; i< data.length; i++){%>
+                                <% for(var i=0; i< users.length; i++){%>
                                     <tr class="tr-shadow">
-                                        <td>
-                                            <label class="au-checkbox">
-                                                <input type="checkbox">
-                                                <span class="au-checkmark"></span>
-                                            </label>
-                                        </td>
-                                        <td><%= data[i]['name']%></td>
-                                        <td class="desc"><%= data[i]['email']%></td>
+                                        <td><%= users[i]['name']%></td>
+                                        <td class="desc"><%= users[i]['email']%></td>
                                         
-                                        <td><%= data[i]['phone']%></td>
+                                        <td><%= users[i]['phone']%></td>
                                         
-                                        <td><%= data[i]['roles']%></td>
                                         <td>
                                             <div class="table-data-feature">
                                                 <button class="item" data-toggle="tooltip" data-placement="top" title="Edit">
-                                                    <a href="/edit_users/<%= data[i]['id']%>"><<i class="zmdi zmdi-edit"></i>/a>
+                                                    <a href="/edit_users/<%= users[i]['id']%>"><<i class="zmdi zmdi-edit"></i></a>
                                                 </button>
                                                 <button class="item" data-toggle="tooltip" data-placement="top" title="Delete">
-                                                    <a href="/del_users/<%= data[i]['id']%>"><i class="zmdi zmdi-delete"></i></a>
+                                                    <a href="/del_users/<%= users[i]['id']%>"><i class="zmdi zmdi-delete"></i></a>
                                                 </button>
                                             </div>
                                         </td>
