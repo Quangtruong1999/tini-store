@@ -770,7 +770,7 @@ async function route(app){
                     const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                     FROM order_items
                     GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-        
+                    console.log('address = ', address.rows)
                     if(typeof req.body.address_default != 'undefined'){
                         for(var i=0; i<address.rows; i++){
                             if(address.rows[i]['address_default'] == true){
