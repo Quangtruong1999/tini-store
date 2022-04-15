@@ -174,8 +174,9 @@
                     <!-- <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
                         onmousedown="if(this.options.length>8){this.size=8;}" onchange='this.size=0;'
                         onblur="this.size=0;"> -->
-                    <select id="select_province" class="form-select form-select-lg mb-3" name="province" aria-label=".form-select-lg example">
-                        <option value="none" selected>Tỉnh / Thành phố</option>
+                    <select class="form-select form-select-lg mb-3" name="province"
+                        aria-label=".form-select-lg example">
+                        <option selected>Tỉnh / Thành phố</option>
                         <%for(var i=0; i<province.length; i++){%>
                             <option value="<%= province[i]['provinceid']%>">
                                 <%= province[i]['name']%>
@@ -197,8 +198,9 @@
                         <option value="1">Tree</option>
                         <option value="2">Fore</option>
                     </select> -->
-                    <select id="select_district" disabled class="form-select form-select-lg mb-3" name="district" aria-label=".form-select-lg example">
-                        <option value="none" selected>Quận / Huyện</option>
+                    <select class="form-select form-select-lg mb-3" name="district"
+                        aria-label=".form-select-lg example">
+                        <option selected>Quận / Huyện</option>
                         <%for(var i=0; i<district.length; i++){%>
                             <option value="<%= district[i]['provinceid']%>">
                                 <%= district[i]['name']%>
@@ -220,8 +222,8 @@
                         <option value="1">Tree</option>
                         <option value="2">Fore</option>
                     </select> -->
-                    <select id="select_ward" disabled class="form-select form-select-lg mb-3" name="ward" aria-label=".form-select-lg example">
-                        <option value="none" selected>Phường / Xã</option>
+                    <select class="form-select form-select-lg mb-3" name="ward" aria-label=".form-select-lg example">
+                        <option selected>Phường / Xã</option>
                         <%for(var i=0; i<ward.length; i++){%>
                             <option value="<%= ward[i]['provinceid']%>">
                                 <%= ward[i]['name']%>
@@ -353,9 +355,7 @@
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
     <script src="js/google-map.js"></script>
     <script src="js/main.js"></script>
-    <script>
 
-    </script>
 </body>
 
 </html>
