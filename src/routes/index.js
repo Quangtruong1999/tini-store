@@ -1031,6 +1031,7 @@ async function route(app){
         if (search_order.rows == '') {
                 
             res.render('product-single', {
+                data: product_signle.rows,
                 quantity_foods: [{"count": 0}],
                 name: req.session.name
             })
