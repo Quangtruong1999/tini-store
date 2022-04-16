@@ -37,7 +37,7 @@
 	</head>
 	<body class="goto-here">
 		<div class="py-1 bg-primary">
-			<div class="container">
+			<div class="container-fluid">
 			  <div class="row no-gutters d-flex align-items-start align-items-center
 				px-md-0">
 				<div class="col-lg-12 d-block">
@@ -63,7 +63,7 @@
 		  </div>
 		  <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark
 			ftco-navbar-light" id="ftco-navbar">
-			<div class="container">
+			<div class="container-fluid">
 			  <a class="navbar-brand" href="/">Tini Store</a>
 			  <button class="navbar-toggler" type="button" data-toggle="collapse"
 				data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false"
@@ -83,7 +83,7 @@
 					  <a class="dropdown-item" href="/wishlist">Wishlist</a>
 					  
 					  <a class="dropdown-item" href="/cart">Cart</a>
-					  <a class="dropdown-item" href="/checkout">Checkout</a>
+					  <!-- <a class="dropdown-item" href="/checkout">Checkout</a> -->
 					</div>
 				  </li>
 				  <li class="nav-item"><a href="/about" class="nav-link">About</a></li>
@@ -144,7 +144,7 @@
 
 		<div class="hero-wrap hero-bread" style="background-image:
 			url('images/bg_1.jpg');">
-			<div class="container">
+			<div class="container-fluid">
 				<div class="row no-gutters slider-text align-items-center
 					justify-content-center">
 					<div class="col-md-9 ftco-animate text-center">
@@ -158,123 +158,118 @@
 
 		<section class="ftco-section ftco-cart">
 			<%if(cart_user.length > 0){%>
-				<div class="container">
-					<div class="row">
-						<div class="col-md-12 ftco-animate">
-							<div class="cart-list">
-								<table class="table">
-									<thead class="thead-primary">
-										<tr class="text-center">
-											<th>&nbsp;</th>
-											<th>&nbsp;</th>
-											<th>Product name</th>
-											<th>Price</th>
-											<th>Quantity</th>
-											<th>Total</th>
-										</tr>
-									</thead>
-									<tbody>
-										<%for(var i=0; i<cart_user.length; i++){%>
-											<tr class="text-center">
-												<td class="product-remove"><a href="#"><span class="ion-ios-close"></span></a></td>
-												<%var img = cart_user[i]['images']%>
-												<td class="image-prod"><div class="img"
-														style="background-image:url(<%=img%>);"></div></td>
-		
-												<td class="product-name">
-													<h3><%=cart_user[i]['name']%></h3>
-													<p style="text-overflow: ellipsis;width: 500px;overflow: hidden;white-space: nowrap;">
-														<%=cart_user[i]['description']%>
-													</p>
-												</td>
-
-												<td><%=cart_user[i]['price']%> đ</td>
-		
-												<option class="price" id="price1" value="<%=cart_user[i]['price']%>"></option>
-												<!-- Sửa nút tăng giảm sp -->
-												<td class="quantity">
-													<div class="input-group d-flex mb-3">
-														
-														<input type="number" id="quantity" name="quantity" class="form-control
-															input-number" value="<%=cart_user[i]['quantity']%>" min="1" max="100" onclick="Tinh()"/>
-														
-													</div>
-												</td>
-												<!-- Sửa nút tăng giảm sp -->
-												<td id="total"><%= cart_user[i]['price']%> VND</td>
-											</tr><!-- END TR-->
-										<%}%>
-
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
-				<div class="row justify-content-end">
-					<!-- <div class="col-lg-4 mt-5 cart-wrap ftco-animate">
-						<div class="cart-total mb-3">
-							<h3>Coupon Code</h3>
-							<p>Enter your coupon code if you have one</p>
-							<form action="#" class="info">
-								<div class="form-group">
-									<label for="">Coupon code</label>
-									<input type="text" class="form-control text-left px-3" placeholder="">
-								</div>
-							</form>
-						</div>
-						<p><a href="/checkout" class="btn btn-primary py-3 px-4">Apply Coupon</a></p>
-					</div>
-					<div class="col-lg-4 mt-5 cart-wrap ftco-animate">
-						<div class="cart-total mb-3">
-							<h3>Estimate shipping and tax</h3>
-							<p>Enter your destination to get a shipping estimate</p>
-							<form action="#" class="info">
-								<div class="form-group">
-									<label for="">Country</label>
-									<input type="text" class="form-control text-left px-3" placeholder="">
-								</div>
-								<div class="form-group">
-									<label for="country">State/Province</label>
-									<input type="text" class="form-control text-left px-3" placeholder="">
-								</div>
-								<div class="form-group">
-									<label for="country">Zip/Postal Code</label>
-									<input type="text" class="form-control text-left px-3" placeholder="">
-								</div>
-							</form>
-						</div>
-						<p><a href="/checkout" class="btn btn-primary py-3 px-4">Estimate</a></p>
-					</div> -->
-					<div class="col-lg-4 mt-5 cart-wrap ftco-animate">
-						<div class="cart-total mb-3">
-							<h3>Cart Totals</h3>
-							<p class="d-flex">
-								<span>Subtotal</span>
-								<span><%= subtotal%> đ</span>
-							</p>
-							<p class="d-flex">
-								<span>Delivery</span>
-								<span><%= fee_ship%> đ</span>
-							</p>
+				<form action="/checkout" method="post" class="form-horizontal">
+					
+					<div class="container-fluid">
+						
+						<div class="row">
+							<!-- class="row justify-content-end"  -->
 							
-							<%if(discount > 0){%>
-							<%}else{%>
-								<p class="d-flex">
-									<span>Discount</span>
-									<span><%= fee_ship%> đ</span>
-								</p>
-							<%}%>
-							<hr>
-							<p class="d-flex total-price">
-								<span>Total</span>
-								<span><%= total%> đ</span>
-							</p>
+							<!-- <div class="col-md-12 ftco-animate"> -->
+							<div class="col-lg-9 col-md-12">
+								<div class="cart-list">
+									<table class="table">
+										<thead class="thead-primary">
+											<tr class="text-center">
+												<th>&nbsp;</th>
+												<th>&nbsp;</th>
+												<th>Product name</th>
+												<th>Price</th>
+												<th>Quantity</th>
+												<th>Total</th>
+											</tr>
+										</thead>
+										<tbody>
+											<%for(var i=0; i<cart_user.length; i++){%>
+												<tr class="text-center">
+													<td class="product-remove"><a href="/del_pro_cart/<%= cart_user[i]['id']%>"><span class="ion-ios-close"></span></a></td>
+													<%var img = cart_user[i]['images']%>
+													<td class="image-prod">
+														<div class="img"
+															style="background-image:url(<%=img%>);">
+														</div>
+													</td>
+													<%var tmp_id = 'id_'+cart_user[i]['id']%>
+													<input type="hidden" name="<%= tmp_id%>" value="<%= cart_user[i]['id']%>"/>
+													<td class="product-name">
+														<h3><%=cart_user[i]['name']%></h3>
+														<p style="text-overflow: ellipsis;width: 300px;overflow: hidden;white-space: nowrap;">
+															<%=cart_user[i]['description']%>
+														</p>
+													</td>
+	
+													<td><%=cart_user[i]['price']%> đ</td>
+					
+														<!-- <option class="price" id="price1" value="<%=cart_user[i]['price']%>"></option> -->
+														<!-- Sửa nút tăng giảm sp -->
+													<td class="quantity">
+														<div class="input-group d-flex mb-3">
+															<%var tmp = 'quantity_'+cart_user[i]['id']%>
+															<input type="number" id="<%= tmp%>" name="<%= tmp%>" class="form-control
+																input-number" value="<%=cart_user[i]['quantity']%>" min="1" max="100" onclick="Tinh()"/>
+															
+														</div>
+													</td>
+													<!-- Sửa nút tăng giảm sp -->
+													<td id="total"><%= cart_user[i]['price'] * cart_user[i]['quantity']%> đ</td>
+												</tr><!-- END TR-->
+											<%}%>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="col-lg-3 col-md-12 ftco-animate justify-content-ends">
+								<div> 
+									<div class="cart-wrap ftco-animate">
+										<div class="cart-total mb-3">
+											<div class="block-header" style="display: flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: justify; justify-content: space-between; margin-bottom: 12px;">
+												<h3 class="block-header__title" style="color: rgb(128, 128, 137);font-weight: normal;margin: 0px;">Ship to</h3>
+												<a class="block-header__nav" href="/change_address">Thay đổi</a>
+												
+											</div>
+											
+									</div>
+									<div class="cart-wrap ftco-animate">
+										<div class="cart-total mb-3">
+											<!-- <h3>Cart Totals</h3> -->
+											<p class="d-flex">
+												<span>Subtotal</span>
+												<span><%= subtotal%> đ</span>
+											</p>
+											<p class="d-flex">
+												<span>Delivery</span>
+												<span><%= fee_ship%> đ</span>
+											</p>
+											
+											<%if(discount > 0){%>
+											<%}else{%>
+												<p class="d-flex">
+													<span>Discount</span>
+													<span><%= fee_ship%> đ</span>
+												</p>
+											<%}%>
+											<hr>
+											<p class="d-flex total-price">
+												<span>Total</span>
+												<span><%= total%> đ</span>
+											</p>
+										</div>
+										<div class="py-3 px-4" style="text-align: center;">
+											<button type="submit"  class="btn btn-primary py-3 px-4" >
+												Proceed to Checkout
+											</button>
+										</div>
+									</div>
+	
+									
+								</div>
+								
+							</div>
 						</div>
-						<p><a href="/checkout" class="btn btn-primary py-3 px-4">Proceed to
-								Checkout</a></p>
 					</div>
-				</div>
-			</div>
+					
+			
+				</form>
 		<%}else{%>
 			<div>
 				<p style="text-align: center;">Nothing in your cart</p>
@@ -302,7 +297,7 @@
 		</div>
 	</section>
 	<footer class="ftco-footer ftco-section">
-		<div class="container">
+		<div class="container-fluid">
 			<div class="row">
 				<div class="mouse">
 					<a href="#" class="mouse-icon">
@@ -355,8 +350,8 @@
 						<h2 class="ftco-heading-2">Have a Questions?</h2>
 						<div class="block-23 mb-3">
 							<ul>
-								<li><span class="icon icon-map-marker"></span><span class="text">35 Đ.
-										Tôn Đức Thắng, P. Bến Nghé, Quận 1, TP. Hồ Chí Minh</span></li>
+								<li><span class="icon icon-map-marker"></span><span class="text">35 đ.
+										Tôn đức Thắng, P. Bến Nghé, Quận 1, TP. Hồ Chí Minh</span></li>
 								<li><a href="#"><span class="icon icon-phone"></span><span class="text">0328115411</span></a></li>
 								<li><a href="#"><span class="icon icon-envelope"></span><span
 											class="text">hideonbush0512@gmail.com</span></a></li>
@@ -444,6 +439,9 @@
 					
 					
 				});
+			</script>
+			<script src="js/mycart.js">
+				
 			</script>
 		</body>
 	</html>
