@@ -287,6 +287,146 @@ async function route(app){
         }
     }) 
 
+    
+    app.get('/new_address', urlencodedParser, async(req, res) => {
+        if(typeof req.session.name != 'undefined'){
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            if (search_order.rows == '') {
+                res.render("new_address", {
+                    name: req.session.name,
+                    quantity_foods: [{'count': 0}]
+                });
+            }else{
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+
+                res.render("new_address", {
+                    name: req.session.name,
+                    quantity_foods: quantity_foods.rows
+                });
+            }
+        }else{
+            res.redirect('/login')
+        }
+    }) 
+
+    app.post('/new_address', urlencodedParser, async(req, res) => {
+        if(typeof req.session.name != 'undefined'){
+            let errors = []
+            var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
+
+            if(regex.test(req.body.phone) != true){
+                errors.push({message: "Phone invalid!"})
+                const search_order = await pool.query(`select * 
+                from orders
+                where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                if (search_order.rows == '') {
+
+                    res.render("dia_chi", {
+                        name: req.session.name,
+                        quantity_foods: [{'count': 0}],
+                        errors: errors
+                    });
+                }else{
+    
+                    const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                    FROM order_items
+                    GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+    
+                    res.render("dia_chi", {
+                        name: req.session.name,
+                        quantity_foods: quantity_foods.rows,
+                        errors: errors
+                    });
+                }
+            }else{
+                console.log('address_default = ', req.body.address_default);
+                if(req.body.address_default == 'on'){
+
+                    const all_address = await pool.query(`select * from addresses`);
+                    for(var i=0; i<all_address.rows.length; i++){
+                        console.log('address_default = ', all_address.rows[i]['address_default'])
+                        if(all_address.rows[i]['address_default'] == true){
+                            console.log('all_address = ', all_address.rows)
+                            const update_address_default = await pool.query(`update addresses
+                            set address_default = false
+                            where id = $1`, [all_address.rows[i]['id']])
+                        }
+                    }
+                    console.log('province = ', req.body.calc_shipping_provinces)
+                    const add_address = await pool.query(`insert into addresses (user_id, address_default, phone, name, wardid, districtid, provinceid, street)
+                    values ($1,$2,$3,$4,$5,$6,$7,$8);`, [req.session.user_id,true, req.body.phone, req.body.name, req.body.ward, req.body.calc_shipping_district, req.body.calc_shipping_provinces,req.body.street])
+
+                    console.log('Thêm thành công')
+                    res.redirect('/change_address')
+                }else{
+                    
+                    const add_address = await pool.query(`insert into addresses (user_id, address_default, phone, name, wardid, districtid, provinceid, street)
+                    values ($1,$2,$3,$4,$5,$6,$7,$8);`, [req.session.user_id,false, req.body.phone, req.body.name, req.body.ward, req.body.calc_shipping_district, req.body.calc_shipping_provinces,req.body.street])
+
+                    console.log('Thêm thành công')
+                    res.redirect('/change_address')
+                }
+            }
+        }else{
+            res.redirect('/login')
+        }
+    }) 
+
+    app.get('/change_address', async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            const list_address = await pool.query(`select * from addresses where user_id = $1`, [req.session.user_id])
+            if (search_order.rows == ''){
+                res.render("change_address", {
+                    name: req.session.name,
+                    order: search_order.rows,
+                    list_address: list_address.rows
+                });
+                    
+            }else{
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+        
+                res.render("change_address", {
+                    name: req.session.name,
+                    order: search_order.rows,
+                    quantity_foods: quantity_foods.rows,
+                    list_address: list_address.rows
+                });
+            }
+        }
+    })
+
+    app.get('/approve_address/:address_id&:order_id', urlencodedParser, async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            console.log('address_id = ', req.params.address_id, ' order_id = ', req.params.order_id)
+            const update_address = await pool.query(`update orders
+            set address_id = $1
+            where id=$2`,[req.params.address_id, req.params.order_id]);
+            res.redirect("/cart")
+        }
+    })
+
+    app.get('/delete_address/:id', urlencodedParser, async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const del_wishlist = await pool.query(`DELETE FROM addresses WHERE id = $1`,[req.params.id]);
+            res.redirect("/change_address")
+        }
+    })
+
     app.get('/cart', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -297,54 +437,126 @@ async function route(app){
             const cart_user = await pool.query(`select order_items.id, order_items.food_id, order_items.quantity, foods.name, foods.description, foods.price, foods.images
             from orders, order_items, foods
             where orders.id = order_items.order_id and order_items.food_id = foods.id and orders.owner_id = $1 and orders.states='draft'`,[req.session.user_id]);
-        
-            if(cart_user.rows.length > 0){ 
-                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-                FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-                const order_items = await pool.query(`select * from order_items where order_id = $1`, [search_order.rows[0]['id']])
-                const get_address_default = await pool.query(`select * from addresses where user_id = $1`, [req.session.user_id])
-                // const total = await pool.query(`SELECT sum (price)
-                // FROM order_items
-                // GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-
-                
-                let total = 0
-                for(var i=0; i<order_items.rows.length; i++){
-                    total += (order_items.rows[i]['quantity'] * order_items.rows[i]['price'])
-                }
-
-                let discount = 1
-                if(total >= 350000){
-                    discount = 0
-                }
-
-                console.log('quantity_foods = ', quantity_foods.rows)
-                console.log('subtotal = ', total)
-                console.log('fee_ship = ', search_order.rows[0]['delivery_fee'])
-                if(discount>0){
-                    const totals = Number(total) + Number(search_order.rows[0]['delivery_fee'])
-                    
-                    res.render("cart", {
-                        cart_user: cart_user.rows,
-                        name: req.session.name,
-                        quantity_foods: quantity_foods.rows,
-                        subtotal: total,
-                        fee_ship: search_order.rows[0]['delivery_fee'],
-                        total: totals,
-                        discount: discount
-                    });
+            if(search_order.rows.length > 0){
+                if(cart_user.rows.length > 0){ 
+                    const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                    FROM order_items
+                    GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                    const order_items = await pool.query(`select * from order_items where order_id = $1`, [search_order.rows[0]['id']])
+                    const get_address_default = await pool.query(`select * from addresses where user_id = $1 and address_default = true`, [req.session.user_id])
+                    // const total = await pool.query(`SELECT sum (price)
+                    // FROM order_items
+                    // GROUP BY order_id = $1`, [search_order.rows[0]['id']])         
+                    let total = 0
+                    for(var i=0; i<order_items.rows.length; i++){
+                        total += (order_items.rows[i]['quantity'] * order_items.rows[i]['price'])
+                    }
+    
+                    let discount = 1
+                    if(total >= 350000){
+                        discount = 0
+                    }
+                    if(search_order.rows[0]['address_id'] != null){
+                        console.log('hello')
+                        const address = await pool.query(`select * from addresses where id = $1`, [search_order.rows[0]['address_id']])
+                        if(discount>0){
+                            const totals = Number(total) + Number(search_order.rows[0]['delivery_fee'])
+                            
+                            res.render("cart", {
+                                cart_user: cart_user.rows,
+                                order: address.rows,
+                                name: req.session.name,
+                                quantity_foods: quantity_foods.rows,
+                                subtotal: total,
+                                fee_ship: search_order.rows[0]['delivery_fee'],
+                                total: totals,
+                                discount: discount
+                            });
+                        }else{
+                            const totals = (Number(total) + Number(search_order.rows[0]['delivery_fee'])) - Number(search_order.rows[0]['delivery_fee'])
+                            console.log('total = ', total);
+                            res.render("cart", {
+                                cart_user: cart_user.rows,
+                                order: address.rows,
+                                name: req.session.name,
+                                quantity_foods: quantity_foods.rows,
+                                subtotal: total,
+                                fee_ship: search_order.rows[0]['delivery_fee'],
+                                total: totals,
+                                discount: discount
+                            });
+                        }
+                    }else{
+                        if(get_address_default.rows.length > 0){
+                            const add_adress_default = await pool.query(`update orders
+                            set address_id = $1
+                            where id=$2`, [get_address_default.rows[0]['id'], search_order.rows[0]['id']])
+                            const search_order_new = await pool.query(`select * 
+                            from orders
+                            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                            const address = await pool.query(`select * from addresses where id = $1`, [search_order_new.rows[0]['address_default']])
+                            if(discount>0){
+                                const totals = Number(total) + Number(search_order.rows[0]['delivery_fee'])
+                                
+                                res.render("cart", {
+                                    cart_user: cart_user.rows,
+                                    order: address.rows,
+                                    name: req.session.name,
+                                    quantity_foods: quantity_foods.rows,
+                                    subtotal: total,
+                                    fee_ship: search_order_new.rows[0]['delivery_fee'],
+                                    total: totals,
+                                    discount: discount
+                                });
+                            }else{
+                                const totals = (Number(total) + Number(search_order.rows[0]['delivery_fee'])) - Number(search_order.rows[0]['delivery_fee'])
+                                console.log('total = ', total);
+                                res.render("cart", {
+                                    cart_user: cart_user.rows,
+                                    order: address.rows,
+                                    name: req.session.name,
+                                    quantity_foods: quantity_foods.rows,
+                                    subtotal: total,
+                                    fee_ship: search_order.rows[0]['delivery_fee'],
+                                    total: totals,
+                                    discount: discount
+                                });
+                            }
+                        }else{
+                            if(discount>0){
+                                const totals = Number(total) + Number(search_order.rows[0]['delivery_fee'])
+                                
+                                res.render("cart", {
+                                    cart_user: cart_user.rows,
+                                    order: '',
+                                    name: req.session.name,
+                                    quantity_foods: quantity_foods.rows,
+                                    subtotal: total,
+                                    fee_ship: search_order.rows[0]['delivery_fee'],
+                                    total: totals,
+                                    discount: discount
+                                });
+                            }else{
+                                const totals = (Number(total) + Number(search_order.rows[0]['delivery_fee'])) - Number(search_order.rows[0]['delivery_fee'])
+                                console.log('total = ', total);
+                                res.render("cart", {
+                                    cart_user: cart_user.rows,
+                                    order: '',
+                                    name: req.session.name,
+                                    quantity_foods: quantity_foods.rows,
+                                    subtotal: total,
+                                    fee_ship: search_order.rows[0]['delivery_fee'],
+                                    total: totals,
+                                    discount: discount
+                                });
+                            }
+                        }
+                    }
                 }else{
-                    const totals = (Number(total) + Number(search_order.rows[0]['delivery_fee'])) - Number(search_order.rows[0]['delivery_fee'])
-                    console.log('total = ', total);
                     res.render("cart", {
-                        cart_user: cart_user.rows,
+                        cart_user: cart_user.rows, 
                         name: req.session.name,
-                        quantity_foods: quantity_foods.rows,
-                        subtotal: total,
-                        fee_ship: search_order.rows[0]['delivery_fee'],
-                        total: totals,
-                        discount: discount
+                        quantity_foods: [{"count": 0}]
                     });
                 }
             }else{
@@ -354,6 +566,7 @@ async function route(app){
                     quantity_foods: [{"count": 0}]
                 });
             }
+            
         }
     })  
 
@@ -804,7 +1017,6 @@ async function route(app){
 
     app.post('/dia_chi', urlencodedParser, async(req, res) => {
         if(typeof req.session.name != 'undefined'){
-
             let errors = []
             var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
 
@@ -956,10 +1168,9 @@ async function route(app){
                         console.log('Cập nhật địa chỉ thành công')
                         res.redirect('/show_dia_chi')
                     }else{
-                        
                         const update_address = await pool.query(`update addresses
-                                set provinceid = $1, districtid = $2, wardid=$3, name=$4, phone=$5, address_default=false, street=$6
-                                where id = $7`, [req.body.calc_shipping_provinces, req.body.calc_shipping_district,req.body.ward, req.body.name,req.body.phone, ,req.body.street,req.params.id])
+                        set provinceid = $1, districtid = $2, wardid=$3, name=$4, phone=$5, address_default=false, street=$6
+                        where id = $7`, [req.body.calc_shipping_provinces, req.body.calc_shipping_district,req.body.ward, req.body.name,req.body.phone,req.body.street,req.params.id])
                         console.log('Cập nhật địa chỉ thành công')
                         res.redirect('/show_dia_chi')
                     }

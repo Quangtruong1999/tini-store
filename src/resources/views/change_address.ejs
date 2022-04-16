@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Tini Store - My address</title>
+    <title>Tini Store - Change address</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -165,13 +165,11 @@
             <div class="col-10"></div>
             <div class="col-2">
                 <button class="au-btn au-btn-icon au-btn--green au-btn--small">
-                    <i class="zmdi zmdi-plus"></i><a href="/dia_chi"
-                        style="text-decoration: none; color: rgb(255, 255, 255);">Thêm</a>
+                    <i class="zmdi zmdi-plus"></i><a href="/new_address"
+                        style="text-decoration: none; color: rgb(255, 255, 255);">New address</a>
                 </button>
             </div>
         </div>
-
-
         <%for(var i=0; i<list_address.length; i++){%>
             <div class="row">
                 <div class="col-12">
@@ -183,27 +181,25 @@
                                         <%if(list_address[i]['address_default'] == true){%>
                                             <p style="color: #82ae46;"><i class="zmdi zmdi-check-all" style="color: #82ae46; font-size: 25px;"></i>  Địa chỉ mặc định</p>
                                         <%}%>
-                                        <p>Tên: <%= list_address[i]['name']%></p>
-                                        <p>Số điện thoại: <%= list_address[i]['phone']%></p>  
-                                        <p>Địa chỉ: <%= list_address[i]['street']%>, <%= list_address[i]['wardid']%>, <%= list_address[i]['districtid']%>, <%= list_address[i]['provinceid']%> </p>
+                                        <p>Name: <%= list_address[i]['name']%></p>
+                                        <p>Phone number: <%= list_address[i]['phone']%></p>  
+                                        <p>Address: <%= list_address[i]['street']%>, <%= list_address[i]['wardid']%>, <%= list_address[i]['districtid']%>, <%= list_address[i]['provinceid']%></p>
                                         
                                     </div>
                                     <div class="col-md-12 col-lg-4">
-                                        
+                                        <a href="/approve_address/<%= list_address[i]['id']%>&<%= order[0]['id']%>" class="item"
+                                            data-toggle="tooltip" style="font-size: 25px;padding: 0px;" data-placement="top"
+                                            title="Edit">
+                                            <i class="zmdi zmdi-add">Ship to this address</i>
+                                        </a>
+                                        <a href="/delete_address/<%= list_address[i]['id']%>" class="item"
+                                            data-toggle="tooltip" style="font-size: 25px;padding: 0px;" data-placement="top"
+                                            title="Delete">
+                                            <i class="zmdi zmdi-delete">Delete</i>
+                                        </a>
                                     </div>
                                 </div>
-                                <div class="col-1">
-                                    <a href="/edit_addresses/<%= list_address[i]['id']%>" class="item"
-                                        data-toggle="tooltip" style="font-size: 25px;padding: 0px;" data-placement="top"
-                                        title="Edit">
-                                        <i class="zmdi zmdi-edit"></i>
-                                    </a>
-                                    <a href="/del_address/<%= list_address[i]['id']%>" class="item"
-                                        data-toggle="tooltip" style="font-size: 25px;padding: 0px;" data-placement="top"
-                                        title="Delete">
-                                        <i class="zmdi zmdi-delete"></i>
-                                    </a>
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
