@@ -85,7 +85,8 @@ async function route(app){
             }else{
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']]) 
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']]) 
                 res.render('index', {
                     quantity_foods: quantity_foods.rows,
                     name: req.session.name
@@ -93,25 +94,14 @@ async function route(app){
             }
 
         }
-        // if (req.session.user) {
-        //     res.render("index", {name: req.session.name});
-        // }
-        // else {     
-        //     // res.redirect("/login");
-        //     res.render("index", {name: req.session.name});
-        // }
     })  
               
     app.get('/shop11', shop_routes)  
-    // app.get('/shop11', shop_routes)   
-    
-
-    // app.get('/login', (req, res) => {
-    //     res.render('login1')
-    // })       
+      
     app.get('/signup', (req, res) => {
         res.render('signup');
     })     
+
     app.post('/signup',urlencodedParser, async (req, res) => {
         let {name, phone, email, password, repassword} = req.body;
         console.log('name = ', name);
@@ -248,7 +238,8 @@ async function route(app){
             }else{
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
     
                 res.render("about", {
                     name: req.session.name,
@@ -276,7 +267,8 @@ async function route(app){
             }else{
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
 
                 res.render("blog", {
                     name: req.session.name,
@@ -302,7 +294,8 @@ async function route(app){
             }else{
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
 
                 res.render("new_address", {
                     name: req.session.name,
@@ -335,8 +328,9 @@ async function route(app){
     
                     const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                     FROM order_items
-                    GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-    
+                    where order_id = $1
+                    GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
+        
                     res.render("dia_chi", {
                         name: req.session.name,
                         quantity_foods: quantity_foods.rows,
@@ -395,7 +389,8 @@ async function route(app){
             }else{
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
         
                 res.render("change_address", {
                     name: req.session.name,
@@ -460,17 +455,20 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            let errors = []
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
             const cart_user = await pool.query(`select order_items.id, order_items.food_id, order_items.quantity, foods.name, foods.description, foods.price, foods.images
             from orders, order_items, foods
             where orders.id = order_items.order_id and order_items.food_id = foods.id and orders.owner_id = $1 and orders.states='draft'`,[req.session.user_id]);
+            
             if(search_order.rows.length > 0){
                 if(cart_user.rows.length > 0){ 
                     const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                     FROM order_items
-                    GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                    where order_id = $1
+                    GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
                     const order_items = await pool.query(`select * from order_items where order_id = $1`, [search_order.rows[0]['id']])
                     const get_address_default = await pool.query(`select * from addresses where user_id = $1 and address_default = true`, [req.session.user_id])
                     // const total = await pool.query(`SELECT sum (price)
@@ -493,26 +491,30 @@ async function route(app){
                             
                             res.render("cart", {
                                 cart_user: cart_user.rows,
+                                order_id: search_order.rows[0]['id'],
                                 order: address.rows,
                                 name: req.session.name,
                                 quantity_foods: quantity_foods.rows,
                                 subtotal: total,
                                 fee_ship: search_order.rows[0]['delivery_fee'],
                                 total: totals,
-                                discount: discount
+                                discount: discount,
+                                errors: errors
                             });
                         }else{
                             const totals = (Number(total) + Number(search_order.rows[0]['delivery_fee'])) - Number(search_order.rows[0]['delivery_fee'])
                             console.log('total = ', total);
                             res.render("cart", {
                                 cart_user: cart_user.rows,
+                                order_id: search_order.rows[0]['id'],
                                 order: address.rows,
                                 name: req.session.name,
                                 quantity_foods: quantity_foods.rows,
                                 subtotal: total,
                                 fee_ship: search_order.rows[0]['delivery_fee'],
                                 total: totals,
-                                discount: discount
+                                discount: discount,
+                                errors: errors
                             });
                         }
                     }else{
@@ -529,26 +531,30 @@ async function route(app){
                                 
                                 res.render("cart", {
                                     cart_user: cart_user.rows,
+                                    order_id: search_order.rows[0]['id'],
                                     order: address.rows,
                                     name: req.session.name,
                                     quantity_foods: quantity_foods.rows,
                                     subtotal: total,
                                     fee_ship: search_order_new.rows[0]['delivery_fee'],
                                     total: totals,
-                                    discount: discount
+                                    discount: discount,
+                                    errors: errors
                                 });
                             }else{
                                 const totals = (Number(total) + Number(search_order.rows[0]['delivery_fee'])) - Number(search_order.rows[0]['delivery_fee'])
                                 console.log('total = ', total);
                                 res.render("cart", {
                                     cart_user: cart_user.rows,
+                                    order_id: search_order.rows[0]['id'],
                                     order: address.rows,
                                     name: req.session.name,
                                     quantity_foods: quantity_foods.rows,
                                     subtotal: total,
                                     fee_ship: search_order.rows[0]['delivery_fee'],
                                     total: totals,
-                                    discount: discount
+                                    discount: discount,
+                                    errors: errors
                                 });
                             }
                         }else{
@@ -557,26 +563,30 @@ async function route(app){
                                 
                                 res.render("cart", {
                                     cart_user: cart_user.rows,
+                                    order_id: search_order.rows[0]['id'],
                                     order: '',
                                     name: req.session.name,
                                     quantity_foods: quantity_foods.rows,
                                     subtotal: total,
                                     fee_ship: search_order.rows[0]['delivery_fee'],
                                     total: totals,
-                                    discount: discount
+                                    discount: discount,
+                                    errors: errors
                                 });
                             }else{
                                 const totals = (Number(total) + Number(search_order.rows[0]['delivery_fee'])) - Number(search_order.rows[0]['delivery_fee'])
                                 console.log('total = ', total);
                                 res.render("cart", {
                                     cart_user: cart_user.rows,
+                                    order_id: search_order.rows[0]['id'],
                                     order: '',
                                     name: req.session.name,
                                     quantity_foods: quantity_foods.rows,
                                     subtotal: total,
                                     fee_ship: search_order.rows[0]['delivery_fee'],
                                     total: totals,
-                                    discount: discount
+                                    discount: discount,
+                                    errors: errors
                                 });
                             }
                         }
@@ -585,17 +595,18 @@ async function route(app){
                     res.render("cart", {
                         cart_user: cart_user.rows, 
                         name: req.session.name,
-                        quantity_foods: [{"count": 0}]
+                        quantity_foods: [{"count": 0}],
+                        errors: errors
                     });
                 }
             }else{
                 res.render("cart", {
                     cart_user: cart_user.rows, 
                     name: req.session.name,
-                    quantity_foods: [{"count": 0}]
+                    quantity_foods: [{"count": 0}],
+                    errors: errors
                 });
             }
-            
         }
     })  
 
@@ -677,87 +688,307 @@ async function route(app){
 
     app.get('/blog-single', (req, res) => {
         res.render("blog-single", {name: req.session.name});
-    })          
-    // app.get('/checkout', urlencodedParser, async(req, res) => {
-    //     if(typeof req.session.user == 'undefined'){
-    //         res.redirect('/login');
-    //     }else{
-    //         console.log('qty = ', req.body)
-    //         const search_order = await pool.query(`select * 
-    //         from orders
-    //         where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-    //         if (search_order.rows == '') {
-                    
-    //             res.render('checkout', {
-    //                 quantity_foods: [{"count": 0}],
-    //                 name: req.session.name
-    //             })
-    //         }else{
-    //             const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-    //             FROM order_items
-    //             GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-
-    //             res.render("checkout", {
-    //                 name: req.session.name,
-    //                 quantity_foods: quantity_foods.rows
-    //             });
-    //         }
-    //     }
-    // })      
+    })             
             
     app.post('/checkout', urlencodedParser, async(req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            const search_order = await pool.query(`select * 
-            from orders
-            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            console.log('body = ', req.body)
 
-            if (search_order.rows == '') {
-                    
-                res.render('checkout', {
-                    quantity_foods: [{"count": 0}],
-                    name: req.session.name
-                })
-            }else{
-                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-                FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-                const order_items = await pool.query(`select * from order_items where order_id = $1`, [search_order.rows[0]['id']])
+            let errors = []
+            var today = new Date();
+            var date, day, month, year;
 
-                for(var i=0; i<order_items.rows.length; i++){
-
+            if((today.getMonth()+1) == 1 || (today.getMonth()+1) == 3 || (today.getMonth()+1) == 5 || (today.getMonth()+1) == 7 || (today.getMonth()+1) == 8 || (today.getMonth()+1) == 10 || (today.getMonth()+1) == 12){
+                var tmp_day = 3 - (31 - today.getDate())
+                if(tmp_day == 0){
+                    day = 3
+                    if((today.getMonth()+1) == 12){
+                        month = 1
+                        year = today.getFullYear()+1
+                    }else{
+                        month = (today.getMonth()+1) + 1
+                        year = today.getFullYear()
+                    }
+                }else if(tmp_day > 0){
+                    day = tmp_day
+                    if((today.getMonth()+1) == 12){
+                        month = 1
+                        year = today.getFullYear()+1
+                    }else{
+                        month = (today.getMonth()+1) + 1
+                        year = today.getFullYear()
+                    }
+                }else{
+                    day = today.getDate()
+                    month = (today.getMonth()+1)
+                    year = today.getFullYear()
+                }
+            }else if((today.getMonth()+1) == 2){
+                var leapYear = function(year){
+                    if ((year % 4===0 &&year%100 !==0 && year % 400 !==0)||(year%100===0 && year % 400===0)){
+                        return true
+                    } else{
+                        return false
+                    }
+                };
+                if(leapYear(today.getFullYear()) == true){
+                    var tmp_day = 3 - (29 - today.getDate())
+                    if(tmp_day == 0){
+                        day = 3
+                        if((today.getMonth()+1) == 12){
+                            month = 1
+                            year = today.getFullYear()+1
+                        }else{
+                            month = (today.getMonth()+1) + 1
+                            year = today.getFullYear()
+                        }
+                    }else if(tmp_day > 0){
+                        day = tmp_day
+                        if((today.getMonth()+1) == 12){
+                            month = 1
+                            year = today.getFullYear()+1
+                        }else{
+                            month = (today.getMonth()+1) + 1
+                            year = today.getFullYear()
+                        }
+                    }else{
+                        day = today.getDate()
+                        month = (today.getMonth()+1)
+                        year = today.getFullYear()
+                    }
+                }else{
+                    var tmp_day = 3 - (28 - today.getDate())
+                    if(tmp_day == 0){
+                        day = 3
+                        if((today.getMonth()+1) == 12){
+                            month = 1
+                            year = today.getFullYear()+1
+                        }else{
+                            month = (today.getMonth()+1) + 1
+                            year = today.getFullYear()
+                        }
+                    }else if(tmp_day > 0){
+                        day = tmp_day
+                        if((today.getMonth()+1) == 12){
+                            month = 1
+                            year = today.getFullYear()+1
+                        }else{
+                            month = (today.getMonth()+1) + 1
+                            year = today.getFullYear()
+                        }
+                    }else{
+                        day = today.getDate()
+                        month = (today.getMonth()+1)
+                        year = today.getFullYear()
+                    }
                 }
                 
-
-                res.render("checkout", {
-                    name: req.session.name,
-                    quantity_foods: quantity_foods.rows
-                });
+            }else{
+                var tmp_day = 3 - (30 - today.getDate())
+                if(tmp_day == 0){
+                    day = 3
+                    if((today.getMonth()+1) == 12){
+                        month = 1
+                        year = today.getFullYear()+1
+                    }else{
+                        month = (today.getMonth()+1) + 1
+                        year = today.getFullYear()
+                    }
+                }else if(tmp_day > 0){
+                    day = tmp_day
+                    if((today.getMonth()+1) == 12){
+                        month = 1
+                        year = today.getFullYear()+1
+                    }else{
+                        month = (today.getMonth()+1) + 1
+                        year = today.getFullYear()
+                    }
+                }else{
+                    day = today.getDate() + 3
+                    month = (today.getMonth()+1)
+                    year = today.getFullYear()
+                }
             }
-
-            console.log('body = ', req.body.id_2)
             
-            console.log('body length = ', req.body.id_1)
-            // const search_order = await pool.query(`select * 
-            // from orders
-            // where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-            // if (search_order.rows == '') {
+            const check_address = await pool.query(`select * from orders where id = $1`, [req.body.order_id])
+            
+            const dates = new Date(Date.UTC(year, month-1, day,today.getHours(),today.getMinutes(), today.getSeconds()));
+            if(check_address.rows[0]['address_id'] != null){
+                console.log('hello')
+                if(typeof req.body.discount != 'undefined'){
+                    const confirm_order = await pool.query(`update orders
+                    set delivery_time = $1, amount = $2, discount = $3, states = 'done'
+                    where id = $4;`, [new Intl.DateTimeFormat().format(dates), req.body.amount, req.body.discount, req.body.order_id])
                     
-            //     res.render('checkout', {
-            //         quantity_foods: [{"count": 0}],
-            //         name: req.session.name
-            //     })
-            // }else{
-            //     const quantity_foods = await pool.query(`SELECT COUNT (food_id)
-            //     FROM order_items
-            //     GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                    console.log('mua hàng thành công')
+                    res.redirect('/')
+                }else{
+    
+                    const confirm_order = await pool.query(`update orders
+                    set delivery_time = $1, amount = $2, discount = $3, states = 'done'
+                    where id = $4;`, [new Intl.DateTimeFormat().format(dates), req.body.amount, 0, req.body.order_id])
+                    
+                    console.log('mua hàng thành công')
+                    res.redirect('/')
+                }
+            }else{
+                console.log('hello mấy cưng')
+                errors.push({errors: "Please choose address"})
 
-            //     res.render("checkout", {
-            //         name: req.session.name,
-            //         quantity_foods: quantity_foods.rows
-            //     });
-            // }
+                const search_order = await pool.query(`select * 
+                from orders
+                where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                const cart_user = await pool.query(`select order_items.id, order_items.food_id, order_items.quantity, foods.name, foods.description, foods.price, foods.images
+                from orders, order_items, foods
+                where orders.id = order_items.order_id and order_items.food_id = foods.id and orders.owner_id = $1 and orders.states='draft'`,[req.session.user_id]);
+                
+                if(search_order.rows.length > 0){
+                    if(cart_user.rows.length > 0){ 
+                        const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                        FROM order_items
+                        where order_id = $1
+                        GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
+                        const order_items = await pool.query(`select * from order_items where order_id = $1`, [search_order.rows[0]['id']])
+                        const get_address_default = await pool.query(`select * from addresses where user_id = $1 and address_default = true`, [req.session.user_id])
+                        // const total = await pool.query(`SELECT sum (price)
+                        // FROM order_items
+                        // GROUP BY order_id = $1`, [search_order.rows[0]['id']])         
+                        let total = 0
+                        for(var i=0; i<order_items.rows.length; i++){
+                            total += (order_items.rows[i]['quantity'] * order_items.rows[i]['price'])
+                        }
+        
+                        let discount = 1
+                        if(total >= 350000){
+                            discount = 0
+                        }
+                        if(search_order.rows[0]['address_id'] != null){
+                            console.log('hello')
+                            const address = await pool.query(`select * from addresses where id = $1`, [search_order.rows[0]['address_id']])
+                            if(discount>0){
+                                const totals = Number(total) + Number(search_order.rows[0]['delivery_fee'])
+                                
+                                res.render("cart", {
+                                    cart_user: cart_user.rows,
+                                    order_id: search_order.rows[0]['id'],
+                                    order: address.rows,
+                                    name: req.session.name,
+                                    quantity_foods: quantity_foods.rows,
+                                    subtotal: total,
+                                    fee_ship: search_order.rows[0]['delivery_fee'],
+                                    total: totals,
+                                    discount: discount,
+                                    errors: errors
+                                });
+                            }else{
+                                const totals = (Number(total) + Number(search_order.rows[0]['delivery_fee'])) - Number(search_order.rows[0]['delivery_fee'])
+                                console.log('total = ', total);
+                                res.render("cart", {
+                                    cart_user: cart_user.rows,
+                                    order_id: search_order.rows[0]['id'],
+                                    order: address.rows,
+                                    name: req.session.name,
+                                    quantity_foods: quantity_foods.rows,
+                                    subtotal: total,
+                                    fee_ship: search_order.rows[0]['delivery_fee'],
+                                    total: totals,
+                                    discount: discount,
+                                    errors: errors
+                                });
+                            }
+                        }else{
+                            if(get_address_default.rows.length > 0){
+                                const add_adress_default = await pool.query(`update orders
+                                set address_id = $1
+                                where id=$2`, [get_address_default.rows[0]['id'], search_order.rows[0]['id']])
+                                const search_order_new = await pool.query(`select * 
+                                from orders
+                                where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                                const address = await pool.query(`select * from addresses where id = $1`, [search_order_new.rows[0]['address_default']])
+                                if(discount>0){
+                                    const totals = Number(total) + Number(search_order.rows[0]['delivery_fee'])
+                                    
+                                    res.render("cart", {
+                                        cart_user: cart_user.rows,
+                                        order_id: search_order.rows[0]['id'],
+                                        order: address.rows,
+                                        name: req.session.name,
+                                        quantity_foods: quantity_foods.rows,
+                                        subtotal: total,
+                                        fee_ship: search_order_new.rows[0]['delivery_fee'],
+                                        total: totals,
+                                        discount: discount,
+                                        errors: errors
+                                    });
+                                }else{
+                                    const totals = (Number(total) + Number(search_order.rows[0]['delivery_fee'])) - Number(search_order.rows[0]['delivery_fee'])
+                                    console.log('total = ', total);
+                                    res.render("cart", {
+                                        cart_user: cart_user.rows,
+                                        order_id: search_order.rows[0]['id'],
+                                        order: address.rows,
+                                        name: req.session.name,
+                                        quantity_foods: quantity_foods.rows,
+                                        subtotal: total,
+                                        fee_ship: search_order.rows[0]['delivery_fee'],
+                                        total: totals,
+                                        discount: discount,
+                                        errors: errors
+                                    });
+                                }
+                            }else{
+                                if(discount>0){
+                                    const totals = Number(total) + Number(search_order.rows[0]['delivery_fee'])
+                                    
+                                    res.render("cart", {
+                                        cart_user: cart_user.rows,
+                                        order_id: search_order.rows[0]['id'],
+                                        order: '',
+                                        name: req.session.name,
+                                        quantity_foods: quantity_foods.rows,
+                                        subtotal: total,
+                                        fee_ship: search_order.rows[0]['delivery_fee'],
+                                        total: totals,
+                                        discount: discount,
+                                        errors: errors
+                                    });
+                                }else{
+                                    const totals = (Number(total) + Number(search_order.rows[0]['delivery_fee'])) - Number(search_order.rows[0]['delivery_fee'])
+                                    console.log('total = ', total);
+                                    res.render("cart", {
+                                        cart_user: cart_user.rows,
+                                        order_id: search_order.rows[0]['id'],
+                                        order: '',
+                                        name: req.session.name,
+                                        quantity_foods: quantity_foods.rows,
+                                        subtotal: total,
+                                        fee_ship: search_order.rows[0]['delivery_fee'],
+                                        total: totals,
+                                        discount: discount,
+                                        errors: errors
+                                    });
+                                }
+                            }
+                        }
+                    }else{
+                        res.render("cart", {
+                            cart_user: cart_user.rows, 
+                            name: req.session.name,
+                            quantity_foods: [{"count": 0}],
+                            errors: errors
+                        });
+                    }
+                }else{
+                    res.render("cart", {
+                        cart_user: cart_user.rows, 
+                        name: req.session.name,
+                        quantity_foods: [{"count": 0}],
+                        errors: errors
+                    });
+                }
+            }
         }
     }) 
 
@@ -776,7 +1007,8 @@ async function route(app){
             }else{
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
 
                 res.render("contact", {
                     name: req.session.name,
@@ -803,10 +1035,10 @@ async function route(app){
                 name: req.session.name
             })
         }else{
-            
             const quantity_foods = await pool.query(`SELECT COUNT (food_id)
             FROM order_items
-            GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+            where order_id = $1
+            GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
 
             res.render('product-single', {
                 data: product_signle.rows,
@@ -872,7 +1104,8 @@ async function route(app){
             }else{
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
 
                 if(category_id == 0){
                     const foods = await pool.query(`SELECT * FROM foods`);
@@ -934,10 +1167,10 @@ async function route(app){
                     quantity_foods: [{"count": 0}]
                 });
             }else{
-
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
     
     
                 console.log('wishlist = ', wishlist_user.rows)
@@ -1032,7 +1265,8 @@ async function route(app){
 
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
 
                 res.render("dia_chi", {
                     name: req.session.name,
@@ -1065,7 +1299,8 @@ async function route(app){
     
                     const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                     FROM order_items
-                    GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                    where order_id = $1
+                    GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
     
                     res.render("dia_chi", {
                         name: req.session.name,
@@ -1118,7 +1353,8 @@ async function route(app){
             if(search_order.rows != ''){
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
     
                 res.render('edit_dia_chi', {
                     name: req.session.name, 
@@ -1163,8 +1399,9 @@ async function route(app){
     
                     const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                     FROM order_items
-                    GROUP BY order_id = $1`, [search_order.rows[0]['id']])
-    
+                    where order_id = $1
+                    GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
+        
                     res.render("edit_dia_chi", {
                         name: req.session.name,
                         address: address.rows,
@@ -1177,7 +1414,8 @@ async function route(app){
                 if(search_order.rows != ''){
                     const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                     FROM order_items
-                    GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                    where order_id = $1
+                    GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
                     console.log('loai = ', req.body.address_default)
                     console.log('address = ', all_address.rows)
                     if(req.body.address_default == 'on'){
@@ -1327,12 +1565,84 @@ async function route(app){
             res.redirect('/login');
         }else{
 
-            const addresses = await pool.query(`select * from users where id = $1`, [req.params.id])
-            res.render('customer_dashboard_edit', {
-                user: user.rows,
+            const addresses = await pool.query(`select *
+            from addresses`)
+            console.log('address = ', addresses.rows)
+            res.render('address_dashboard', {
+                addresses: addresses.rows,
                 name: req.session.name,
                 email: req.session.email
             })
+        }
+    })
+        
+    app.get('/edit_address_dashboard/:id', urlencodedParser,async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const address = await pool.query(`select * FROM addresses WHERE id = $1`, [req.params.id])
+
+            res.render('address_dashboard_edit', {
+                name: req.session.name, 
+                email: req.session.email,
+                user_id: req.session.user_id,
+                address: address.rows
+            })
+        }
+    })
+
+    app.post('/edit_address_dashboard/:id', urlencodedParser,  upload.single('image'), async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const address = await pool.query(`select * FROM addresses WHERE id = $1`, [req.params.id])
+            var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
+            let errors = []
+            if(regex.test(req.body.phone) != true){
+                errors.push({message: "Phone invalid!"})
+                
+                res.render("edit_dia_chi", {
+                    name: req.session.name,
+                    address: address.rows,
+                    email: req.session.email,
+                    errors: errors
+                });
+            }else{
+                const all_address = await pool.query(`select * from addresses`);
+                    
+                if(req.body.address_default == 'on'){
+                    for(var i=0; i<all_address.rows.length; i++){
+                        console.log('address_default = ', all_address.rows[i]['address_default'])
+                        if(all_address.rows[i]['address_default'] == true){
+                            console.log('all_address = ', all_address.rows)
+                            const update_address_default = await pool.query(`update addresses
+                            set address_default = false
+                            where id = $1`, [all_address.rows[i]['id']])
+                        }
+                    } 
+
+                    const update_address = await pool.query(`update addresses
+                    set provinceid = $1, districtid = $2, wardid=$3, name=$4, phone=$5, address_default=true, street=$6
+                    where id = $7`, [req.body.calc_shipping_provinces, req.body.calc_shipping_district,req.body.ward, req.body.name,req.body.phone,req.body.street,req.params.id])
+                    console.log('Cập nhật địa chỉ thành công')
+                    res.redirect('/addresses_dashboard')
+                }else{
+                    const update_address = await pool.query(`update addresses
+                    set provinceid = $1, districtid = $2, wardid=$3, name=$4, phone=$5, address_default=false, street=$6
+                    where id = $7`, [req.body.calc_shipping_provinces, req.body.calc_shipping_district,req.body.wardid, req.body.name,req.body.phone,req.body.street,req.params.id])
+                    console.log('Cập nhật địa chỉ thành công')
+                    res.redirect('/addresses_dashboard')
+                }
+            }
+        }
+    })
+
+    app.get('/del_address_dashboard/:id', urlencodedParser, async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const del_wishlist = await pool.query(`DELETE FROM addresses WHERE id = $1`,[req.params.id]);
+            res.redirect("/addresses_dashboard")
         }
     })
 
@@ -1474,10 +1784,10 @@ async function route(app){
                     quantity_foods: [{"count": 0}]
                 })
             }else{
-
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
     
                 res.render('information_user', {
                     data: information_user.rows, 
@@ -1502,10 +1812,10 @@ async function route(app){
                     quantity_foods: quantity_foods.rows
                 });
             }else{
-
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
         
                 res.render("quen_mat_khau", {
                     name: req.session.name,
@@ -1535,7 +1845,8 @@ async function route(app){
             }else{
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
-                GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
         
                 res.render("show_dia_chi", {
                     name: req.session.name,

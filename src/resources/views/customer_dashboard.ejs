@@ -246,6 +246,7 @@
                         <table class="table table-borderless table-striped table-earning">
                             <thead>
                                 <tr>
+                                    <th>ID</th>
                                     <th>name</th>
                                     <th>Email</th>
                                     <th>Phone</th>
@@ -256,6 +257,7 @@
                                 
                                 <% for(var i=0; i< users.length; i++){%>
                                     <tr class="tr-shadow">
+                                        <td><%= users[i]['id']%></td>
                                         <td><%= users[i]['name']%></td>
                                         <td class="desc"><%= users[i]['email']%></td>
                                         

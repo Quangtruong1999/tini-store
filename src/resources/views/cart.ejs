@@ -180,6 +180,7 @@
 											</tr>
 										</thead>
 										<tbody>
+											<input type="hidden" name="order_id" value="<%= order_id%>"/>
 											<%for(var i=0; i<cart_user.length; i++){%>
 												<tr class="text-center">
 													<td class="product-remove"><a href="/del_pro_cart/<%= cart_user[i]['id']%>"><span class="ion-ios-close"></span></a></td>
@@ -241,12 +242,15 @@
 												<div class="block-header" style="display: flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: justify; justify-content: space-between; margin-bottom: 12px;">
 													<h3 class="block-header__title" style="color: rgb(128, 128, 137);font-weight: normal;margin: 0px;">Ship to</h3>
 													<a class="block-header__nav" href="/change_address">Change</a>
-													
 												</div>
 												<div class="customer_info">
-													<h5></h5>
-													<h6></h6>
-													<p></p>
+													<%if(errors.length <= 0){%>
+														<h5></h5>
+														<h6></h6>
+														<p></p>
+													<%}else{%>
+														<h5 style="color: red;text-align: center;"><%= errors[0]['errors']%></h5>
+													<%}%>
 												</div>
 											</div>
 										<%}%>
@@ -268,17 +272,19 @@
 												<p class="d-flex">
 													<span>Discount</span>
 													<span><%= fee_ship%> đ</span>
+													<input name="discount" type="hidden" value="<%= fee_ship%>"/>
 												</p>
 											<%}%>
 											<hr>
 											<p class="d-flex total-price">
 												<span>Total</span>
 												<span><%= total%> đ</span>
+												<input name="amount" type="hidden" value="<%= total%>"/>
 											</p>
 										</div>
 										<div class="py-3 px-4" style="text-align: center;">
 											<button type="submit"  class="btn btn-primary py-3 px-4" >
-												Proceed to Checkout
+												Payment
 											</button>
 										</div>
 									</div>

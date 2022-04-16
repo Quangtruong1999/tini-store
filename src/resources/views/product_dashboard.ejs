@@ -8,7 +8,7 @@
         <meta name="keywords" content="au theme template">
 
         <!-- Title Page-->
-        <title>Dashboard</title>
+        <title>Dashboard - Product</title>
 
         <!-- Fontfaces CSS-->
         <link href="css/font-face.css" rel="stylesheet" media="all">
@@ -74,8 +74,18 @@
                                         </ul>
                                     </li>
                                     <li>
-                                        <a href="/customer_dashboard">
-                                        <i class="fas fa-chart-bar"></i>User management</a>
+                                        <a class="js-arrow" href="#">
+                                            <i class="fas fa-chart-bar"></i>User management
+                                        </a>
+                                            
+                                        <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                            <li>
+                                                <a href="/customer_dashboard">Users</a>
+                                            </li>
+                                            <li>
+                                                <a href="/addresses_dashboard">Address of user</a>
+                                            </li>
+                                        </ul>
                                     </li>
                                 </ul>
                             </div>
@@ -246,7 +256,7 @@
                                             
                                             <td><%=data[i]['category_name']%></td>
                                             <td><%=data[i]['price']%></td>
-                                            <td><img src="<%=data[i]['images']%>"/></td>
+                                            <td><img width="150px" src="<%=data[i]['images']%>"/></td>
                                             <td>
                                                 <div class="table-data-feature">
                                                     <button class="item" data-toggle="tooltip" data-placement="top" title="Edit">

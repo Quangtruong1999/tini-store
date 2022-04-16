@@ -98,6 +98,7 @@ CREATE TABLE IF NOT EXISTS orders(
     delivery_time TIMESTAMP,
     delivery_type_id INT,
     delivery_fee BIGINT,
+    discount bigint,
     amount BIGINT,
     states TEXT
     CONSTRAINT A_ORDER_PK PRIMARY KEY (ID)
