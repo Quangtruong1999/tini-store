@@ -303,9 +303,12 @@ async function route(app){
                 FROM order_items
                 GROUP BY order_id = $1`, [search_order.rows[0]['id']])
                 const order_items = await pool.query(`select * from order_items where order_id = $1`, [search_order.rows[0]['id']])
+                const get_address_default = await pool.query(`select * from addresses where user_id = $1`, [req.session.user_id])
                 // const total = await pool.query(`SELECT sum (price)
                 // FROM order_items
                 // GROUP BY order_id = $1`, [search_order.rows[0]['id']])
+
+                
                 let total = 0
                 for(var i=0; i<order_items.rows.length; i++){
                     total += (order_items.rows[i]['quantity'] * order_items.rows[i]['price'])
@@ -481,7 +484,7 @@ async function route(app){
                 const order_items = await pool.query(`select * from order_items where order_id = $1`, [search_order.rows[0]['id']])
 
                 for(var i=0; i<order_items.rows.length; i++){
-                    
+
                 }
                 
 
