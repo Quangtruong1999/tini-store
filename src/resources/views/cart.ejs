@@ -202,12 +202,13 @@
 					
 														<!-- <option class="price" id="price1" value="<%=cart_user[i]['price']%>"></option> -->
 														<!-- Sửa nút tăng giảm sp -->
-													<td class="quantity">
+													<td class="quantity buttons_added">
 														<div class="input-group d-flex mb-3">
 															<%var tmp = 'quantity_'+cart_user[i]['id']%>
+															<input class="minus is-form form-control" type="button" value="-">
 															<input type="number" id="<%= tmp%>" name="<%= tmp%>" class="form-control
-																input-number" value="<%=cart_user[i]['quantity']%>" min="1" max="100" onclick="Tinh()"/>
-															
+																input-number input-qty" value="<%=cart_user[i]['quantity']%>" min="1" max="100" onclick="Tinh()"/>
+															<input class="plus is-form form-control" type="button" value="+">
 														</div>
 													</td>
 													<!-- Sửa nút tăng giảm sp -->
@@ -399,15 +400,38 @@
 			<script src="js/google-map.js"></script>
 			<script src="js/main.js"></script>
 
-			<script>
-				function Tinh(){
-						var sl = document.getElementById("quantity").value;
-						var price = document.getElementById("price1").value;
-						var totalx = Number(sl) * Number(price)
-						console.log('Helo'+totalx)
-						document.getElementById("total").innerHTML = totalx;
+
+			<script>//<![CDATA[
+				$('input.input-qty').each(function() {
+				  var $this = $(this),
+					qty = $this.parent().find('.is-form'),
+					min = Number($this.attr('min')),
+					max = Number($this.attr('max'))
+				  if (min == 0) {
+					var d = 0
+				  } else d = min
+				  $(qty).on('click', function() {
+					if ($(this).hasClass('minus')) {
+					  if (d > min) d += -1
+					} else if ($(this).hasClass('plus')) {
+					  var x = Number($this.val()) + 1
+					  if (x <= max) d += 1
 					}
-				$(document).ready(function(){
+					$this.attr('value', d).val(d)
+				  })
+				})
+				//]]></script>
+
+
+			<script>
+				// function Tinh(){
+				// 		var sl = document.getElementById("quantity").value;
+				// 		var price = document.getElementById("price1").value;
+				// 		var totalx = Number(sl) * Number(price)
+				// 		console.log('Helo'+totalx)
+				// 		document.getElementById("total").innerHTML = totalx;
+				// 	}
+				// $(document).ready(function(){
 
 				var quantitiy=0;
 				$('.quantity-right-plus').click(function(e){
