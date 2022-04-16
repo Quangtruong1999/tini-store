@@ -205,10 +205,11 @@
 													<td class="quantity buttons_added">
 														<div class="input-group d-flex mb-3">
 															<%var tmp = 'quantity_'+cart_user[i]['id']%>
-															<input class="minus is-form form-control" type="button" value="-">
+															
+															<a href="/minus/<%= cart_user[i]['id']%>" class="minus is-form form-control" name="minus"><span>-</span></a>
 															<input type="number" id="<%= tmp%>" name="<%= tmp%>" class="form-control
 																input-number input-qty" value="<%=cart_user[i]['quantity']%>" min="1" max="100" onclick="Tinh()"/>
-															<input class="plus is-form form-control" type="button" value="+">
+															<a href="/add/<%= cart_user[i]['id']%>" class="plus is-form form-control" name="add">+</a>
 														</div>
 													</td>
 													<!-- Sửa nút tăng giảm sp -->
@@ -440,7 +441,8 @@
 					$this.attr('value', d).val(d)
 				  })
 				})
-				//]]></script>
+				//]]>
+				</script>
 
 
 			<script>
@@ -455,16 +457,16 @@
 
 				var quantitiy=0;
 				$('.quantity-right-plus').click(function(e){
-						// Stop acting like a button
-						e.preventDefault();
-						// Get the field name
-						var quantity = parseInt($('#quantity').val()) + 1;
-						// If is not undefined
-						$('#quantity').val(quantity);
+					// Stop acting like a button
+					e.preventDefault();
+					// Get the field name
+					var quantity = parseInt($('#quantity').val()) + 1;
+					// If is not undefined
+					$('#quantity').val(quantity);
 						// var total = quantity * 
-							// Increment
+						// Increment
 						
-					});
+					// });
 
 					$('.quantity-left-minus').click(function(e){
 						// Stop acting like a button
@@ -479,9 +481,6 @@
 							$('#quantity').val(quantity - 1);
 							}
 					});
-
-					
-					
 				});
 			</script>
 			<script src="js/mycart.js">

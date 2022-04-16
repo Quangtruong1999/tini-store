@@ -15,6 +15,7 @@ const foods_controller = require('../app/controllers/foods')
 // const initiablizePassport = require("./passportConfig"); 
 const e = require('express');
 const { type } = require('os');
+const { get } = require('http');
 // initiablizePassport(passport);
 
 // create application/x-www-form-urlencoded parser
@@ -403,6 +404,34 @@ async function route(app){
                     list_address: list_address.rows
                 });
             }
+        }
+    })
+
+    app.get('/minus/:order_item_id', urlencodedParser, async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const get_quantity = await pool.query(`select * from order_items where id=$1`,[req.params.order_item_id])
+            if(get_quantity.rows[0]['quantity'] <= 1){
+                res.redirect("/cart")
+            }else{
+                const update_quantity = await pool.query(`update order_items
+                set quantity = $1
+                where id=$2`,[get_quantity.rows[0]['quantity']-1, req.params.order_item_id]);
+                res.redirect("/cart")
+            }
+        }
+    })
+
+    app.get('/add/:order_item_id', urlencodedParser, async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const get_quantity = await pool.query(`select * from order_items where id=$1`,[req.params.order_item_id])
+            const update_quantity = await pool.query(`update order_items
+            set quantity = $1
+            where id=$2`,[get_quantity.rows[0]['quantity']+1, req.params.order_item_id]);
+            res.redirect("/cart")
         }
     })
 
