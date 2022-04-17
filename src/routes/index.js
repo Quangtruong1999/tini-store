@@ -1576,7 +1576,68 @@ async function route(app){
             })
         }
     })
-        
+      
+    app.get('/address_dashboard_add', async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const users = await pool.query(`select * from users where roles = 1`)
+            let errors = []
+            res.render("address_dashboard_add", {
+                users: users.rows,
+                name: req.session.name,
+                email: req.session.email,
+                errors: errors
+            });
+        }
+    }) 
+      
+    app.post('/address_dashboard_add', urlencodedParser, async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const users = await pool.query(`select * from users where roles = 1`)
+            var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
+            let errors = []
+            console.log('phone = ',req.body.phone)
+            console.log('typeof phone = ',typeof req.body.phone)
+            console.log('test = ',regex.test(req.body.phone))
+            if(regex.test(req.body.phone) != true){
+                errors.push({message: "Phone invalid!"})
+                res.render("address_dashboard_add", {
+                    users: users.rows,
+                    name: req.session.name,
+                    email: req.session.email,
+                    errors: errors
+                });
+            }else{
+                console.log('hello mấy cưng')
+                if(req.body.address_default == 'on'){
+                    const all_address = await pool.query(`select * from addresses where user_id = $1`, [req.body.user_id])
+                    for(var i=0; i<all_address.rows.length; i++){
+                        console.log('address_default = ', all_address.rows[i]['address_default'])
+                        if(all_address.rows[i]['address_default'] == true){
+                            console.log('all_address = ', all_address.rows)
+                            const update_address_default = await pool.query(`update addresses
+                            set address_default = false
+                            where id = $1`, [all_address.rows[i]['id']])
+                        }
+                    }
+                    
+                    const add_address = await pool.query(`insert into addresses (user_id, address_default, phone, name, wardid, districtid, provinceid, street)
+                    values ($1,$2,$3,$4,$5,$6,$7,$8);`, [req.body.user_id,true,req.body.phone,req.body.name,req.body.wardid,req.body.calc_shipping_district,req.body.calc_shipping_provinces,req.body.street])
+                    console.log('Thêm địa chỉ vào thành công')
+                    res.redirect('/addresses_dashboard')
+                }else{
+                    const add_address = await pool.query(`insert into addresses (user_id, address_default, phone, name, wardid, districtid, provinceid, street)
+                    values ($1,$2,$3,$4,$5,$6,$7,$8);`, [req.body.user_id,false,req.body.phone,req.body.name,req.body.wardid,req.body.calc_shipping_district,req.body.calc_shipping_provinces,req.body.street])
+                    console.log('Thêm địa chỉ vào thành công')
+                    res.redirect('/addresses_dashboard')
+                }
+            }
+        }
+    }) 
+
     app.get('/edit_address_dashboard/:id', urlencodedParser,async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');

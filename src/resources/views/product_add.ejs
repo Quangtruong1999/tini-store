@@ -91,6 +91,12 @@
                                 </li>
                             </ul>
                         </li>
+                        <li>
+                            <a class="js-arrow" href="#">
+                                <i class="fas fa-chart-bar"></i>Order management
+                            </a>
+                                
+                        </li>
                     </ul>
                 </div>
             </nav>
@@ -232,18 +238,18 @@
                             <form action="/pro_add" method="post" enctype="multipart/form-data" class="form-horizontal">
                                 <div class="row form-group">
                                     <div class="col col-md-3">
-                                        <label for="text-input" class=" form-control-label">Tên</label>
+                                        <label for="text-input" class=" form-control-label">Name</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <input type="text" id="text-input" name="name" placeholder="Tên sản phẩm" class="form-control">
+                                        <input type="text" id="text-input" name="name" placeholder="Name of thê product" class="form-control">
                                     </div>
                                 </div>
                                 <div class="row form-group">
                                     <div class="col col-md-3">
-                                        <label for="textarea-input" class=" form-control-label">Mô tả</label>
+                                        <label for="textarea-input" class=" form-control-label">Description</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <textarea name="description" id="textarea-input" rows="9" placeholder="Mô tả ..." class="form-control"></textarea>
+                                        <textarea name="description" id="textarea-input" rows="9" placeholder="Description ..." class="form-control"></textarea>
                                     </div>
                                 </div>
                                 <div class="row form-group">
@@ -260,7 +266,7 @@
                                 </div>
                                 <div class="row form-group">
                                     <div class="col col-md-3">
-                                        <label for="text-input" class=" form-control-label">Giá</label>
+                                        <label for="text-input" class=" form-control-label">Price</label>
                                     </div>
                                     <div class="col-12 col-md-9">
                                         <input type="number" id="text-input" name="price" placeholder="Giá sản phẩm" class="form-control">
@@ -269,7 +275,7 @@
                                 
                                 <div class="row form-group">
                                     <div class="col col-md-3">
-                                        <label for="image" class=" form-control-label">Hình ảnh</label>
+                                        <label for="image" class=" form-control-label">Image</label>
                                     </div>
                                     <div class="col-12 col-md-9">
                                         <input type="file" name="image" class="input-group input-file"/>
@@ -277,7 +283,7 @@
                                 </div>
                                 <div class="card-footer">
                                     <button type="submit" class="btn btn-primary btn-sm">
-                                        <i class="fa fa-dot-circle-o"></i> Tạo
+                                        <i class="fa fa-dot-circle-o"></i> Create
                                     </button>
                                 </div>
                             </form>
