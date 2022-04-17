@@ -170,11 +170,12 @@
                 </button>
             </div>
         </div>
-        <%for(var i=0; i<list_address.length; i++){%>
+        
             <div class="row">
                 <div class="col-12">
                     <div class="container mt-2 mb-2 box-content">
-                        <div class="row">
+                        <%for(var i=0; i<list_address.length; i++){%>
+                        <div class="row" style="border-bottom: 1px solid rgb(224, 224, 224); margin-bottom: 5px;">
                             <div class="col-11">
                                 <div class="row">
                                     <div class="col-md-12 col-lg-8">
@@ -190,22 +191,25 @@
                                         <a href="/approve_address/<%= list_address[i]['id']%>&<%= order[0]['id']%>" class="item"
                                             data-toggle="tooltip" style="font-size: 25px;padding: 0px;" data-placement="top"
                                             title="Edit">
-                                            <i class="zmdi zmdi-add">Ship to this address</i>
+                                            <i class="zmdi zmdi-car-wash"></i>
+                                            <span style="font-size: 16px;">Ship to this address</span>
                                         </a>
                                         <a href="/delete_address/<%= list_address[i]['id']%>" class="item"
                                             data-toggle="tooltip" style="font-size: 25px;padding: 0px;" data-placement="top"
                                             title="Delete">
-                                            <i class="zmdi zmdi-delete">Delete</i>
+                                            <i class="zmdi zmdi-delete"></i>
+                                            <span style="font-size: 16px;">Delete</span>
                                         </a>
                                     </div>
                                 </div>
                                 
                             </div>
                         </div>
+                        <%}%>
                     </div>
 
                 </div>
-                <%}%>
+               
 
         </div>
 

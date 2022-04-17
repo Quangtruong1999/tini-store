@@ -151,7 +151,7 @@
 
     <div class="container box-content mb-5">
         <div class="row">
-            <div class="col-md-6 col-sm-12">
+            <div class="col-md-6 col-sm-12 mx-auto">
               <form action="/update/<%= user_id%>" method="post">
                 <div class="row form-group">
                   <div class="col col-md-3">
@@ -191,14 +191,14 @@
                       <input type="number" id="text-input" name="phone" value="<%=data[0]['phone']%>" placeholder="Phone" class="form-control">
                   </div>
                 </div>
-                <div class="row">
+                <div class="row text-center">
                   <div class="col-12 text-center">
-                      <button class="btn btn-success" type="submit" title="Update" style="color: #ffffff; margin: 15px">Update</button>
+                      <button class="btn btn-success" type="submit" title="Update" style="color: #ffffff; margin: 15px; width: 200px;">Update</button>
                   </div>
                   
-                  <div class="col-12 text-center">
-                    <a href="/quen_mat_khau" class="btn btn-success" type="button" title="Change password" style="color: #ffffff; margin: 15px">Change password</a>
-                </div>
+                  <div class="col-12 col-md-12 text-center">
+                    <a href="/quen_mat_khau" class="btn btn-success" type="button" title="Change password" style="color: #ffffff; margin: 15px; width: 200px;">Change password</a>
+                  </div>
               </div>
               </form>
             </div>
