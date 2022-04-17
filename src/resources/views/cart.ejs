@@ -207,10 +207,10 @@
 														<div class="input-group d-flex mb-3">
 															<%var tmp = 'quantity_'+cart_user[i]['id']%>
 															
-															<a href="/minus/<%= cart_user[i]['id']%>" class="minus is-form form-control" name="minus"><span>-</span></a>
+															<a href="/minus/<%= cart_user[i]['id']%>" class="minus is-form form-control" name="minus" style="padding-top: 15px;"><span>-</span></a>
 															<input type="number" id="<%= tmp%>" name="<%= tmp%>" class="form-control
 																input-number input-qty" value="<%=cart_user[i]['quantity']%>" min="1" max="100" onclick="Tinh()"/>
-															<a href="/add/<%= cart_user[i]['id']%>" class="plus is-form form-control" name="add">+</a>
+															<a href="/add/<%= cart_user[i]['id']%>" class="plus is-form form-control" name="add" style="padding-top: 15px;">+</a>
 														</div>
 													</td>
 													<!-- Sửa nút tăng giảm sp -->
