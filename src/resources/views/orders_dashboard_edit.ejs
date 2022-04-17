@@ -232,69 +232,168 @@
                         <div class="card-body card-block">
                             <form action="/edit_address_dashboard/<%= address[0]['id']%>" method="post" class="form-horizontal">
                                 
-                                <div class="row">
-                                    <div class="form-group">
-                                        <label class=" form-control-label">
-                                            User's infomation
-                                        </label>
-                                    </div>
-                                    <div class=" form-group">
-                                        <div class="col col-md-3">
-                                            <label for="name_owner" class=" form-control-label">Owner's order</label>
+                                <div class="row" style="border: 1px solid rgb(224, 224, 224); padding-top: 15px; padding-bottom: 15px;">
+                                    <div class="col-12">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <label class=" form-control-label">
+                                                        <b>User's infomation</b>
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-12 col-md-9">
-                                            <input type="text" id="text-input" name="name_owner" value="<%= owner_order[0]['name']%>" placeholder="Text" class="form-control" readonly>
-                                            
+                                        <div class="row">
+                                            <div class="col-lg-3 col-md-12" style="margin-bottom: 20px;">
+                                                <label for="name_owner" class=" form-control-label">Owner's order</label>
+                                            </div>
+                                            <div class="col-lg-9 col-md-12" style="margin-bottom: 20px;">
+                                                <input type="text" id="text-input" name="name_owner" value="<%= owner_order[0]['name']%>" placeholder="Text" class="form-control" readonly>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="row form-group">
-                                        <div class="col col-md-3">
-                                            <label for="phone_owner" class="form-control-label">Phone</label>
-                                        </div>
-                                        <div class="col-12 col-md-9">
-                                            <input type="number" id="phone_owner" name="phone_owner" value="<%= owner_order[0]['phone']%>" class="form-control" readonly>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="row form-group">
+                                                    <div class="col col-md-3">
+                                                        <label for="phone_owner" class="form-control-label">Phone</label>
+                                                    </div>
+                                                    <div class="col-12 col-md-9">
+                                                        <input type="number" id="phone_owner" name="phone_owner" value="<%= owner_order[0]['phone']%>" class="form-control" readonly>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div class="row">
-                                    <div class="row form-group">
-                                        <label class=" form-control-label">
-                                            Ship to
-                                        </label>
-                                    </div>
-                                    <div class="row form-group">
-                                        <div class="col col-md-3">
-                                            <label for="name_recipient" class=" form-control-label">Recipient</label>
+                                
+
+
+                                <div class="row mt-3" style="border: 1px solid rgb(224, 224, 224); padding-top: 15px; padding-bottom: 15px;">
+                                    <div class="col-12">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <label class=" form-control-label">
+                                                        <b>Ship to</b>
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-12 col-md-9">
-                                            <input type="text" id="name_recipient" name="name_recipient" value="<%= address[0]['name']%>" placeholder="Tên" class="form-control" readonly>
-                                            
+                                        <div class="row">
+                                            <div class="col-lg-3 col-md-12" style="margin-bottom: 20px;">
+                                                <label for="name_recipient" class=" form-control-label">Recipient</label>
+                                            </div>
+                                            <div class="col-lg-9 col-md-12" style="margin-bottom: 20px;">
+                                                <input type="text" id="name_recipient" name="name_recipient" value="<%= address[0]['name']%>" placeholder="Tên" class="form-control" readonly>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="row form-group">
-                                        <div class="col col-md-3">
-                                            <label for="phone_recipient" class="form-control-label">Phone</label>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="row form-group">
+                                                    <div class="col col-md-3">
+                                                        <label for="phone_recipient" class="form-control-label">Phone</label>
+                                                    </div>
+                                                    <div class="col-12 col-md-9">
+                                                        <input type="number" id="phone_owner" name="phone_recipient" value="<%= address[0]['phone']%>" class="form-control" readonly>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-12 col-md-9">
-                                            <input type="number" id="phone_owner" name="phone_recipient" value="<%= address[0]['phone']%>" class="form-control" readonly>
-                                        </div>
-                                    </div>
-                                    <div class="row form-group">
-                                        <div class="col col-md-3">
-                                            <label for="adress_owner" class="form-control-label">Address</label>
-                                        </div>
-                                        <div class="col-12 col-md-9">
-                                            <input type="text" id="adress_owner" name="adress_owner" value="<%= address[0]['street'], address[0]['wardid'], address[0]['disctrictid'], address[0]['provinceid']%>" class="form-control" readonly>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="row form-group">
+                                                    <div class="col col-md-3">
+                                                        <label for="adress_owner" class="form-control-label">Address</label>
+                                                    </div>
+                                                    <div class="col-12 col-md-9">
+                                                        <input type="text" id="adress_owner" name="adress_owner" value="<%= address[0]['street'], address[0]['wardid'], address[0]['disctrictid'], address[0]['provinceid']%>" class="form-control" readonly>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-<!-- 
+
+                                <div class="row mt-3" style="border: 1px solid rgb(224, 224, 224); padding-top: 15px; padding-bottom: 15px;">
+                                    <div class="col-12">
+                                        <div class="row"><div class="col-12"><b>Items</b></div></div>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <table class="table table-borderless table-striped table-earning">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Name</th>
+                                                            <th>Quantity</th>
+                                                            <th>Price</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>Hello a</td>
+                                                            <td>Good</td>
+                                                            <td>85.000 đ</td>
+                                                        </tr>
+                                                    </tbody>
+                                                        
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="row mt-3" style="border: 1px solid rgb(224, 224, 224); padding-top: 15px; padding-bottom: 15px;">
+                                    <div class="col-12">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <label class=" form-control-label">
+                                                        <b>HEHE</b>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-3 col-md-12" style="margin-bottom: 20px;">
+                                                <label for="name_owner" class=" form-control-label">Delivery time</label>
+                                            </div>
+                                            <div class="col-lg-9 col-md-12" style="margin-bottom: 20px;">
+                                                <input type="text" id="text-input" name="name_owner" value="hehe time" placeholder="Text" class="form-control" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-3 col-md-12" style="margin-bottom: 20px;">
+                                                <label for="name_owner" class=" form-control-label">Delivery fee</label>
+                                            </div>
+                                            <div class="col-lg-9 col-md-12" style="margin-bottom: 20px;">
+                                                <input type="text" id="text-input" name="name_owner" value="hehe fee" placeholder="Text" class="form-control" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-3 col-md-12" style="margin-bottom: 20px;">
+                                                <label for="name_owner" class=" form-control-label">Discount</label>
+                                            </div>
+                                            <div class="col-lg-9 col-md-12" style="margin-bottom: 20px;">
+                                                <input type="text" id="text-input" name="name_owner" value="hehe discount" placeholder="Text" class="form-control" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-3 col-md-12" style="margin-bottom: 20px;">
+                                                <label for="name_owner" class=" form-control-label">Amount</label>
+                                            </div>
+                                            <div class="col-lg-9 col-md-12" style="margin-bottom: 20px;">
+                                                <input type="text" id="text-input" name="name_owner" value="hehe amount" placeholder="Text" class="form-control" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="card-footer">
                                     <button type="submit" class="btn btn-primary btn-sm">
                                         <i class="fa fa-dot-circle-o"></i> Edit
                                     </button>
-                                </div> -->
+                                </div>
                             </form>
                         </div>
                     </div>
