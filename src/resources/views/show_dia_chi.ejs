@@ -172,14 +172,15 @@
         </div>
 
 
-        <%for(var i=0; i<list_address.length; i++){%>
+    
             <div class="row">
                 <div class="col-12">
                     <div class="container mt-2 mb-2 box-content">
-                        <div class="row">
+                        <%for(var i=0; i<list_address.length; i++){%>
+                        <div class="row" style="border-bottom: 1px solid rgb(224, 224, 224); margin-bottom: 5px;">
                             <div class="col-11">
                                 <div class="row">
-                                    <div class="col-md-12 col-lg-8">
+                                    <div class="col-md-12">
                                         <%if(list_address[i]['address_default'] == true){%>
                                             <p style="color: #82ae46;"><i class="zmdi zmdi-check-all" style="color: #82ae46; font-size: 25px;"></i>  Địa chỉ mặc định</p>
                                         <%}%>
@@ -188,31 +189,29 @@
                                         <p>Địa chỉ: <%= list_address[i]['street']%>, <%= list_address[i]['wardid']%>, <%= list_address[i]['districtid']%>, <%= list_address[i]['provinceid']%> </p>
                                         
                                     </div>
-                                    <div class="col-md-12 col-lg-4">
-                                        
-                                    </div>
-                                </div>
-                                <div class="col-1">
-                                    <a href="/edit_addresses/<%= list_address[i]['id']%>" class="item"
-                                        data-toggle="tooltip" style="font-size: 25px;padding: 0px;" data-placement="top"
-                                        title="Edit">
-                                        <i class="zmdi zmdi-edit"></i>
-                                    </a>
-                                    <a href="/del_address/<%= list_address[i]['id']%>" class="item"
-                                        data-toggle="tooltip" style="font-size: 25px;padding: 0px;" data-placement="top"
-                                        title="Delete">
-                                        <i class="zmdi zmdi-delete"></i>
-                                    </a>
                                 </div>
                             </div>
+                            <div class="col-1">
+                                <a href="/edit_addresses/<%= list_address[i]['id']%>" class="item"
+                                    data-toggle="tooltip" style="font-size: 25px;padding: 0px;" data-placement="top"
+                                    title="Edit">
+                                    <i class="zmdi zmdi-edit"></i>
+                                </a>
+                                <a href="/del_address/<%= list_address[i]['id']%>" class="item"
+                                    data-toggle="tooltip" style="font-size: 25px;padding: 0px;" data-placement="top"
+                                    title="Delete">
+                                    <i class="zmdi zmdi-delete"></i>
+                                </a>
+                            </div>
                         </div>
+                        <%}%>
                     </div>
 
                 </div>
-                <%}%>
+           
 
-        </div>
-
+            </div>
+    </div>
 
 
         <footer class="ftco-footer ftco-section">
