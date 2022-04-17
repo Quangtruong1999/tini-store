@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1,
+            shrink-to-fit=no">
+        <meta name="description" content="au theme template">
+        <meta name="author" content="Hau Nguyen">
+        <meta name="keywords" content="au theme template">
+
+        <!-- Title Page-->
+        <title>Dashboard - Edit address</title>
+
+        <!-- Fontfaces CSS-->
+        <link href="/css/font-face.css" rel="stylesheet" media="all">
+        <link href="/vendor/font-awesome-4.7/css/font-awesome.min.css"
+            rel="stylesheet" media="all">
+        <link href="/vendor/font-awesome-5/css/fontawesome-all.min.css"
+            rel="stylesheet" media="all">
+        <link href="/vendor/mdi-font/css/material-design-iconic-font.min.css"
+            rel="stylesheet" media="all">
+
+        <!-- Bootstrap CSS-->
+        <link href="/vendor/bootstrap-4.1/bootstrap.min.css" rel="stylesheet"
+            media="all">
+
+        <!-- Vendor CSS-->
+        <link href="/vendor/animsition/animsition.min.css" rel="stylesheet"
+            media="all">
+        <link
+            href="/vendor/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css"
+            rel="stylesheet" media="all">
+        <link href="/vendor/wow/animate.css" rel="stylesheet" media="all">
+        <link href="/vendor/css-hamburgers/hamburgers.min.css" rel="stylesheet"
+            media="all">
+        <link href="/vendor/slick/slick.css" rel="stylesheet" media="all">
+        <link href="/vendor/select2/select2.min.css" rel="stylesheet"
+            media="all">
+        <link href="/vendor/perfect-scrollbar/perfect-scrollbar.css"
+            rel="stylesheet" media="all">
+
+        <!-- Main CSS-->
+        <link href="/css/theme.css" rel="stylesheet" media="all">
+
+    </head>
+    <body class="animsition">
+        <div class="page-wrapper">
+                    <!-- HEADER MOBILE-->
+                    <header class="header-mobile d-block d-lg-none">
+                        <div class="header-mobile__bar">
+                            <div class="container-fluid">
+                                <div class="header-mobile-inner">
+                                    <a class="navbar-brand" href="/">Tini Store</a>
+                                    <button class="hamburger hamburger--slider" type="button">
+                                        <span class="hamburger-box">
+                                            <span class="hamburger-inner"></span>
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <nav class="navbar-mobile">
+                            <div class="container-fluid">
+                                <ul class="navbar-mobile__list list-unstyled">
+                                    <li class="has-sub">
+                                        <a class="js-arrow" href="#">
+                                            <i class="fas fa-tachometer-alt"></i>Management</a>
+                                        <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+                                            <li>
+                                                <a href="/product_dashboard">Products</a>
+                                            </li>
+                                            <li>
+                                                <a href="/category_dashboard">Category</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <a class="js-arrow" href="#">
+                                            <i class="fas fa-chart-bar"></i>User management
+                                        </a>
+                                            
+                                        <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                            <li>
+                                                <a href="/customer_dashboard">Users</a>
+                                            </li>
+                                            <li>
+                                                <a href="/addresses_dashboard">Address of user</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </nav>
+                    </header>
+                    <!-- END HEADER MOBILE-->
+            
+                    <!-- MENU SIDEBAR-->
+                    <aside class="menu-sidebar d-none d-lg-block">
+                        <div class="logo">
+                            <a class="navbar-brand" href="/">Tini Store</a>
+                        </div>
+                        <div class="menu-sidebar__content js-scrollbar1">
+                            <nav class="navbar-sidebar">
+                                <ul class="list-unstyled navbar__list">
+                                    <li class="active has-sub">
+                                        <a class="js-arrow" href="#">
+                                            <i class="fas fa-tachometer-alt"></i>Management</a>
+                                        <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                            <li>
+                                                <a href="/product_dashboard">Products</a>
+                                            </li>
+                                            <li>
+                                                <a href="/category_dashboard">Category</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <a class="js-arrow" href="#">
+                                            <i class="fas fa-chart-bar"></i>User management
+                                        </a>
+                                            
+                                        <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                            <li>
+                                                <a href="/customer_dashboard">Users</a>
+                                            </li>
+                                            <li>
+                                                <a href="/addresses_dashboard">Address of user</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </aside>
+                    <!-- END MENU SIDEBAR-->
+            <!-- PAGE CONTAINER-->
+            <div class="page-container">
+                <!-- HEADER DESKTOP-->
+                <header class="header-desktop">
+                    <div class="section__content section__content--p30">
+                        <div class="container-fluid">
+                            <div class="header-wrap">
+                                <form class="form-header" action=""
+                                    method="POST">
+                                    <input class="au-input au-input--xl"
+                                        type="text" name="search"
+                                        placeholder="Search for datas &amp;
+                                        reports..." />
+                                    <button class="au-btn--submit"
+                                        type="submit">
+                                        <i class="zmdi zmdi-search"></i>
+                                    </button>
+                                </form>
+                                <div class="header-button">
+                                    <div class="account-wrap">
+                                        <div class="account-item clearfix
+                                            js-item-menu">
+                                            <div class="image">
+                                                <img
+                                                    src="/images/icon/avatar-01.jpg"
+                                                    alt="<%= name%>"/>
+                                            </div>
+                                            <div class="content">
+                                                <a class="js-acc-btn" href="#"><%= name%></a>
+                                            </div>
+                                            <div class="account-dropdown
+                                                js-dropdown">
+                                                <div class="info clearfix">
+                                                    <div class="image">
+                                                        <a href="#">
+                                                            <img
+                                                                src="/images/icon/avatar-01.jpg"
+                                                                alt="<%= name%>"
+                                                                />
+                                                        </a>
+                                                    </div>
+                                                    <div class="content">
+                                                        <h5 class="name">
+                                                            <a href="#"><%= name%></a>
+                                                        </h5>
+                                                        <span class="email"><%= email%></span>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="account-dropdown__body">
+                                                    
+                                                    <!-- <div class="account-dropdown__item">
+                                            <a href="#">
+                                                <i class="zmdi zmdi-settings"></i>Setting</a>
+                                        </div>
+                                        <div class="account-dropdown__item">
+                                            <a href="#">
+                                                <i class="zmdi zmdi-money-box"></i>Billing</a>
+                                        </div> -->
+                                                </div>
+                                                <div
+                                                    class="account-dropdown__footer">
+                                                    <a href="/logout">
+                                                        <i class="zmdi
+                                                            zmdi-power"></i>Logout</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                <!-- HEADER DESKTOP-->
+
+                <!-- MAIN CONTENT-->
+            <!-- MAIN CONTENT-->
+            <div class="main-content">
+                <div class="col-lg-6 mx-auto">
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>Edit address</strong>
+                        </div>
+                        <div class="card-body card-block">
+                            <form action="/edit_address_dashboard/<%= address[0]['id']%>" method="post" class="form-horizontal">
+                                <div class="row form-group">
+                                    <div class="col col-md-3">
+                                        <label for="name" class=" form-control-label">Name</label>
+                                    </div>
+                                    <div class="col-12 col-md-9">
+                                        <input type="text" id="text-input" name="name" value="<%= address[0]['name']%>" placeholder="Text" class="form-control">
+                                        
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col col-md-3">
+                                        <label for="phone" class="form-control-label">Phone</label>
+                                    </div>
+                                    <div class="col-12 col-md-9">
+                                        <input type="number" id="phone" name="phone" value="<%= address[0]['phone']%>" class="form-control">
+                                    </div>
+                                </div>
+
+                                <div class="row form-group">
+                                    <div class="col col-md-3">
+                                        <label for="calc_shipping_provinces" class=" form-control-label">Province</label>
+                                    </div>
+                                    <div class="col-12 col-md-9">
+                                        <select name="calc_shipping_provinces" class="form-select form-select-lg mb-3" required="">
+                                            <option value="">Tỉnh / Thành phố</option>
+                                            
+                                        </select>
+                                        
+                                        <input class="billing_address_1" name="" type="hidden" value="">
+
+                                    </div>
+                                </div>
+                                
+                                <div class="row form-group">
+                                    <div class="col col-md-3">
+                                        <label for="calc_shipping_district" class=" form-control-label">Quận / Huyện</label>
+                                    </div>
+                                    <div class="col-12 col-md-9">
+                                        <select name="calc_shipping_district" class="form-select form-select-lg mb-3" required="">
+                                            <option value="">Disctrict</option>
+                                        </select>
+                                        <input class="billing_address_2" name="" type="hidden" value="">
+
+                                    </div>
+                                </div>
+                                
+                                <div class="row form-group">
+                                    <div class="col col-md-3">
+                                        <label for="wardid" class="form-control-label">Ward</label>
+                                    </div>
+                                    <div class="col-12 col-md-9">
+                                        <input type="text" id="wardid" name="wardid" value="<%= address[0]['wardid']%>" class="form-control">
+                                    </div>
+                                </div>
+                                     
+                                <div class="row form-group">
+                                    <div class="col col-md-3">
+                                        <label for="street" class="form-control-label">Street</label>
+                                    </div>
+                                    <div class="col-12 col-md-9">
+                                        <input type="text" id="street" name="street" value="<%= address[0]['street']%>" class="form-control">
+                                    </div>
+                                </div>   
+     
+                                <div class="row form-group">
+                                                
+                                    <%if(address[0]['address_default'] != false){%>
+                                        <input type="checkbox" name="address_default" placeholder="Địa chỉ mặc định" checked> Địa chỉ mặc
+                                        định
+                                    <%}else{%>
+                                        <input type="checkbox" name="address_default" placeholder="Địa chỉ mặc định"> Địa chỉ mặc
+                                        định
+                                    <%}%>
+                                </div>   
+
+
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-dot-circle-o"></i> Edit
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END MAIN CONTENT-->
+            <!-- END MAIN CONTENT-->
+            </div>
+            <!-- END PAGE CONTAINER-->
+            </div>
+    
+        </div>
+    
+        <!-- Jquery JS-->
+        <script src="/vendor/jquery-3.2.1.min.js"></script>
+        <!-- Bootstrap JS-->
+        <script src="/vendor/bootstrap-4.1/popper.min.js"></script>
+        <script src="/vendor/bootstrap-4.1/bootstrap.min.js"></script>
+        <!-- Vendor JS       -->
+        <script src="/vendor/slick/slick.min.js">
+        </script>
+        <script src="/vendor/wow/wow.min.js"></script>
+        <script src="/vendor/animsition/animsition.min.js"></script>
+        <script src="/vendor/bootstrap-progressbar/bootstrap-progressbar.min.js">
+        </script>
+        <script src="/vendor/counter-up/jquery.waypoints.min.js"></script>
+        <script src="/vendor/counter-up/jquery.counterup.min.js">
+        </script>
+        <script src="/vendor/circle-progress/circle-progress.min.js"></script>
+        <script src="/vendor/perfect-scrollbar/perfect-scrollbar.js"></script>
+        <script src="/vendor/chartjs/Chart.bundle.min.js"></script>
+        <script src="/vendor/select2/select2.min.js">
+        </script>
+
+        <!-- Main JS-->
+        <script src="/js/main copy.js"></script>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+        <script src='https://cdn.jsdelivr.net/gh/vietblogdao/js/districts.min.js'></script>
+        <script>
+            //<![CDATA[
+                if (address_2 = localStorage.getItem('address_2_saved')) {
+                $('select[name="calc_shipping_district"] option').each(function() {
+                    if ($(this).text() == address_2) {
+                    $(this).attr('selected', '')
+                    }
+                })
+                $('input.billing_address_2').attr('value', address_2)
+                }
+                if (district = localStorage.getItem('district')) {
+                $('select[name="calc_shipping_district"]').html(district)
+                $('select[name="calc_shipping_district"]').on('change', function() {
+                    var target = $(this).children('option:selected')
+                    target.attr('selected', '')
+                    $('select[name="calc_shipping_district"] option').not(target).removeAttr('selected')
+                    address_2 = target.text()
+                    $('input.billing_address_2').attr('value', address_2)
+                    district = $('select[name="calc_shipping_district"]').html()
+                    localStorage.setItem('district', district)
+                    localStorage.setItem('address_2_saved', address_2)
+                })
+                }
+                $('select[name="calc_shipping_provinces"]').each(function() {
+                var $this = $(this),
+                    stc = ''
+                c.forEach(function(i, e) {
+                    e += +1
+                    console.log('value1 = ', i)
+                    stc += "<option value='"+i+"'>" + i + "</option>"
+                    $this.html('<option value="">Tỉnh / Thành phố</option>' + stc)
+                    if (address_1 = localStorage.getItem('address_1_saved')) {
+                    $('select[name="calc_shipping_provinces"] option').each(function() {
+                        if ($(this).text() == address_1) {
+                        $(this).attr('selected', '')
+                        }
+                    })
+                    $('input.billing_address_1').attr('value', address_1)
+                    }
+                    $this.on('change', function(i) {
+                    i = $this.children('option:selected').index() - 1
+                    var str = '',
+                        r = $this.val()
+                    if (r != '') {
+                        arr[i].forEach(function(el) {
+                        str += '<option value="' + el + '">' + el + '</option>'
+                        $('select[name="calc_shipping_district"]').html('<option value="">Quận / Huyện</option>' + str)
+                        })
+                        var address_1 = $this.children('option:selected').text()
+                        var district = $('select[name="calc_shipping_district"]').html()
+                        localStorage.setItem('address_1_saved', address_1)
+                        localStorage.setItem('district', district)
+                        $('select[name="calc_shipping_district"]').on('change', function() {
+                        var target = $(this).children('option:selected')
+                        target.attr('selected', '')
+                        $('select[name="calc_shipping_district"] option').not(target).removeAttr('selected')
+                        var address_2 = target.text()
+                        $('input.billing_address_2').attr('value', address_2)
+                        district = $('select[name="calc_shipping_district"]').html()
+                        localStorage.setItem('district', district)
+                        localStorage.setItem('address_2_saved', address_2)
+                        })
+                    } else {
+                        $('select[name="calc_shipping_district"]').html('<option value="">Quận / Huyện</option>')
+                        district = $('select[name="calc_shipping_district"]').html()
+                        localStorage.setItem('district', district)
+                        localStorage.removeItem('address_1_saved', address_1)
+                    }
+                    })
+                })
+                })
+            //]]>
+    </script>
+
+
+
+    </body>
+</html>
