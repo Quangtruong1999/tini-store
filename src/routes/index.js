@@ -269,6 +269,7 @@ async function route(app){
     }) 
 
     app.get('/blog', urlencodedParser,async (req, res) => {
+        const category = await pool.query(`select * from category`)
         if(typeof req.session.name != 'undefined'){
             
             const search_order = await pool.query(`select * 
@@ -278,7 +279,8 @@ async function route(app){
                     
                 res.render('blog', {
                     quantity_foods: [{"count": 0}],
-                    name: req.session.name
+                    name: req.session.name,
+                    category: category.rows
                 })
             }else{
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
@@ -288,11 +290,14 @@ async function route(app){
 
                 res.render("blog", {
                     name: req.session.name,
-                    quantity_foods: quantity_foods.rows
+                    quantity_foods: quantity_foods.rows,
+                    category: category.rows
                 });
             }
         }else{
-            res.render("blog", {name: req.session.name});
+            res.render("blog", {
+                name: req.session.name,
+                category: category.rows});
         }
     }) 
 

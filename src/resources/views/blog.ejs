@@ -89,7 +89,8 @@
 								aria-haspopup="true" aria-expanded="false">User</a>
 							<div class="dropdown-menu" aria-labelledby="dropdown04">
 								<a class="dropdown-item" href="/information_user">Edit profile</a>
-								<a class="dropdown-item" href="/show_dia_chi">Addresses</a>
+								<a class="dropdown-item" href="/orders">Order management</a>
+									<a class="dropdown-item" href="/show_dia_chi">Addresses</a>
               <a class="dropdown-item" href="/logout">Log out</a>
 							</div>
 	
@@ -113,6 +114,7 @@
 									
 								<div class="dropdown-menu" aria-labelledby="dropdown04">
 									<a class="dropdown-item" href="/information_user">Edit profile</a>
+									<a class="dropdown-item" href="/orders">Order management</a>
 									<a class="dropdown-item" href="/show_dia_chi">Addresses</a>
               <a class="dropdown-item" href="/logout">Log out</a>
 								</div>
@@ -261,11 +263,11 @@
             </div>
             <div class="sidebar-box ftco-animate">
             	<h3 class="heading">Categories</h3>
+
               <ul class="categories">
-                <li><a href="#">Vegetables <span>(12)</span></a></li>
-                <li><a href="#">Fruits <span>(22)</span></a></li>
-                <li><a href="#">Juice <span>(37)</span></a></li>
-                <li><a href="#">Dries <span>(42)</span></a></li>
+                <%for(var i=0; i<category.length; i++){%>
+                  <li><a href="/shop/<%=category[i]['id']%>"><%=category[i]['name']%></a></li>
+                <%}%>
               </ul>
             </div>
 
