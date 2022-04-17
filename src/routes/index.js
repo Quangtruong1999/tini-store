@@ -66,21 +66,38 @@ async function route(app){
         // });
     })
 
-    app.get('/',urlencodedParser, async (req, res) => {
+    app.get('/', urlencodedParser, async (req, res) => {
         console.log('name = ', req.session.name);
         console.log('check session = ', req.session);
+        
+        const top_foods = await pool.query(`SELECT food_id, sum(quantity)
+        FROM order_items
+        GROUP BY food_id`)
+        console.log('top_foods = ', top_foods.rows)
+        const foods = await pool.query(`select * from foods`)
+        const category_list = await pool.query(`select * from category`)
+
         if(typeof req.session.name == 'undefined'){
-            res.render("index", {name: req.session.name});
+            res.render("index", {
+                top_foods: top_foods.rows,
+                foods: foods.rows,
+                name: req.session.name,
+                category_list: category_list.rows
+            });
         }else{
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
             console.log('search_order = ', search_order.rows)
-            if (search_order.rows == '') {
-                    
+
+
+            if (search_order.rows == ''){
                 res.render('index', {
                     quantity_foods: [{"count": 0}],
-                    name: req.session.name
+                    name: req.session.name,
+                    foods: foods.rows,
+                    top_foods: top_foods.rows,
+                    category_list: category_list.rows
                 })
             }else{
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
@@ -89,7 +106,10 @@ async function route(app){
                 GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']]) 
                 res.render('index', {
                     quantity_foods: quantity_foods.rows,
-                    name: req.session.name
+                    name: req.session.name,
+                    foods: foods.rows,
+                    top_foods: top_foods.rows,
+                    category_list: category_list.rows
                 })
             }
 
@@ -153,10 +173,6 @@ async function route(app){
                                 res.redirect('/login');
                             }
                         );
-
-                        // console.log('password = ', hashed_password)
-                        // success.push({message: "Register successfull!"})
-                        // res.render('signup', { success })
                     }
                     
                 }
@@ -448,6 +464,91 @@ async function route(app){
         }else{
             const del_wishlist = await pool.query(`DELETE FROM addresses WHERE id = $1`,[req.params.id]);
             res.redirect("/change_address")
+        }
+    })
+
+    
+    app.get('/orders', async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const orders = await pool.query(`select * from orders where owner_id = $1`, [req.session.user_id])
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            if (search_order.rows == '') {
+                    
+                res.render('order_users', {
+                    quantity_foods: [{"count": 0}],
+                    orders: orders.rows,
+                    name: req.session.name
+                })
+            }else{
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
+
+                res.render("order_users", {
+                    name: req.session.name,
+                    orders: orders.rows,
+                    quantity_foods: quantity_foods.rows
+                });
+            }
+
+        }
+    })
+
+    
+    app.get('/order_details/:id', async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+
+            const order = await pool.query(`select orders.id, orders.address_id, orders.owner_id, orders.delivery_time, orders.delivery_fee, orders.discount, orders.amount, orders.states, addresses.street, addresses.wardid, addresses.districtid, addresses.provinceid
+            from orders, addresses
+            where orders.address_id = addresses.id and orders.id = $1`, [req.params.id])
+            const order_items = await pool.query(`select *
+            from order_items
+            where order_id = $1`, [req.params.id])
+            const owner_order = await pool.query(`select * from users where id = $1`, [order.rows[0]['owner_id']])
+            const address = await pool.query(`select * from addresses where id = $1`, [order.rows[0]['address_id']])
+
+            const orders = await pool.query(`select * from orders where owner_id = $1`, [req.session.user_id])
+            const foods = await pool.query(`select * from foods`)
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            if (search_order.rows == '') {
+                    
+                res.render('order_users_detail', {
+                    quantity_foods: [{"count": 0}],
+                    orders: orders.rows,
+                    name: req.session.name,
+                    order: order.rows,
+                    order_items: order_items.rows,
+                    owner_order: owner_order.rows,
+                    address: address.rows,
+                    foods: foods.rows
+                })
+            }else{
+                const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                FROM order_items
+                where order_id = $1
+                GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
+
+                res.render("order_users_detail", {
+                    name: req.session.name,
+                    orders: orders.rows,
+                    quantity_foods: quantity_foods.rows,
+                    order: order.rows,
+                    order_items: order_items.rows,
+                    owner_order: owner_order.rows,
+                    address: address.rows,
+                    foods: foods.rows
+                });
+            }
+
         }
     })
 
@@ -1591,7 +1692,7 @@ async function route(app){
             where order_id = $1`, [req.params.id])
             const owner_order = await pool.query(`select * from users where id = $1`, [order.rows[0]['owner_id']])
             const address = await pool.query(`select * from addresses where id = $1`, [order.rows[0]['address_id']])
-
+            const foods = await pool.query(`select * from foods`)
             res.render('orders_dashboard_edit', {
                 name: req.session.name, 
                 email: req.session.email,
@@ -1600,6 +1701,7 @@ async function route(app){
                 order_items: order_items.rows,
                 owner_order: owner_order.rows,
                 address: address.rows,
+                foods: foods.rows
             })
         }
     })
@@ -1920,17 +2022,18 @@ async function route(app){
         }
     }) 
 
-
     app.get('/quen_mat_khau', urlencodedParser,async (req, res) => {
         if(typeof req.session.name != 'undefined'){
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            let errors = []
             if (search_order.rows == ''){
                     
                 res.render("quen_mat_khau", {
                     name: req.session.name,
-                    quantity_foods: quantity_foods.rows
+                    errors: errors,
+                    quantity_foods: [{"count": 0}]
                 });
             }else{
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
@@ -1940,6 +2043,7 @@ async function route(app){
         
                 res.render("quen_mat_khau", {
                     name: req.session.name,
+                    errors: errors,
                     quantity_foods: quantity_foods.rows
                 });
             }
@@ -1949,6 +2053,80 @@ async function route(app){
         }
     
     }) 
+
+    app.post('/quen_mat_khau', urlencodedParser, async (req, res) => {
+        if(typeof req.session.name != 'undefined'){
+            const search_order = await pool.query(`select * 
+            from orders
+            where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            const users = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            let errors = []
+            if(req.body.new_password != req.body.confirm_password){
+                errors.push({new_confirm: "Confirm password don't match!"})
+                if (search_order.rows == ''){
+                    
+                    res.render("quen_mat_khau", {
+                        name: req.session.name,
+                        errors: errors,
+                        quantity_foods: [{"count": 0}]
+                    });
+                }else{
+                    const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                    FROM order_items
+                    where order_id = $1
+                    GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
+            
+                    res.render("quen_mat_khau", {
+                        name: req.session.name,
+                        errors: errors,
+                        quantity_foods: quantity_foods.rows
+                    });
+                }
+            }else if (!bcrypt.compareSync(req.body.old_password, users.rows[0]['password'])){
+                errors.push({new_confirm: "Password don't match!"})
+                if (search_order.rows == ''){
+                    
+                    res.render("quen_mat_khau", {
+                        name: req.session.name,
+                        errors: errors,
+                        quantity_foods: [{"count": 0}]
+                    });
+                }else{
+                    const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                    FROM order_items
+                    where order_id = $1
+                    GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
+            
+                    res.render("quen_mat_khau", {
+                        name: req.session.name,
+                        errors: errors,
+                        quantity_foods: quantity_foods.rows
+                    });
+                }
+            }else{
+                let hashed_password = await bcrypt.hash(req.body.new_password, 10);
+                pool.query(
+                    'SELECT * FROM users WHERE id = $1',[req.session.user_id],async (err, result) => {
+                        if (err){
+                            throw err;
+                        }
+                        const update_pass = await pool.query(`update users
+                        set password = $1
+                        where id = $2`, [hashed_password, req.session.user_id])
+                        res.redirect('/logout');
+                    }
+                )
+            }
+
+
+            
+
+        }else{
+            res.redirect('/login')
+        }
+    
+    }) 
+
     app.get('/show_dia_chi', urlencodedParser,async (req, res) => {
         if(typeof req.session.name != 'undefined'){
             const search_order = await pool.query(`select * 

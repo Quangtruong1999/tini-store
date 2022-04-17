@@ -74,6 +74,7 @@
                                             </li>
                                         </ul>
                                     </li>
+
                                     <li>
                                         <a class="js-arrow" href="#">
                                             <i class="fas fa-chart-bar"></i>User management
@@ -88,8 +89,9 @@
                                             </li>
                                         </ul>
                                     </li>
+
                                     <li>
-                                        <a class="js-arrow" href="order_dashboard">
+                                        <a class="js-arrow" href="/order_dashboard">
                                             <i class="fas fa-chart-bar"></i>Order management
                                         </a>
                                             
@@ -135,7 +137,7 @@
                                         </ul>
                                     </li>
                                     <li>
-                                        <a class="js-arrow" href="order_dashboard">
+                                        <a class="js-arrow" href="/order_dashboard">
                                             <i class="fas fa-chart-bar"></i>Order management
                                         </a>
                                             
@@ -265,10 +267,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                
-                                
-
-
                                 <div class="row mt-3" style="border: 1px solid rgb(224, 224, 224); padding-top: 15px; padding-bottom: 15px;">
                                     <div class="col-12">
                                         <div class="row">
@@ -307,7 +305,7 @@
                                                         <label for="adress_owner" class="form-control-label">Address</label>
                                                     </div>
                                                     <div class="col-12 col-md-9">
-                                                        <input type="text" id="adress_owner" name="adress_owner" value="<%= address[0]['street'], address[0]['wardid'], address[0]['disctrictid'], address[0]['provinceid']%>" class="form-control" readonly>
+                                                        <textarea type="text" id="adress_owner" name="adress_owner" class="form-control" readonly> <%= address[0]['street']%>, <%=address[0]['wardid']%>, <%=address[0]['disctrictid']%>, <%=address[0]['provinceid']%></textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -329,11 +327,17 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr>
-                                                            <td>Hello a</td>
-                                                            <td>Good</td>
-                                                            <td>85.000 đ</td>
-                                                        </tr>
+                                                        <%for(var i=0; i<order_items.length; i++){%>
+                                                            <%for(var j=0; j<foods.length; j++){%>
+                                                                <tr>
+                                                                    <%if(order_items[i]['food_id'] == foods[j]['id']){%>
+                                                                        <td><%= foods[i]['name']%></td>
+                                                                        <td><%= order_items[i]['quantity']%></td>
+                                                                        <td><%= order_items[i]['price']%> đ</td>
+                                                                    <%}%>
+                                                                </tr>
+                                                                <%}%>
+                                                        <%}%>
                                                     </tbody>
                                                         
                                                 </table>
@@ -349,7 +353,7 @@
                                             <div class="col-12">
                                                 <div class="form-group">
                                                     <label class=" form-control-label">
-                                                        <b>HEHE</b>
+                                                        <b>Order's infomation</b>
                                                     </label>
                                                 </div>
                                             </div>
@@ -359,7 +363,7 @@
                                                 <label for="name_owner" class=" form-control-label">Delivery time</label>
                                             </div>
                                             <div class="col-lg-9 col-md-12" style="margin-bottom: 20px;">
-                                                <input type="text" id="text-input" name="name_owner" value="hehe time" placeholder="Text" class="form-control" readonly>
+                                                <input type="text" id="text-input" name="name_owner" value="<%= new Intl.DateTimeFormat(['ban', 'id']).format(order[0]['delivery_time'])%>" placeholder="Text" class="form-control" readonly>
                                             </div>
                                         </div>
                                         <div class="row">
@@ -367,7 +371,7 @@
                                                 <label for="name_owner" class=" form-control-label">Delivery fee</label>
                                             </div>
                                             <div class="col-lg-9 col-md-12" style="margin-bottom: 20px;">
-                                                <input type="text" id="text-input" name="name_owner" value="hehe fee" placeholder="Text" class="form-control" readonly>
+                                                <input type="text" id="text-input" name="name_owner" value="<%= order[0]['delivery_fee']%>" placeholder="Text" class="form-control" readonly>
                                             </div>
                                         </div>
                                         <div class="row">
@@ -375,7 +379,7 @@
                                                 <label for="name_owner" class=" form-control-label">Discount</label>
                                             </div>
                                             <div class="col-lg-9 col-md-12" style="margin-bottom: 20px;">
-                                                <input type="text" id="text-input" name="name_owner" value="hehe discount" placeholder="Text" class="form-control" readonly>
+                                                <input type="text" id="text-input" name="name_owner" value="<%= order[0]['discount']%>" placeholder="Text" class="form-control" readonly>
                                             </div>
                                         </div>
                                         <div class="row">
@@ -383,16 +387,16 @@
                                                 <label for="name_owner" class=" form-control-label">Amount</label>
                                             </div>
                                             <div class="col-lg-9 col-md-12" style="margin-bottom: 20px;">
-                                                <input type="text" id="text-input" name="name_owner" value="hehe amount" placeholder="Text" class="form-control" readonly>
+                                                <input type="text" id="text-input" name="name_owner" value="<%= order[0]['amount']%>" placeholder="Text" class="form-control" readonly>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="card-footer">
-                                    <button type="submit" class="btn btn-primary btn-sm">
-                                        <i class="fa fa-dot-circle-o"></i> Edit
-                                    </button>
+                                    <a href="/order_dashboard" type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-dot-circle-o"></i> Back
+                                    </a>
                                 </div>
                             </form>
                         </div>
