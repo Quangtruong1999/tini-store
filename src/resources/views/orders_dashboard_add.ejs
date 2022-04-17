@@ -5,10 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1,
             shrink-to-fit=no">
         <meta name="description" content="au theme template">
+        <meta name="author" content="Hau Nguyen">
         <meta name="keywords" content="au theme template">
 
         <!-- Title Page-->
-        <title>Dashboard address</title>
+        <title>Dashboard - Add new address</title>
 
         <!-- Fontfaces CSS-->
         <link href="css/font-face.css" rel="stylesheet" media="all">
@@ -133,6 +134,7 @@
                                             </li>
                                         </ul>
                                     </li>
+                                    
                                     <li>
                                         <a class="js-arrow" href="order_dashboard">
                                             <i class="fas fa-chart-bar"></i>Order management
@@ -169,10 +171,10 @@
                                             <div class="image">
                                                 <img
                                                     src="images/icon/avatar-01.jpg"
-                                                    alt="John Doe" />
+                                                    alt="<%=name%>" />
                                             </div>
                                             <div class="content">
-                                                <a class="js-acc-btn" href="#"><%= name%></a>
+                                                <a class="js-acc-btn" href="#"><%=name%></a>
                                             </div>
                                             <div class="account-dropdown
                                                 js-dropdown">
@@ -181,18 +183,19 @@
                                                         <a href="#">
                                                             <img
                                                                 src="images/icon/avatar-01.jpg"
-                                                                alt="<%= name%>"
+                                                                alt="<%=name%>"
                                                                 />
                                                         </a>
                                                     </div>
                                                     <div class="content">
                                                         <h5 class="name">
-                                                            <a href="#"><%= name%></a>
+                                                            <a href="#"><%=name%></a>
                                                         </h5>
-                                                        <span class="email"><%= email%></span>
+                                                        <span class="email"><%=email%></span>
                                                     </div>
                                                 </div>
-                                                <div class="account-dropdown__body">
+                                                <div
+                                                    class="account-dropdown__body">
                                                     
                                                     <!-- <div class="account-dropdown__item">
                                             <a href="#">
@@ -220,84 +223,118 @@
                 <!-- HEADER DESKTOP-->
 
                 <!-- MAIN CONTENT-->
+            <!-- MAIN CONTENT-->
             <div class="main-content">
-                <div class="col-md-12">
-                    <!-- DATA TABLE -->
-                    <h3 class="title-5 m-b-35">Address management</h3>
-                    <div class="table-data__tool">
-                        <div class="table-data__tool-left">
-                            <div class="rs-select2--light rs-select2--md">
-                                <!-- <select class="js-select2" name="property">
-                                    <option selected="selected">Thuộc tính</option>
-                                    <option value="">Option 1</option>
-                                    <option value="">Option 2</option>
-                                </select> -->
-                                <div class="dropDownSelect2"></div>
-                            </div>
-                            <div class="rs-select2--light rs-select2--sm">
-                                
-                                <div class="dropDownSelect2"></div>
-                            </div>
-                            <!-- <button class="au-btn-filter">
-                                <i class="zmdi zmdi-filter-list"></i>Bộ lọc</button> -->
+                <div class="col-lg-6 mx-auto">
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>Add new address</strong>
                         </div>
-                        <div class="table-data__tool-right">
-                            <button class="au-btn au-btn-icon au-btn--green au-btn--small" >
-                                <i class="zmdi zmdi-plus"></i><a href="/address_dashboard_add" style="text-decoration: none; color: rgb(255, 255, 255);">Thêm địa chỉ người dùng</a></button>
-                            <div class="rs-select2--dark rs-select2--sm rs-select2--dark2">
-                                <!-- <select class="js-select2" name="type">
-                                    <option selected="selected">Export</option>
-                                    <option value="">Option 1</option>
-                                    <option value="">Option 2</option>
-                                </select> -->
-                                <div class="dropDownSelect2"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="table-responsive table-responsive-data2">
-                        <table class="table table-borderless table-striped table-earning">
-                            <thead>
-                                <tr>
-                                    <th>ID user</th>
-                                    <th>Name</th>
-                                    <th>phone</th>
-                                    <th>street</th>
-                                    <th>ward</th>
-                                    <th>district</th>
-                                    <th>province</th>
-                                    <th>default</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                
-                                <% for(var i=0; i< addresses.length; i++){%>
-                                    <tr class="tr-shadow">
-                                        <td><%= addresses[i]['user_id']%></td>
-                                        <td><%= addresses[i]['name']%></td>
-                                        <td><%= addresses[i]['phone']%></td>
-                                        <td><%= addresses[i]['street']%></td>
-                                        <td><%= addresses[i]['wardid']%></td>
-                                        <td><%= addresses[i]['districtid']%></td>
-                                        <td><%= addresses[i]['provinceid']%></td>
-                                        <td><%= addresses[i]['address_default']%></td>
-                                        <td>
-                                            <div class="table-data-feature">
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="Edit">
-                                                    <a href="/edit_address_dashboard/<%= addresses[i]['id']%>"><<i class="zmdi zmdi-edit"></i></a>
-                                                </button>
-                                                <button class="item" data-toggle="tooltip" data-placement="top" title="Delete">
-                                                    <a href="/del_address_dashboard/<%= addresses[i]['id']%>"><i class="zmdi zmdi-delete"></i></a>
-                                                </button>
+                        <div class="card-body card-block">
+                            <form action="/address_dashboard_add" method="post" class="form-horizontal">
+                                <div class="row form-group">
+                                    <div class="col col-md-3">
+                                        <label for="name" class=" form-control-label">Name</label>
+                                    </div>
+                                    <div class="col-12 col-md-9">
+                                        <input type="text" id="text-input" name="name" placeholder="Recipient's name" class="form-control">
+                                       
+                                    </div>
+                                </div>
+                                                        
+                                <% if(errors.length > 0){%>
+                                    <% for(var i=0; i<errors.length; i++){ %>
+                                        <div class="form-group input_form">
+                                                
+                                            <div class="col-12 col-md-9" style="text-align: center;">
+                                                <a style="color: red;"><%=errors[i]['message']%></a>
                                             </div>
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    <%}%>
                                 <%}%>
-                            </tbody>
-                        </table>
+                                <div class="row form-group">
+                                    <div class="col col-md-3">
+                                        <label for="phone" class=" form-control-label">Phone</label>
+                                    </div>
+                                    <div class="col-12 col-md-9">
+                                        <input type="number" name="phone" placeholder="Ex: 039458655" class="form-control input_form">
+                                        
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col col-md-3">
+                                        <label for="user_id" class=" form-control-label">User</label>
+                                    </div>
+                                    <div class="col-12 col-md-9">
+                                        <select name="user_id" id="user_id" class="form-control" required>
+                                            <% for(var i=0; i<users.length;i++){%>
+                                                <option value="<%=users[i]['id']%>"><%=users[i]['name']%></option>
+                                            <%}%>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="row form-group">
+                                    <div class="col col-md-3">
+                                        <label for="calc_shipping_provinces" class=" form-control-label">Province</label>
+                                    </div>
+                                    <div class="col-12 col-md-9">
+                                        <select name="calc_shipping_provinces" class="form-select form-select-lg mb-3" required="">
+                                            <option value="">Tỉnh / Thành phố</option>
+                                            
+                                        </select>
+                                        
+                                        <input class="billing_address_1" name="" type="hidden" value="">
+
+                                    </div>
+                                </div>
+                                
+                                <div class="row form-group">
+                                    <div class="col col-md-3">
+                                        <label for="calc_shipping_district" class=" form-control-label">Quận / Huyện</label>
+                                    </div>
+                                    <div class="col-12 col-md-9">
+                                        <select name="calc_shipping_district" class="form-select form-select-lg mb-3" required="">
+                                            <option value="">Disctrict</option>
+                                        </select>
+                                        <input class="billing_address_2" name="" type="hidden" value="">
+
+                                    </div>
+                                </div>
+                                
+                                <div class="row form-group">
+                                    <div class="col col-md-3">
+                                        <label for="wardid" class="form-control-label">Ward</label>
+                                    </div>
+                                    <div class="col-12 col-md-9">
+                                        <input type="text" id="wardid" name="wardid" class="form-control">
+                                    </div>
+                                </div>
+                                     
+                                <div class="row form-group">
+                                    <div class="col col-md-3">
+                                        <label for="street" class="form-control-label">Street</label>
+                                    </div>
+                                    <div class="col-12 col-md-9">
+                                        <input type="text" id="street" name="street" class="form-control">
+                                    </div>
+                                </div>   
+     
+                                <div class="row form-group">
+                                    <input type="checkbox" name="address_default" placeholder="Địa chỉ mặc định">Set efault address 
+                                </div>   
+
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-dot-circle-o"></i> Tạo
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                    <!-- END DATA TABLE -->
+                </div>
             </div>
+            <!-- END MAIN CONTENT-->
             <!-- END MAIN CONTENT-->
             </div>
             <!-- END PAGE CONTAINER-->
@@ -329,7 +366,81 @@
         <!-- Main JS-->
         <script src="js/main copy.js"></script>
 
-
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+        <script src='https://cdn.jsdelivr.net/gh/vietblogdao/js/districts.min.js'></script>
+        <script>
+            //<![CDATA[
+                if (address_2 = localStorage.getItem('address_2_saved')) {
+                $('select[name="calc_shipping_district"] option').each(function() {
+                    if ($(this).text() == address_2) {
+                    $(this).attr('selected', '')
+                    }
+                })
+                $('input.billing_address_2').attr('value', address_2)
+                }
+                if (district = localStorage.getItem('district')) {
+                $('select[name="calc_shipping_district"]').html(district)
+                $('select[name="calc_shipping_district"]').on('change', function() {
+                    var target = $(this).children('option:selected')
+                    target.attr('selected', '')
+                    $('select[name="calc_shipping_district"] option').not(target).removeAttr('selected')
+                    address_2 = target.text()
+                    $('input.billing_address_2').attr('value', address_2)
+                    district = $('select[name="calc_shipping_district"]').html()
+                    localStorage.setItem('district', district)
+                    localStorage.setItem('address_2_saved', address_2)
+                })
+                }
+                $('select[name="calc_shipping_provinces"]').each(function() {
+                var $this = $(this),
+                    stc = ''
+                c.forEach(function(i, e) {
+                    e += +1
+                    console.log('value1 = ', i)
+                    stc += "<option value='"+i+"'>" + i + "</option>"
+                    $this.html('<option value="">Tỉnh / Thành phố</option>' + stc)
+                    if (address_1 = localStorage.getItem('address_1_saved')) {
+                    $('select[name="calc_shipping_provinces"] option').each(function() {
+                        if ($(this).text() == address_1) {
+                        $(this).attr('selected', '')
+                        }
+                    })
+                    $('input.billing_address_1').attr('value', address_1)
+                    }
+                    $this.on('change', function(i) {
+                    i = $this.children('option:selected').index() - 1
+                    var str = '',
+                        r = $this.val()
+                    if (r != '') {
+                        arr[i].forEach(function(el) {
+                        str += '<option value="' + el + '">' + el + '</option>'
+                        $('select[name="calc_shipping_district"]').html('<option value="">Quận / Huyện</option>' + str)
+                        })
+                        var address_1 = $this.children('option:selected').text()
+                        var district = $('select[name="calc_shipping_district"]').html()
+                        localStorage.setItem('address_1_saved', address_1)
+                        localStorage.setItem('district', district)
+                        $('select[name="calc_shipping_district"]').on('change', function() {
+                        var target = $(this).children('option:selected')
+                        target.attr('selected', '')
+                        $('select[name="calc_shipping_district"] option').not(target).removeAttr('selected')
+                        var address_2 = target.text()
+                        $('input.billing_address_2').attr('value', address_2)
+                        district = $('select[name="calc_shipping_district"]').html()
+                        localStorage.setItem('district', district)
+                        localStorage.setItem('address_2_saved', address_2)
+                        })
+                    } else {
+                        $('select[name="calc_shipping_district"]').html('<option value="">Quận / Huyện</option>')
+                        district = $('select[name="calc_shipping_district"]').html()
+                        localStorage.setItem('district', district)
+                        localStorage.removeItem('address_1_saved', address_1)
+                    }
+                    })
+                })
+                })
+            //]]>
+    </script>
 
 
     </body>

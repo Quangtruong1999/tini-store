@@ -1561,6 +1561,39 @@ async function route(app){
         }
     })
 
+    
+    app.get('/order_dashboard', urlencodedParser, async(req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+
+            const orders = await pool.query(`select orders.id, orders.owner_id, orders.delivery_time, orders.delivery_fee, orders.discount, orders.amount, orders.states, addresses.street, addresses.wardid, addresses.districtid, addresses.provinceid
+            from orders, addresses
+            where orders.address_id = addresses.id`)
+            console.log('orders = ', orders.rows)
+            res.render('orders_dashboard', {
+                orders: orders.rows,
+                name: req.session.name,
+                email: req.session.email
+            })
+        }
+    })
+      
+    // app.get('/address_dashboard_add', async (req, res) => {
+    //     if(typeof req.session.user == 'undefined'){
+    //         res.redirect('/login');
+    //     }else{
+    //         const users = await pool.query(`select * from users where roles = 1`)
+    //         let errors = []
+    //         res.render("address_dashboard_add", {
+    //             users: users.rows,
+    //             name: req.session.name,
+    //             email: req.session.email,
+    //             errors: errors
+    //         });
+    //     }
+    // }) 
+
     app.get('/addresses_dashboard', urlencodedParser, async(req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');

@@ -8,7 +8,7 @@
         <meta name="keywords" content="au theme template">
 
         <!-- Title Page-->
-        <title>Dashboard address</title>
+        <title>Dashboard - Order management</title>
 
         <!-- Fontfaces CSS-->
         <link href="css/font-face.css" rel="stylesheet" media="all">
@@ -223,7 +223,7 @@
             <div class="main-content">
                 <div class="col-md-12">
                     <!-- DATA TABLE -->
-                    <h3 class="title-5 m-b-35">Address management</h3>
+                    <h3 class="title-5 m-b-35">Orders management</h3>
                     <div class="table-data__tool">
                         <div class="table-data__tool-left">
                             <div class="rs-select2--light rs-select2--md">
@@ -258,36 +258,40 @@
                         <table class="table table-borderless table-striped table-earning">
                             <thead>
                                 <tr>
+                                    <th>ID order</th>
                                     <th>ID user</th>
-                                    <th>Name</th>
-                                    <th>phone</th>
-                                    <th>street</th>
-                                    <th>ward</th>
-                                    <th>district</th>
-                                    <th>province</th>
-                                    <th>default</th>
+                                    <th>Address</th>
+                                    <th>Delivery time</th>
+                                    <th>Delivery fee</th>
+                                    <th>Discount</th>
+                                    <th>Amount</th>
+                                    <th>State</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 
-                                <% for(var i=0; i< addresses.length; i++){%>
+                                <% for(var i=0; i< orders.length; i++){%>
                                     <tr class="tr-shadow">
-                                        <td><%= addresses[i]['user_id']%></td>
-                                        <td><%= addresses[i]['name']%></td>
-                                        <td><%= addresses[i]['phone']%></td>
-                                        <td><%= addresses[i]['street']%></td>
-                                        <td><%= addresses[i]['wardid']%></td>
-                                        <td><%= addresses[i]['districtid']%></td>
-                                        <td><%= addresses[i]['provinceid']%></td>
-                                        <td><%= addresses[i]['address_default']%></td>
+                                        <td><%= orders[i]['id']%></td>
+                                        <td><%= orders[i]['owner_id']%></td>
+                                        <td><%= orders[i]['street']%>, <%= orders[i]['wardid']%>, <%= orders[i]['districtid']%>, <%= orders[i]['provinceid']%></td>
+                                        <%if(orders[i]['delivery_time'] != null){%>
+                                            <td><%= new Intl.DateTimeFormat(['ban', 'id']).format(orders[i]['delivery_time'])%></td>
+                                        <%}else{%>
+                                            <td></td>
+                                        <%}%>
+                                        <td><%= orders[i]['delivery_fee']%></td>
+                                        <td><%= orders[i]['discount']%></td>
+                                        <td><%= orders[i]['amount']%></td>
+                                        <td><%= orders[i]['states']%></td>
                                         <td>
                                             <div class="table-data-feature">
                                                 <button class="item" data-toggle="tooltip" data-placement="top" title="Edit">
-                                                    <a href="/edit_address_dashboard/<%= addresses[i]['id']%>"><<i class="zmdi zmdi-edit"></i></a>
+                                                    <a href="/edit_order_dashboard/<%= orders[i]['id']%>"><<i class="zmdi zmdi-edit"></i></a>
                                                 </button>
                                                 <button class="item" data-toggle="tooltip" data-placement="top" title="Delete">
-                                                    <a href="/del_address_dashboard/<%= addresses[i]['id']%>"><i class="zmdi zmdi-delete"></i></a>
+                                                    <a href="/del_order_dashboard/<%= orders[i]['id']%>"><i class="zmdi zmdi-delete"></i></a>
                                                 </button>
                                             </div>
                                         </td>

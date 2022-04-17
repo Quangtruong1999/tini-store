@@ -24,10 +24,12 @@ CREATE TABLE IF NOT EXISTS food_tag(
 CREATE TABLE IF NOT EXISTS addresses(
     ID SERIAL,
     user_id INT,
+    name TEXT,
     phone TEXT,
-    provinceid INT,
-    districtid INT,
-    wardid INT,
+    provinceid TEXT,
+    districtid TEXT,
+    wardid TEXT,
+    street TEXT,
     address_default BOOLEAN,
     CONSTRAINT A_ADDRESSES_PK PRIMARY KEY (ID)
 );
