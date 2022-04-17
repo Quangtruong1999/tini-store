@@ -48,10 +48,7 @@
             <div class="header-mobile__bar">
                 <div class="container-fluid">
                     <div class="header-mobile-inner">
-                        <a class="logo" href="index">
-                            <img src="images/icon/logo.png" alt="CoolAdmin"
-                                />
-                        </a>
+                        <a class="navbar-brand" href="/">Tini Store</a>
                         <button class="hamburger hamburger--slider"
                             type="button">
                             <span class="hamburger-box">
@@ -92,7 +89,7 @@
                             </ul>
                         </li>
                         <li>
-                            <a class="js-arrow" href="#">
+                            <a class="js-arrow" href="/order_dashboard">
                                 <i class="fas fa-chart-bar"></i>Order management
                             </a>
                                 
@@ -106,9 +103,7 @@
         <!-- MENU SIDEBAR-->
         <aside class="menu-sidebar d-none d-lg-block">
             <div class="logo">
-                <a href="#">
-                    <img src="images/icon/logo.png" alt="Cool Admin" />
-                </a>
+                <a class="navbar-brand" href="/">Tini Store</a>
             </div>
             <div class="menu-sidebar__content js-scrollbar1">
                 <nav class="navbar-sidebar">
@@ -140,6 +135,12 @@
                                 </li>
                             </ul>
                         </li>
+                        <li>
+                            <a class="js-arrow" href="/order_dashboard">
+                                <i class="fas fa-chart-bar"></i>Order management
+                            </a>
+                                
+                        </li>
                     </ul>
                 </nav>
             </div>
@@ -170,11 +171,10 @@
                                         <div class="image">
                                             <img
                                                 src="images/icon/avatar-01.jpg"
-                                                alt="John Doe" />
+                                                alt="<%=name%>" />
                                         </div>
                                         <div class="content">
-                                            <a class="js-acc-btn" href="#">john
-                                                doe</a>
+                                            <a class="js-acc-btn" href="#"><%=name%></a>
                                         </div>
                                         <div class="account-dropdown
                                             js-dropdown">
@@ -183,15 +183,15 @@
                                                     <a href="#">
                                                         <img
                                                             src="images/icon/avatar-01.jpg"
-                                                            alt="John Doe"
+                                                            alt="<%=name%>"
                                                             />
                                                     </a>
                                                 </div>
                                                 <div class="content">
                                                     <h5 class="name">
-                                                        <a href="#">john doe</a>
+                                                        <a href="#"><%=name%></a>
                                                     </h5>
-                                                    <span class="email">johndoe@example.com</span>
+                                                    <span class="email"><%=email%></span>
                                                 </div>
                                             </div>
                                             <div
@@ -241,7 +241,7 @@
                                         <label for="text-input" class=" form-control-label">Name</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <input type="text" id="text-input" name="name" placeholder="Name of thê product" class="form-control">
+                                        <input type="text" id="text-input" name="name" placeholder="Name of thê product" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="row form-group">
@@ -249,7 +249,7 @@
                                         <label for="textarea-input" class=" form-control-label">Description</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <textarea name="description" id="textarea-input" rows="9" placeholder="Description ..." class="form-control"></textarea>
+                                        <textarea name="description" id="textarea-input" rows="9" placeholder="Description ..." class="form-control" required></textarea>
                                     </div>
                                 </div>
                                 <div class="row form-group">
@@ -269,7 +269,7 @@
                                         <label for="text-input" class=" form-control-label">Price</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <input type="number" id="text-input" name="price" placeholder="Giá sản phẩm" class="form-control">
+                                        <input type="number" id="text-input" name="price" placeholder="Giá sản phẩm" class="form-control" required>
                                     </div>
                                 </div>
                                 
@@ -278,13 +278,17 @@
                                         <label for="image" class=" form-control-label">Image</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <input type="file" name="image" class="input-group input-file"/>
+                                        <input type="file" name="image" class="input-group input-file" required/>
                                     </div>
                                 </div>
                                 <div class="card-footer">
                                     <button type="submit" class="btn btn-primary btn-sm">
                                         <i class="fa fa-dot-circle-o"></i> Create
                                     </button>
+                                    
+                                    <a type="button" href="/product_dashboard" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-dot-circle-o"></i> Back
+                                    </a>
                                 </div>
                             </form>
                         </div>
