@@ -9,7 +9,7 @@
         <meta name="keywords" content="au theme template">
 
         <!-- Title Page-->
-        <title>Dashboard - Edit address</title>
+        <title>Dashboard - Edit order</title>
 
         <!-- Fontfaces CSS-->
         <link href="/css/font-face.css" rel="stylesheet" media="all">
@@ -88,6 +88,12 @@
                                             </li>
                                         </ul>
                                     </li>
+                                    <li>
+                                        <a class="js-arrow" href="order_dashboard">
+                                            <i class="fas fa-chart-bar"></i>Order management
+                                        </a>
+                                            
+                                    </li>
                                 </ul>
                             </div>
                         </nav>
@@ -127,6 +133,12 @@
                                                 <a href="/addresses_dashboard">Address of user</a>
                                             </li>
                                         </ul>
+                                    </li>
+                                    <li>
+                                        <a class="js-arrow" href="order_dashboard">
+                                            <i class="fas fa-chart-bar"></i>Order management
+                                        </a>
+                                            
                                     </li>
                                 </ul>
                             </nav>
@@ -212,94 +224,77 @@
                 <!-- MAIN CONTENT-->
             <!-- MAIN CONTENT-->
             <div class="main-content">
-                <div class="col-lg-6 mx-auto">
+                <div class="col-lg-10 mx-auto">
                     <div class="card">
                         <div class="card-header">
-                            <strong>Edit address</strong>
+                            <strong>Edit order</strong>
                         </div>
                         <div class="card-body card-block">
                             <form action="/edit_address_dashboard/<%= address[0]['id']%>" method="post" class="form-horizontal">
-                                <div class="row form-group">
-                                    <div class="col col-md-3">
-                                        <label for="name" class=" form-control-label">Name</label>
+                                
+                                <div class="row">
+                                    <div class="form-group">
+                                        <label class=" form-control-label">
+                                            User's infomation
+                                        </label>
                                     </div>
-                                    <div class="col-12 col-md-9">
-                                        <input type="text" id="text-input" name="name" value="<%= address[0]['name']%>" placeholder="Text" class="form-control">
-                                        
-                                    </div>
-                                </div>
-                                <div class="row form-group">
-                                    <div class="col col-md-3">
-                                        <label for="phone" class="form-control-label">Phone</label>
-                                    </div>
-                                    <div class="col-12 col-md-9">
-                                        <input type="number" id="phone" name="phone" value="<%= address[0]['phone']%>" class="form-control">
-                                    </div>
-                                </div>
-
-                                <div class="row form-group">
-                                    <div class="col col-md-3">
-                                        <label for="calc_shipping_provinces" class=" form-control-label">Province</label>
-                                    </div>
-                                    <div class="col-12 col-md-9">
-                                        <select name="calc_shipping_provinces" class="form-select form-select-lg mb-3" required="">
-                                            <option value="">Tỉnh / Thành phố</option>
+                                    <div class=" form-group">
+                                        <div class="col col-md-3">
+                                            <label for="name_owner" class=" form-control-label">Owner's order</label>
+                                        </div>
+                                        <div class="col-12 col-md-9">
+                                            <input type="text" id="text-input" name="name_owner" value="<%= owner_order[0]['name']%>" placeholder="Text" class="form-control" readonly>
                                             
-                                        </select>
-                                        
-                                        <input class="billing_address_1" name="" type="hidden" value="">
-
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3">
+                                            <label for="phone_owner" class="form-control-label">Phone</label>
+                                        </div>
+                                        <div class="col-12 col-md-9">
+                                            <input type="number" id="phone_owner" name="phone_owner" value="<%= owner_order[0]['phone']%>" class="form-control" readonly>
+                                        </div>
                                     </div>
                                 </div>
                                 
-                                <div class="row form-group">
-                                    <div class="col col-md-3">
-                                        <label for="calc_shipping_district" class=" form-control-label">Quận / Huyện</label>
+                                <div class="row">
+                                    <div class="row form-group">
+                                        <label class=" form-control-label">
+                                            Ship to
+                                        </label>
                                     </div>
-                                    <div class="col-12 col-md-9">
-                                        <select name="calc_shipping_district" class="form-select form-select-lg mb-3" required="">
-                                            <option value="">Disctrict</option>
-                                        </select>
-                                        <input class="billing_address_2" name="" type="hidden" value="">
-
+                                    <div class="row form-group">
+                                        <div class="col col-md-3">
+                                            <label for="name_recipient" class=" form-control-label">Recipient</label>
+                                        </div>
+                                        <div class="col-12 col-md-9">
+                                            <input type="text" id="name_recipient" name="name_recipient" value="<%= address[0]['name']%>" placeholder="Tên" class="form-control" readonly>
+                                            
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3">
+                                            <label for="phone_recipient" class="form-control-label">Phone</label>
+                                        </div>
+                                        <div class="col-12 col-md-9">
+                                            <input type="number" id="phone_owner" name="phone_recipient" value="<%= address[0]['phone']%>" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3">
+                                            <label for="adress_owner" class="form-control-label">Address</label>
+                                        </div>
+                                        <div class="col-12 col-md-9">
+                                            <input type="text" id="adress_owner" name="adress_owner" value="<%= address[0]['street'], address[0]['wardid'], address[0]['disctrictid'], address[0]['provinceid']%>" class="form-control" readonly>
+                                        </div>
                                     </div>
                                 </div>
-                                
-                                <div class="row form-group">
-                                    <div class="col col-md-3">
-                                        <label for="wardid" class="form-control-label">Ward</label>
-                                    </div>
-                                    <div class="col-12 col-md-9">
-                                        <input type="text" id="wardid" name="wardid" value="<%= address[0]['wardid']%>" class="form-control">
-                                    </div>
-                                </div>
-                                     
-                                <div class="row form-group">
-                                    <div class="col col-md-3">
-                                        <label for="street" class="form-control-label">Street</label>
-                                    </div>
-                                    <div class="col-12 col-md-9">
-                                        <input type="text" id="street" name="street" value="<%= address[0]['street']%>" class="form-control">
-                                    </div>
-                                </div>   
-     
-                                <div class="row form-group">
-                                                
-                                    <%if(address[0]['address_default'] != false){%>
-                                        <input type="checkbox" name="address_default" placeholder="Địa chỉ mặc định" checked> Địa chỉ mặc
-                                        định
-                                    <%}else{%>
-                                        <input type="checkbox" name="address_default" placeholder="Địa chỉ mặc định"> Địa chỉ mặc
-                                        định
-                                    <%}%>
-                                </div>   
-
-
+<!-- 
                                 <div class="card-footer">
                                     <button type="submit" class="btn btn-primary btn-sm">
                                         <i class="fa fa-dot-circle-o"></i> Edit
                                     </button>
-                                </div>
+                                </div> -->
                             </form>
                         </div>
                     </div>

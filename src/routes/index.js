@@ -1578,6 +1578,32 @@ async function route(app){
             })
         }
     })
+    
+    app.get('/edit_order_dashboard/:id', urlencodedParser,async (req, res) => {
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const order = await pool.query(`select orders.id, orders.address_id, orders.owner_id, orders.delivery_time, orders.delivery_fee, orders.discount, orders.amount, orders.states, addresses.street, addresses.wardid, addresses.districtid, addresses.provinceid
+            from orders, addresses
+            where orders.address_id = addresses.id and orders.id = $1`, [req.params.id])
+            const order_items = await pool.query(`select *
+            from order_items
+            where order_id = $1`, [req.params.id])
+            const owner_order = await pool.query(`select * from users where id = $1`, [order.rows[0]['owner_id']])
+            const address = await pool.query(`select * from addresses where id = $1`, [order.rows[0]['address_id']])
+
+            res.render('orders_dashboard_edit', {
+                name: req.session.name, 
+                email: req.session.email,
+                user_id: req.session.user_id,
+                order: order.rows,
+                order_items: order_items.rows,
+                owner_order: owner_order.rows,
+                address: address.rows,
+            })
+        }
+    })
+
       
     // app.get('/address_dashboard_add', async (req, res) => {
     //     if(typeof req.session.user == 'undefined'){
