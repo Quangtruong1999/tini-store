@@ -12,7 +12,7 @@
 
     <link rel="stylesheet" href="/css/open-iconic-bootstrap.min.css">
     <link rel="stylesheet" href="/css/animate.css">
-
+    <link href="vendor/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
     <link rel="stylesheet" href="/css/owl.carousel.min.css">
     <link rel="stylesheet" href="/css/owl.theme.default.min.css">
     <link rel="stylesheet" href="/css/magnific-popup.css">
@@ -120,7 +120,7 @@
 			  <% if(name != null){%>
           <li class="nav-item cta cta-colored dropdown" style="margin-left: 50px;">
               <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
-              aria-haspopup="true" aria-expanded="false"><%= name%></a>
+              aria-haspopup="true" aria-expanded="false"><i class="zmdi zmdi-account-circle" style="color: #82ae46; padding-right: 10px;"></i><%= name%></a>
               
             <div class="dropdown-menu" aria-labelledby="dropdown04">
               <a class="dropdown-item" href="/information_user">Edit profile</a>
@@ -198,11 +198,11 @@
                 </div>
                 <div class="row text-center">
                   <div class="col-12 text-center">
-                      <button class="btn btn-success" type="submit" title="Update" style="color: #ffffff; margin: 15px; width: 200px;">Update</button>
+                      <button class="btn" type="submit" title="Update" style="color: #ffffff; background-color: #82ae46; margin: 15px; width: 200px;">Update</button>
                   </div>
                   
                   <div class="col-12 col-md-12 text-center">
-                    <a href="/quen_mat_khau" class="btn btn-success" type="button" title="Change password" style="color: #ffffff; margin: 15px; width: 200px;">Change password</a>
+                    <a href="/quen_mat_khau" class="btn" type="button" title="Change password" style="color: #ffffff; background-color: #82ae46; margin: 15px; width: 200px;">Change password</a>
                   </div>
               </div>
               </form>
