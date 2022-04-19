@@ -298,12 +298,13 @@
                                 </div>   
      
                                 <div class="row form-group">
-                                                
-                                    <%if(address[0]['address_default'] != false){%>
-                                        <input type="checkbox" name="address_default" placeholder="Set as default address" checked> Set as default address
-                                    <%}else{%>
-                                        <p><input type="checkbox" name="address_default" placeholder="Set as default address"><span style="margin-left: 10px;">Set efault address</span></p>
-                                    <%}%>
+                                    <div class="col col-12">
+                                        <%if(address[0]['address_default'] != false){%>
+                                            <input type="checkbox" name="address_default" placeholder="Set as default address" checked> Set as default address
+                                        <%}else{%>
+                                            <p><input type="checkbox" name="address_default" placeholder="Set as default address"><span style="margin-left: 10px;">Set efault address</span></p>
+                                        <%}%>
+                                    </div>
                                 </div>   
 
 
