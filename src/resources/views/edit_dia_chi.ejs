@@ -158,8 +158,8 @@
             <div class="row">
                 <div class="col-12">
                     <div class="form-group">
-                        <label for="name" class=" form-control-label">Họ và tên</label>
-                        <input type="text" name="name" value="<%= address[0]['name']%>" class=" form-control input_form" placeholder="Họ và tên" required>
+                        <label for="name" class=" form-control-label">Full name</label>
+                        <input type="text" name="name" value="<%= address[0]['name']%>" class=" form-control input_form" placeholder="Full name" required>
                     </div>
                 </div>
             </div>
@@ -176,8 +176,8 @@
                 <div class="col-12">
                     <div class="form-group">
                         
-                        <label for="phone" class=" form-control-label">Số điện thoại</label>
-                        <input type="number" value="<%= address[0]['phone']%>" name="phone" class=" form-control input_form" placeholder="Số điện thoại"
+                        <label for="phone" class=" form-control-label">Mobile phone</label>
+                        <input type="number" value="<%= address[0]['phone']%>" name="phone" class=" form-control input_form" placeholder="Mobile phone"
                             required>
                     </div>
                 </div>
@@ -188,9 +188,9 @@
                         <!-- <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
                             onmousedown="if(this.options.length>8){this.size=8;}" onchange='this.size=0;'
                             onblur="this.size=0;"> -->
+                        <input type="hidden" id="provinceid" value="<%=address[0]['provinceid']%>"/>
                         
-                        
-                        <label for="calc_shipping_provinces" class=" form-control-label">Tỉnh / Thành phố</label>
+                        <label for="calc_shipping_provinces" class=" form-control-label">Province</label>
                         <select name="calc_shipping_provinces" class="form-select form-select-lg mb-3" required="">
                             <option value="">Tỉnh / Thành phố</option>
                         </select>
@@ -212,7 +212,8 @@
                             <option value="2">Fore</option>
                         </select> -->
                         
-                        <label for="calc_shipping_district" class=" form-control-label">Quận / Huyện</label>
+                        <input type="hidden" id="districtid" value="<%=address[0]['districtid']%>"/>
+                        <label for="calc_shipping_district" class=" form-control-label">District</label>
                         <select name="calc_shipping_district" class="form-select form-select-lg mb-3" required="">
                             <option value="">Quận / Huyện</option>
                         </select>
@@ -232,8 +233,8 @@
                             <option value="1">Tree</option>
                             <option value="2">Fore</option>
                         </select> -->
-                        <label for="ward" class=" form-control-label">Phường / Xã</label>
-                        <input type="text" name="ward" value="<%= address[0]['wardid']%>" class=" form-control input_form" placeholder="Phường / Xã"
+                        <label for="ward" class=" form-control-label">Ward</label>
+                        <input type="text" name="ward" value="<%= address[0]['wardid']%>" class=" form-control input_form" placeholder="Ward"
                             required>
                     </div>
                 </div>
@@ -241,8 +242,8 @@
             <div class="row">
                 <div class="col-12">
                     <div class="form-group">
-                        <label for="street" class=" form-control-label">Số nhà, tên đường</label>
-                        <input type="text" name="street" value="<%= address[0]['street']%>" class=" form-control input_form" placeholder="Địa chỉ" required>
+                        <label for="street" class=" form-control-label">Street</label>
+                        <input type="text" name="street" value="<%= address[0]['street']%>" class=" form-control input_form" placeholder="Street" required>
                     </div>
                 </div>
             </div>
@@ -250,11 +251,9 @@
                 <div class="col-12">
                     <div class="form-group">
                         <%if(address[0]['address_default'] != false){%>
-                            <input type="checkbox" name="address_default" placeholder="Địa chỉ mặc định" checked> Địa chỉ mặc
-                            định
+                            <input type="checkbox" name="address_default" placeholder="Set as default address" checked> Set as default address
                         <%}else{%>
-                            <input type="checkbox" name="address_default" placeholder="Địa chỉ mặc định"> Địa chỉ mặc
-                            định
+                            <input type="checkbox" name="address_default" placeholder="Set as default address"> Set as default address
                         <%}%>
                     </div>
                 </div>
@@ -373,25 +372,25 @@
     <script>
         //<![CDATA[
             if (address_2 = localStorage.getItem('address_2_saved')) {
-            $('select[name="calc_shipping_district"] option').each(function() {
-                if ($(this).text() == address_2) {
-                $(this).attr('selected', '')
-                }
-            })
-            $('input.billing_address_2').attr('value', address_2)
+                $('select[name="calc_shipping_district"] option').each(function() {
+                    if ($(this).text() == address_2) {
+                        $(this).attr('selected', '')
+                    }
+                })
+                $('input.billing_address_2').attr('value', address_2)
             }
             if (district = localStorage.getItem('district')) {
-            $('select[name="calc_shipping_district"]').html(district)
-            $('select[name="calc_shipping_district"]').on('change', function() {
-                var target = $(this).children('option:selected')
-                target.attr('selected', '')
-                $('select[name="calc_shipping_district"] option').not(target).removeAttr('selected')
-                address_2 = target.text()
-                $('input.billing_address_2').attr('value', address_2)
-                district = $('select[name="calc_shipping_district"]').html()
-                localStorage.setItem('district', district)
-                localStorage.setItem('address_2_saved', address_2)
-            })
+                $('select[name="calc_shipping_district"]').html(district)
+                $('select[name="calc_shipping_district"]').on('change', function() {
+                    var target = $(this).children('option:selected')
+                    target.attr('selected', '')
+                    $('select[name="calc_shipping_district"] option').not(target).removeAttr('selected')
+                    address_2 = target.text()
+                    $('input.billing_address_2').attr('value', address_2)
+                    district = $('select[name="calc_shipping_district"]').html()
+                    localStorage.setItem('district', district)
+                    localStorage.setItem('address_2_saved', address_2)
+                })
             }
             $('select[name="calc_shipping_provinces"]').each(function() {
                 var $this = $(this),
@@ -399,17 +398,27 @@
                 c.forEach(function(i, e) {
                     e += +1
                     console.log('value = ', i)
-                    stc += "<option value='"+i+"'>" + i + "</option>"
+                    var province = document.getElementById('provinceid').value;
+                    console.log('address = ', province)
+                    
+                    if(i == province){
+                        console.log('1')
+                        stc += "<option value='"+i+"' selected>" + i + "</option>"
+                    }else{
+                        console.log('2')
+                        stc += "<option value='"+i+"'>" + i + "</option>"
+                    }
                     
                     $this.html('<option value="">Tỉnh / Thành phố</option>' + stc)
                     if (address_1 = localStorage.getItem('address_1_saved')) {
-                    $('select[name="calc_shipping_provinces"] option').each(function() {
-                        if ($(this).text() == address_1) {
-                        $(this).attr('selected', '')
-                        }
-                    })
-                    $('input.billing_address_1').attr('value', address_1)
+                        $('select[name="calc_shipping_provinces"] option').each(function() {
+                            if ($(this).text() == address_1) {
+                            $(this).attr('selected', '')
+                            }
+                        })
+                        $('input.billing_address_1').attr('value', address_1)
                     }
+
                     $this.on('change', function(i) {
                     i = $this.children('option:selected').index() - 1
                     var str = '',

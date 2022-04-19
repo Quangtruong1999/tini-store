@@ -268,7 +268,7 @@
                                 
                                 <div class="row form-group">
                                     <div class="col col-md-3">
-                                        <label for="calc_shipping_district" class="form-control-label">Quận / Huyện</label>
+                                        <label for="calc_shipping_district" class="form-control-label">Disctrict</label>
                                     </div>
                                     <div class="col-12 col-md-9">
                                         <select name="calc_shipping_district" class="form-select form-select-lg mb-3 form-control" required="">
@@ -300,11 +300,9 @@
                                 <div class="row form-group">
                                                 
                                     <%if(address[0]['address_default'] != false){%>
-                                        <input type="checkbox" name="address_default" placeholder="Địa chỉ mặc định" checked> Địa chỉ mặc
-                                        định
+                                        <input type="checkbox" name="address_default" placeholder="Set as default address" checked> Set as default address
                                     <%}else{%>
-                                        <input type="checkbox" name="address_default" placeholder="Địa chỉ mặc định"> Địa chỉ mặc
-                                        định
+                                        <input type="checkbox" name="address_default" placeholder="Set as default address"> Set as default address
                                     <%}%>
                                 </div>   
 
