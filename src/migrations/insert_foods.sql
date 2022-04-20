@@ -12,6 +12,7 @@ INSERT INTO foods (category_id, name, description, price, images) VALUES (2, 'AP
 INSERT INTO foods (category_id, name, description, price, images) VALUES (1, 'CHILLI', 'Chili is a fruit of plants of the genus Capsicum of the Ca family. Chili is a spice as well as a popular vegetable in the world. Chili is native to the Americas; Today it is grown all over the world and is used as a spice, vegetable, and medicine', 12000, 'images/product-12.jpg');
 INSERT INTO foods (category_id, name, description, price, images) VALUES (3, 'APPLE JUICE', 'Apple juice is a favorite drink of many people. This is not only a delicious and refreshing drink, but also brings a lot of health benefits', 13000, 'images/product-13.jpg');
 INSERT INTO foods (category_id, name, description, price, images) VALUES (4, 'DRIED LYCHEE', 'Dried lychee is a tonic, often used to treat diseases such as obesity, high blood pressure, flatulence, indigestion and neuralgia. However, if not used correctly, drying cloth will also harm the body', 14000, 'images/product-14.jpg');
+
 -- INSERT INTO foods (category_id, name, description, price) VALUES ();
 -- INSERT INTO foods (category_id, name, description, price) VALUES ();
 -- INSERT INTO foods (category_id, name, description, price) VALUES ();
