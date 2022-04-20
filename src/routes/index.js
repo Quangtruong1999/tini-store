@@ -21,59 +21,26 @@ const { get } = require('http');
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
-// const {Pool} = require('pg')
-// const {migrate} = require('postgres-migrations')
-// const env = require('dotenv');
-
-// env.config({
-//     path:'./.env'
-// })
-// const pool = new Pool({
-//     connectionString: process.env.DATABASE_URL,
-// })
 
 async function route(app){
-    
+    //thiết lập session
     app.use(session({
         secret: 'secrect',
         resave: true,
         saveUninitialized: true,
         cookie: { maxAge: 60000000 }
     }));
-    app.get('/db', async (req, res) => {
-        console.log('Kết nối thành công')
-        const foods = await pool.query(`SELECT * FROM foods`);
-        const category = await pool.query(`SELECT * FROM foods`);
-        console.log('foods = ', foods.rows)
-        console.log('category = ', category.rows)
-        res.render('db', {foods: foods.rows, category: category.rows})
-        // pool.connect(function(err, client, done){
-        //     if(err){
-        //         return console.error('error fetching client from pool ', err)
-        //     }
-        //     console.log('connected')
-        //     return res.send('connected')
-        //     // client.query('SELECT * FROM position', (err, result) => {
-        //     //     done();
-            
-        //     //     if(err){
-        //     //         res.end();
-        //     //         return console.error('error running query ', err)
-        //     //     }
-        //     //     console.log('Data = ', result.rows)
-        //     //     res.render('db', {data: result.rows})
-        //     // });
-        // });
-    })
 
+    //route trang chủ
     app.get('/', urlencodedParser, async (req, res) => {
         console.log('name = ', req.session.name);
         console.log('check session = ', req.session);
         
+        //Đếm số lượng sản phẩm bán đc theo foods_id
         const top_foods = await pool.query(`SELECT food_id, sum(quantity)
         FROM order_items
         GROUP BY food_id`)
-        console.log('top_foods = ', top_foods.rows)
+        
         const foods = await pool.query(`select * from foods`)
         const category_list = await pool.query(`select * from category`)
 
@@ -124,12 +91,7 @@ async function route(app){
 
     app.post('/signup',urlencodedParser, async (req, res) => {
         let {name, phone, email, password, repassword} = req.body;
-        console.log('name = ', name);
-        console.log('phone = ', phone);
-        console.log('email = ', email);
-        console.log('password = ', password);
-        console.log('repass = ',repassword);
-        // Zack Steffen
+
         let errors = []
         let success = []
         // regex email
@@ -147,6 +109,8 @@ async function route(app){
         if (errors.length > 0){
             res.render('signup', {errors});
         }else{
+            /*Khi lưu mật khẩu dưới db sẽ đc mã hóa dạng scram-sha-256, md5 hoặc dạng text kh mã hóa
+        Tốt nhất nên mã hóa rồi lưu vào db */
             let hashed_password = await bcrypt.hash(password, 10);
             
             pool.query(
@@ -154,9 +118,10 @@ async function route(app){
                     if (err){
                         throw err;
                     }
-
+                    //Kiểm tra email đã tồn tại trong hệ thống hay chưa
+                    
                     if(result.rows.length > 0){
-                        errors.push({message: "Email already regiser!"})
+                        errors.push({message: "Email already registered!"})
                         console.log('errors = ', errors)
                         res.render('signup', {errors});
                     }else{
@@ -182,6 +147,7 @@ async function route(app){
         
     })  
     
+    //route cập nhật thông tin tài khoản
     app.post('/update/:id', urlencodedParser, (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -204,9 +170,7 @@ async function route(app){
                         if(err){
                             throw err;
                         }
-    
-                        console.log('info = ', result.rows)
-                        console.log('error = ', errors)
+                        
                         res.render('information_user', {data: result.rows, errors: errors, name: req.session.name, user_id: req.session.user_id})
                     })
                 });
@@ -234,11 +198,16 @@ async function route(app){
 
         }
     })
+
+    //route forgot pass
+    //comming soon
     app.get('/forgot', (req, res) => {
                   
         // var kq = bcrypt.compareSync(password, pass_fromdb);
         res.render("forgot_password", {name: req.session.name});
     }) 
+
+    //Trang about
     app.get('/about', urlencodedParser, async (req, res) => {
         if(typeof req.session.name != 'undefined'){
             
@@ -268,6 +237,7 @@ async function route(app){
         }
     }) 
 
+    //route blog
     app.get('/blog', urlencodedParser,async (req, res) => {
         const category = await pool.query(`select * from category`)
         if(typeof req.session.name != 'undefined'){
@@ -301,7 +271,7 @@ async function route(app){
         }
     }) 
 
-    
+    //route thêm địa chỉ mới của kH
     app.get('/new_address', urlencodedParser, async(req, res) => {
         if(typeof req.session.name != 'undefined'){
             const search_order = await pool.query(`select * 
@@ -328,11 +298,12 @@ async function route(app){
         }
     }) 
 
+    //route thêm địa chỉ mới của kH
     app.post('/new_address', urlencodedParser, async(req, res) => {
         if(typeof req.session.name != 'undefined'){
             let errors = []
             var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
-
+            //Kiểm tra số điện thoại hợp lệ hay không
             if(regex.test(req.body.phone) != true){
                 errors.push({message: "Phone invalid!"})
                 const search_order = await pool.query(`select * 
@@ -392,6 +363,7 @@ async function route(app){
         }
     }) 
 
+    //route đổi địa chỉ trong giỏ hàng
     app.get('/change_address', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -423,6 +395,7 @@ async function route(app){
         }
     })
 
+    //route giảm số lượng sản phẩm trong cart
     app.get('/minus/:order_item_id', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -439,6 +412,7 @@ async function route(app){
         }
     })
 
+    //route tăng số lượng sản phẩm trong cart
     app.get('/add/:order_item_id', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -451,6 +425,7 @@ async function route(app){
         }
     })
 
+    //route xác nhận địa chỉ giao hàng
     app.get('/approve_address/:address_id&:order_id', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -463,6 +438,7 @@ async function route(app){
         }
     })
 
+    // xóa địa chỉ giao hàng
     app.get('/delete_address/:id', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -472,7 +448,7 @@ async function route(app){
         }
     })
 
-    
+    //route lấy thông tin đơn đặt hàng
     app.get('/orders', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -505,6 +481,7 @@ async function route(app){
     })
 
     
+    //route lấy thông tin chi tiết đơn đặt hàng
     app.get('/order_details/:id', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -557,6 +534,8 @@ async function route(app){
         }
     })
 
+    
+    //route lấy thông tin giỏ hàng
     app.get('/cart', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -716,7 +695,7 @@ async function route(app){
         }
     })  
 
-    
+    //route xóa sản phẩm khỏi giỏ hàng
     app.get('/del_pro_cart/:id', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -727,6 +706,7 @@ async function route(app){
         }
     })
         
+    //route thêm sản phẩm khỏi giỏ hàng
     app.get('/add_to_cart/:id', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -792,10 +772,12 @@ async function route(app){
         }
     })
 
+    //route xem chi tiết blog
     app.get('/blog-single', (req, res) => {
         res.render("blog-single", {name: req.session.name});
     })             
             
+    //route xác nhận thanh toán
     app.post('/checkout', urlencodedParser, async(req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -805,7 +787,7 @@ async function route(app){
             let errors = []
             var today = new Date();
             var date, day, month, year;
-
+            //tính thời gian giao hàng
             if((today.getMonth()+1) == 1 || (today.getMonth()+1) == 3 || (today.getMonth()+1) == 5 || (today.getMonth()+1) == 7 || (today.getMonth()+1) == 8 || (today.getMonth()+1) == 10 || (today.getMonth()+1) == 12){
                 var tmp_day = 3 - (31 - today.getDate())
                 if(tmp_day == 0){
@@ -1098,6 +1080,7 @@ async function route(app){
         }
     }) 
 
+    //route contact
     app.get('/contact', urlencodedParser,async (req, res) => {
         if(typeof req.session.name != 'undefined'){
             
@@ -1124,7 +1107,8 @@ async function route(app){
         }else{
             res.render("contact", {name: req.session.name});
         }
-    })          
+    })      
+    //route xem sản phẩm chi tiết    
     app.get('/product-single/:id', async (req, res) => {
         const product_signle = await pool.query(`select * from foods where id = $1`, [req.params.id])
         const wishlist = await pool.query(`select count(*)
@@ -1155,6 +1139,8 @@ async function route(app){
             })
         }
     })          
+
+    //route trang shop
     app.get('/shop/:id', async(req, res) =>{
         if(typeof req.session.user == 'undefined'){
             const category_id = req.params.id;
@@ -1240,7 +1226,7 @@ async function route(app){
             }
         }
     })   
-           
+    //route thêm sản phẩm vào danh sách yêu thích       
     app.get('/add_wishlist/:id', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1252,6 +1238,7 @@ async function route(app){
         }
     })   
 
+    //route lấy danh sách yêu thích  
     app.get('/wishlist', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1291,6 +1278,8 @@ async function route(app){
         }
     }) 
 
+    
+    //route xóa sản phẩm khỏi danh sách yêu thích  
     app.get('/del_wishlist/:id', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1300,6 +1289,7 @@ async function route(app){
         }
     })
 
+    //route xóa sản phẩm trong admin
     app.get('/del_pro/:id', urlencodedParser, (req, res) => {
         pool.connect(function(err,client, done){
             if(err){
@@ -1315,6 +1305,7 @@ async function route(app){
         })
     }) 
 
+    //route lấy form sửa sản phẩm trong admin
     app.get('/edit_pro/:id', urlencodedParser,async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1331,6 +1322,7 @@ async function route(app){
         }
     })
 
+    //route chỉnh sửa sản phẩm trong admin
     app.post('/edit_pro/:id', urlencodedParser,  upload.single('image'), async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1358,6 +1350,7 @@ async function route(app){
         }
     })
 
+    //route thêm địa chỉ của KH
     app.get('/dia_chi', urlencodedParser, async(req, res) => {
         if(typeof req.session.name != 'undefined'){
             const search_order = await pool.query(`select * 
@@ -1385,11 +1378,12 @@ async function route(app){
         }
     }) 
 
+    //route kiểm tra địa chỉ của KH
     app.post('/dia_chi', urlencodedParser, async(req, res) => {
         if(typeof req.session.name != 'undefined'){
             let errors = []
             var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
-
+            //kiểm tra số điện thoại hợp lệ
             if(regex.test(req.body.phone) != true){
                 errors.push({message: "Phone invalid!"})
                 const search_order = await pool.query(`select * 
@@ -1449,6 +1443,7 @@ async function route(app){
         }
     }) 
     
+    //route lấy form chỉnh sửa địa chỉ của kh
     app.get('/edit_addresses/:id', urlencodedParser,async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1479,6 +1474,7 @@ async function route(app){
         }
     })
 
+    //route cập nhật chỉnh sửa địa chỉ của kh
     app.post('/edit_addresses/:id', urlencodedParser,  upload.single('image'), async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1577,6 +1573,7 @@ async function route(app){
         }
     })
 
+    //route xóa address
     app.get('/del_address/:id', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1586,6 +1583,7 @@ async function route(app){
         }
     })
 
+    //route xóa danh mục sản phẩm
     app.get('/del_category/:id', urlencodedParser, (req, res) => {
         pool.connect(function(err,client, done){
             if(err){
@@ -1601,7 +1599,7 @@ async function route(app){
             })
         })
     }) 
-    
+    //route trang chủ admin
     app.get('/product_dashboard', (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1630,7 +1628,7 @@ async function route(app){
         }
     })  
 
-    
+    //route chỉnh sửa danh mục trong admin
     app.get('/edit_category/:id', urlencodedParser, async(req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1645,6 +1643,7 @@ async function route(app){
         }
     })
     
+    //route chỉnh sửa danh mục trong admin
     app.post('/edit_category/:id', urlencodedParser, async(req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1658,6 +1657,7 @@ async function route(app){
         }
     })
     
+    //chỉnh sửa thông tin ng dùng
     app.get('/edit_users/:id', urlencodedParser, async(req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1672,6 +1672,7 @@ async function route(app){
         }
     })
     
+    //route chỉnh sửa người dùng
     app.post('/edit_users/:id', urlencodedParser, async(req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1686,6 +1687,7 @@ async function route(app){
     })
 
     
+    //route xem các order của admin
     app.get('/order_dashboard', urlencodedParser, async(req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1702,7 +1704,7 @@ async function route(app){
             })
         }
     })
-    
+    //route lấy form chỉnh sửa order của admin
     app.get('/edit_order_dashboard/:id', urlencodedParser,async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1729,22 +1731,7 @@ async function route(app){
         }
     })
 
-      
-    // app.get('/address_dashboard_add', async (req, res) => {
-    //     if(typeof req.session.user == 'undefined'){
-    //         res.redirect('/login');
-    //     }else{
-    //         const users = await pool.query(`select * from users where roles = 1`)
-    //         let errors = []
-    //         res.render("address_dashboard_add", {
-    //             users: users.rows,
-    //             name: req.session.name,
-    //             email: req.session.email,
-    //             errors: errors
-    //         });
-    //     }
-    // }) 
-
+    //route lấy form địa chỉ của admin
     app.get('/addresses_dashboard', urlencodedParser, async(req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1761,6 +1748,7 @@ async function route(app){
         }
     })
       
+    //route lấy form thêm địa chỉ của admin
     app.get('/address_dashboard_add', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1776,6 +1764,7 @@ async function route(app){
         }
     }) 
       
+    //route kiểm tra, thêm địa chỉ của admin
     app.post('/address_dashboard_add', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1822,6 +1811,7 @@ async function route(app){
         }
     }) 
 
+    //route lấy form chỉnh sửa địa chỉ của admin
     app.get('/edit_address_dashboard/:id', urlencodedParser,async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1837,6 +1827,7 @@ async function route(app){
         }
     })
 
+    //route kiểm tra, chỉnh sửa địa chỉ của admin
     app.post('/edit_address_dashboard/:id', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1887,6 +1878,7 @@ async function route(app){
         }
     })
 
+    //route xóa địa chỉ của admin
     app.get('/del_address_dashboard/:id', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1896,6 +1888,7 @@ async function route(app){
         }
     })
 
+    //route kiểm tra, thêm danh mục của admin
     app.post('/category_add', urlencodedParser, upload.single('image'),async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1912,6 +1905,8 @@ async function route(app){
             
         }
     })
+    
+    //route lấy form thêm sản phẩm của admin
     app.get('/product_add', (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1931,6 +1926,7 @@ async function route(app){
             })
         }
     })  
+    //route thêm sản phẩm của admin
     app.post('/pro_add', urlencodedParser, upload.single('image'),async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1963,6 +1959,7 @@ async function route(app){
             }
         }
     })
+    //route danh mục sản phẩm của admin
     app.get('/category_dashboard', (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1988,6 +1985,7 @@ async function route(app){
             });
         }
     })  
+    //route thêm danh mục sản phẩm của admin
     app.get('/category_dashboard_add', (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -1995,6 +1993,7 @@ async function route(app){
             res.render("category_dashboard_add", {name: req.session.name});
         }
     })  
+    //route thông tin người dùng của admin
     app.get('/customer_dashboard', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -2015,7 +2014,7 @@ async function route(app){
         }
     }) 
 
-
+    //route lấy thông tin ng dùng
     app.get('/information_user', urlencodedParser, async(req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -2049,6 +2048,7 @@ async function route(app){
         }
     }) 
 
+    //route lấy form quên mật khẩu
     app.get('/quen_mat_khau', urlencodedParser,async (req, res) => {
         if(typeof req.session.name != 'undefined'){
             const search_order = await pool.query(`select * 
@@ -2081,6 +2081,7 @@ async function route(app){
     
     }) 
 
+    //route đổi mật khẩu
     app.post('/quen_mat_khau', urlencodedParser, async (req, res) => {
         if(typeof req.session.name != 'undefined'){
             const search_order = await pool.query(`select * 
@@ -2088,6 +2089,7 @@ async function route(app){
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
             const users = await pool.query(`select * from users where id = $1`, [req.session.user_id])
             let errors = []
+            //kiểm tra mật khẩu mới và mật khẩu lặp lại
             if(req.body.new_password != req.body.confirm_password){
                 errors.push({new_confirm: "Confirm password don't match!"})
                 if (search_order.rows == ''){
@@ -2144,16 +2146,12 @@ async function route(app){
                     }
                 )
             }
-
-
-            
-
         }else{
             res.redirect('/login')
         }
     
     }) 
-
+    //route show tất cả địa chỉ của KH
     app.get('/show_dia_chi', urlencodedParser,async (req, res) => {
         if(typeof req.session.name != 'undefined'){
             const search_order = await pool.query(`select * 

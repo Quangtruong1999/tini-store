@@ -49,28 +49,19 @@ app.use(morgan('combined'))
 //Config ejs 
 app.set("view engine", "ejs");
 app.set('views', path.join(__dirname,'resources/views'));
-//Templates engine
-// app.engine('handlebars', engine());
-// app.set('view engine', 'handlebars');
-// console.log('path = ',path.join(__dirname,'resources/views') )
-// app.set('views', path.join(__dirname,'resources/views'));
 
-// app.get('/login', (req, res) => {
-//   res.render('login1')
-// }) 
-// app.post('/login', passport.authenticate('local', {
-//   successRedirect: '/',
-//   failureRedirect: '/login',
-//   failureFlash: true
-// }));
 
 app.get('/login', (req, res) => {
   res.render('login1')
 }) 
+
+//route kiểm tra đăng nhập 
+//nếu đăng nhập thành công web sẽ chuyển hướng sang home
+//Sai thì báo lỗi
 app.post('/login',urlencodedParser, async function(req, res) {
   let email = req.body.email;
   let password = req.body.password;
-  console.log('email = ', email)
+  
   pool.query(`SELECT * FROM users WHERE email = $1`, [email] , (err, rows) => {
       console.log('rows = ', rows);
       if (rows.length<=0) { res.redirect("/login"); return;}
@@ -79,7 +70,9 @@ app.post('/login',urlencodedParser, async function(req, res) {
       
       let errors = []
       if(typeof user != 'undefined'){
-        let pass_fromdb = user.password;          
+        let pass_fromdb = user.password;    
+        /*Giải mã mật khẩu được lưu ở postgresql và so sánh với chuỗi vừa nhập  
+        */
         var kq = bcrypt.compareSync(password, pass_fromdb);
         if (kq){ 
             console.log("OK");   
@@ -89,7 +82,7 @@ app.post('/login',urlencodedParser, async function(req, res) {
             sess.name = user.name;
             sess.email = user.email;  
             sess.roles = user.roles;
-            console.log('sess = ', sess)
+            // console.log('sess = ', sess)
 
             // if (sess.back){ 
             //   console.log(sess.back);
@@ -98,6 +91,9 @@ app.post('/login',urlencodedParser, async function(req, res) {
             // else {
             //     res.redirect("/");
             // }
+
+            /* Nếu role của tài khoản là 0, là tài khoản admin và ngược lại
+            */
             if (user.roles == 1){
               res.redirect("/");   
             }else{
@@ -105,12 +101,13 @@ app.post('/login',urlencodedParser, async function(req, res) {
             }           
         }   
         else {
+          // Gửi lỗi sai tài khoản hoặc mật khẩu
           errors.push({message: "Email/Password is not correct!"})
           console.log("Not OK");
           res.render("login1", {errors});
         }
       }else{
-      
+        //Trường hợp email chưa đc đăng ký trong hệ thống
         errors.push({message: "Email/Password is not correct!"})
         console.log("Không có tài khoản trong hệ thống");
         console.log("errors = ", errors);
