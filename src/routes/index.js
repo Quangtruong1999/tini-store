@@ -406,6 +406,7 @@ async function route(app){
             if(get_quantity.rows[0]['quantity'] <= 1){
                 res.redirect("/cart")
             }else{
+                //Trừ 1 sp vào giỏ hàng
                 const update_quantity = await pool.query(`update order_items
                 set quantity = $1
                 where id=$2`,[get_quantity.rows[0]['quantity']-1, req.params.order_item_id]);
@@ -420,6 +421,7 @@ async function route(app){
             res.redirect('/login');
         }else{
             const get_quantity = await pool.query(`select * from order_items where id=$1`,[req.params.order_item_id])
+            //Cộng 1 sp vào giỏ hàng
             const update_quantity = await pool.query(`update order_items
             set quantity = $1
             where id=$2`,[get_quantity.rows[0]['quantity']+1, req.params.order_item_id]);
@@ -433,6 +435,7 @@ async function route(app){
             res.redirect('/login');
         }else{
             console.log('address_id = ', req.params.address_id, ' order_id = ', req.params.order_id)
+            //Cập nhật địa chỉ giao hàng
             const update_address = await pool.query(`update orders
             set address_id = $1
             where id=$2`,[req.params.address_id, req.params.order_id]);
@@ -445,7 +448,8 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            const del_wishlist = await pool.query(`DELETE FROM addresses WHERE id = $1`,[req.params.id]);
+            //xóa địa chỉ giao hàng
+            const del_address = await pool.query(`DELETE FROM addresses WHERE id = $1`,[req.params.id]);
             res.redirect("/change_address")
         }
     })
@@ -574,9 +578,7 @@ async function route(app){
                     GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
                     const order_items = await pool.query(`select * from order_items where order_id = $1`, [search_order.rows[0]['id']])
                     const get_address_default = await pool.query(`select * from addresses where user_id = $1 and address_default = true`, [req.session.user_id])
-                    // const total = await pool.query(`SELECT sum (price)
-                    // FROM order_items
-                    // GROUP BY order_id = $1`, [search_order.rows[0]['id']])         
+                    //Kiểm tra tổng tiền nếu lớn hơn 350,000 VNĐ sẽ miễn phí vận chuyển       
                     let total = 0
                     for(var i=0; i<order_items.rows.length; i++){
                         total += (order_items.rows[i]['quantity'] * order_items.rows[i]['price'])
@@ -587,7 +589,7 @@ async function route(app){
                         discount = 0
                     }
                     if(search_order.rows[0]['address_id'] != null){
-                        console.log('hello')
+                        
                         const address = await pool.query(`select * from addresses where id = $1`, [search_order.rows[0]['address_id']])
                         if(discount>0){
                             const totals = Number(total) + Number(search_order.rows[0]['delivery_fee'])
@@ -621,7 +623,7 @@ async function route(app){
                             });
                         }
                     }else{
-                        console.log('hello mấy cưng')
+                        
                         if(get_address_default.rows.length > 0){
                             const add_adress_default = await pool.query(`update orders
                             set address_id = $1
@@ -721,6 +723,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            //Xóa sản phẩm ra khỏi giỏ hàng
             const del_pro_cart = await pool.query(`DELETE FROM order_items WHERE id = $1`,[req.params.id])
             console.log('xóa sản phẩm trong giỏ thành công')
             res.redirect('/cart')
@@ -738,6 +741,11 @@ async function route(app){
             const fee_delivery = await pool.query(`select * from type_of_delivery where id = 1`)
             var flag_order_items = 0
             var quantity_new = 0
+            /*
+            Khi add sản phẩm vào giỏ hàng, kiểm tra sp đó có trong giỏ hàng chưa
+            Nếu có sẽ tăng số lượng sản phẩm lên 1
+            nếu chưa có sẽ thêm vào giỏ hàng
+            */
             for(var i=0; i<order_items.rows.length; i++){
                 if(req.params.id == order_items.rows[i]['food_id']){
                     console.log('có trong order_item')
@@ -764,10 +772,10 @@ async function route(app){
                     from orders
                     where owner_id = $1 and states = 'draft'`, [req.session.user_id])
                     const order_new = search_order_new.rows
-                    console.log('order_new = ', order_new)
+                    
                     const search_food = await pool.query(`select * from foods where id = $1`, [req.params.id])
                     const price_food = search_food.rows
-                    console.log('search_order_new = ', order_new)
+                    //Thêm sản phẩm vào giỏ hàng
                     const add_to_cart = await pool.query(`insert into order_items (order_id, food_id, quantity, price)
                     values ($1,$2,1,$3);`, [order_new[0]['id'], req.params.id, price_food[0]['price']])
                     
@@ -781,14 +789,12 @@ async function route(app){
                     const order_new = search_order_new.rows
                     const search_food = await pool.query(`select * from foods where id = $1`, [req.params.id])
                     const price_food = search_food.rows
-                    console.log('search_order_new = ', order_new)
+                    //Thêm sản phẩm vào giỏ hàng
                     const add_to_cart = await pool.query(`insert into order_items (order_id, food_id, quantity, price)
                     values ($1,$2,1,$3);`, [order_new[0]['id'], req.params.id, price_food[0]['price']])
 
                     res.redirect('/shop/0')
                 }
-                
-                
             }
         }
     })
@@ -797,159 +803,13 @@ async function route(app){
     app.get('/blog-single', (req, res) => {
         res.render("blog-single", {name: req.session.name});
     })             
-            
-    // //route xác nhận thanh toán
-
-    // app.get('/check_payment/', urlencodedParser, async(req, res)=>{
-    //     if(typeof req.session.user == 'undefined'){
-    //         res.redirect('/login');
-    //     }else{
-            
-    //         var MOMO_MESSAGES = {
-    //             '0': 'Giao dịch thành công.',
-    //             '9000': 'Giao dịch đã được xác nhận thành công.',
-    //             '8000': 'Giao dịch đang ở trạng thái cần được người dùng xác nhận thanh toán lại.',
-    //             '7000': 'Giao dịch đang được xử lý.',
-    //             '1000': 'Giao dịch đã được khởi tạo, chờ người dùng xác nhận thanh toán.',
-    //             '11': 'Truy cập bị từ chối.',
-    //             '12': 'Phiên bản API không được hỗ trợ cho yêu cầu này.',
-    //             '13': 'Xác thực doanh nghiệp thất bại.',
-    //             '20': 'Yêu cầu sai định dạng.',
-    //             '21': 'Số tiền giao dịch không hợp lệ.',
-    //             '40': 'RequestId bị trùng.',
-    //             '41': 'OrderId bị trùng.',
-    //             '42': 'OrderId không hợp lệ hoặc không được tìm thấy.',
-    //             '43': 'Yêu cầu bị từ chối vì xung đột trong quá trình xử lý giao dịch.',
-    //             '1001': 'Giao dịch thanh toán thất bại do tài khoản người dùng không đủ tiền.',
-    //             '1002': 'Giao dịch bị từ chối do nhà phát hành tài khoản thanh toán.',
-    //             '1003': 'Giao dịch bị đã bị hủy.',
-    //             '1004': 'Giao dịch thất bại do số tiền thanh toán vượt quá hạn mức thanh toán của người dùng.',
-    //             '1005': 'Giao dịch thất bại do url hoặc QR code đã hết hạn.',
-    //             '1006': 'Giao dịch thất bại do người dùng đã từ chối xác nhận thanh toán.',
-    //             '1007': 'Giao dịch bị từ chối vì tài khoản người dùng đang ở trạng thái tạm khóa.',
-    //             '1026': 'Giao dịch bị hạn chế theo thể lệ chương trình khuyến mãi.',
-    //             '1080': 'Giao dịch hoàn tiền bị từ chối. Giao dịch thanh toán ban đầu không được tìm thấy.',
-    //             '1081': 'Giao dịch hoàn tiền bị từ chối. Giao dịch thanh toán ban đầu có thể đã được hoàn.',
-    //             '2001': 'Giao dịch thất bại do sai thông tin liên kết.',
-    //             '2007': 'Giao dịch thất bại do liên kết hiện đang bị tạm khóa.',
-    //             '3001': 'Liên kết thất bại do người dùng từ chối xác nhận.',
-    //             '3002': 'Liên kết bị từ chối do không thỏa quy tắc liên kết.',
-    //             '3003': 'Hủy liên kết bị từ chối do đã vượt quá số lần hủy.',
-    //             '3004': 'Liên kết này không thể hủy do có giao dịch đang chờ xử lý.',
-    //             '4001': 'Giao dịch bị hạn chế do người dùng chưa hoàn tất xác thực tài khoản.',
-    //             '4010': 'Quá trình xác minh OTP thất bại.',
-    //             '4011': 'OTP chưa được gửi hoặc hết hạn.',
-    //             '4100': 'Giao dịch thất bại do người dùng không đăng nhập thành công.',
-    //             '4015': 'Quá trình xác minh 3DS thất bại.',
-    //             '10': 'Hệ thống đang được bảo trì.',
-    //             '99': 'Lỗi không xác định.'
-    //         }
-    //         var request = req
-    //         console.log('hello mấy cưng')
-    //         console.log('request query = ', request.query)
-    //         var status = request.query.resultCode
-    //         if(Number(status) == 0 || Number(status) == 9000){
-    //             res.redirect('/')
-    //         }else{
-    //             console.log('ăn lồn r con')
-    //         }
-    //     }
-    // })
-
-    app.post('/check_payment', urlencodedParser, async(req, res)=>{
-        if(typeof req.session.user == 'undefined'){
-            res.redirect('/login');
-        }else{
-            
-            var partnerCode = "MOMORKA620211221";
-            var accessKey = "J7HpOQlRcCpdLEai";
-            var secretkey = "tSygxGX51JafYX6SIjvTPx2T8DRymaku";
-
-            var requestId = partnerCode + new Date().getTime();
-            var orderId = requestId;
-            var orderInfo = "Payment for the order with ID "+req.body.order_id;
-            var redirectUrl = "http://localhost:5001/check_payment";
-            var ipnUrl = "http://localhost:5001/check_payment/";
-            var amount = req.body.amount;
-            var requestType = "captureWallet"
-            var extraData = ""; //pass empty value if your merchant does not have stores
-
-            var rawSignature = "accessKey="+accessKey+"&amount=" + amount+"&extraData=" + extraData+"&ipnUrl=" + ipnUrl+"&orderId=" + orderId+"&orderInfo=" + orderInfo+"&partnerCode=" + partnerCode +"&redirectUrl=" + redirectUrl+"&requestId=" + requestId+"&requestType=" + requestType
-            //puts raw signature
-            console.log("--------------------RAW SIGNATURE----------------")
-            console.log(rawSignature)
-            //signature
-            const crypto = require('crypto');
-            var signature = crypto.createHmac('sha256', secretkey)
-                .update(rawSignature)
-                .digest('hex');
-            console.log("--------------------SIGNATURE----------------")
-            console.log(signature)
-
-            //json object send to MoMo endpoint
-            const requestBody = JSON.stringify({
-                partnerCode : partnerCode,
-                accessKey : accessKey,
-                requestId : requestId,
-                amount : amount,
-                orderId : orderId,
-                orderInfo : orderInfo,
-                redirectUrl : redirectUrl,
-                ipnUrl : ipnUrl,
-                extraData : extraData,
-                requestType : requestType,
-                signature : signature,
-                lang: 'en'
-            });
-            //Create the HTTPS objects
-            const https = require('https');
-            const options = {
-                hostname: 'test-payment.momo.vn',
-                port: 443,
-                path: '/v2/gateway/api/create',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': Buffer.byteLength(requestBody)
-                }
-            }
-
-            //Send the request and get the response
-
-            var request = https.request(options, response => {
-                console.log(`Status: ${response.statusCode}`);
-                console.log(`Headers: ${JSON.stringify(response.headers)}`);
-                response.setEncoding('utf8');
-                response.on('data', (body) => {
-                    console.log('Body: ');
-                    console.log(body);
-                    console.log('payUrl: ');
-                    console.log(JSON.parse(body).payUrl);
-                    res.redirect(JSON.parse(body).payUrl)
-                });
-                response.on('end', () => {
-                    console.log('No more data in response.');
-                });
-            })
-            console.log('request = ', request)
-
-            request.on('error', (e) => {
-                console.log(`problem with request: ${e.message}`);
-            });
-            // write data to request body
-            console.log("Sending....")
-            
-            request.write(requestBody);
-            request.end();
-        }
-    })
     //route xác nhận thanh toán
 
     app.get('/checkout/', urlencodedParser, async(req, res)=>{
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-                
+            //danh sách resultCode của momo
             var MOMO_MESSAGES = {
                 '0': 'Giao dịch thành công.',
                 '9000': 'Giao dịch đã được xác nhận thành công.',
@@ -993,21 +853,21 @@ async function route(app){
             console.log('request query = ', req.query)
             var status = req.query.resultCode
             if(Number(status) == 0 || Number(status) == 9000){
+                //Nếu thanh toán thành công sẽ cập nhật đơn hàng
                 var output = req.query.orderInfo.split(' ')
                 const confirm_order = await pool.query(`update orders
                 set states = 'done'
                 where id = $1;`, [output[6]])
                 res.redirect('/order_details/'+output[6])
             }else{
+                //Nếu thanh toán không thành công sẽ báo lỗi
                 let errors = []
                 let alert = require('alert');
                 errors.push({errors: MOMO_MESSAGES[status]})
                 console.log('errors = ', errors)
                 var err = 'Errors: \n'+MOMO_MESSAGES[status]
-                // alert(err)
                 alert(message=err)
                 res.redirect('/cart')
-                // res.render('/')
             }
         }
     })
@@ -1224,8 +1084,7 @@ async function route(app){
                         console.log('No more data in response.');
                     });
                 })
-                console.log('request = ', request)
-    
+                
                 request.on('error', (e) => {
                     console.log(`problem with request: ${e.message}`);
                 });
@@ -1235,6 +1094,7 @@ async function route(app){
                 request.write(requestBody);
                 request.end();
             }else{
+                //Nếu chưa chọn địa chỉ giao hàng sẽ thông báo lỗi
                 errors.push({errors: "Please choose address"})
                 const search_order = await pool.query(`select * 
                 from orders
@@ -1251,9 +1111,7 @@ async function route(app){
                         GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
                         const order_items = await pool.query(`select * from order_items where order_id = $1`, [search_order.rows[0]['id']])
                         const get_address_default = await pool.query(`select * from addresses where user_id = $1 and address_default = true`, [req.session.user_id])
-                        // const total = await pool.query(`SELECT sum (price)
-                        // FROM order_items
-                        // GROUP BY order_id = $1`, [search_order.rows[0]['id']])         
+                               
                         let total = 0
                         for(var i=0; i<order_items.rows.length; i++){
                             total += (order_items.rows[i]['quantity'] * order_items.rows[i]['price'])
@@ -1267,6 +1125,7 @@ async function route(app){
                             console.log('hello')
                             const address = await pool.query(`select * from addresses where id = $1`, [search_order.rows[0]['address_id']])
                             if(discount>0){
+                                //Tính tổng tiền đơn hàng
                                 const totals = Number(total) + Number(search_order.rows[0]['delivery_fee'])
                                 
                                 res.render("cart", {
@@ -1282,8 +1141,9 @@ async function route(app){
                                     errors: errors
                                 });
                             }else{
+                                //Tính tổng tiền đơn hàng
                                 const totals = (Number(total) + Number(search_order.rows[0]['delivery_fee'])) - Number(search_order.rows[0]['delivery_fee'])
-                                console.log('total = ', total);
+                                
                                 res.render("cart", {
                                     cart_user: cart_user.rows,
                                     order_id: search_order.rows[0]['id'],
@@ -1298,7 +1158,10 @@ async function route(app){
                                 });
                             }
                         }else{
+                            //kiểm tra trong user có thiết lập địa chỉ mặc định hay không
+                            //nếu có thì tự động lưu vào đơn hàng, user được phép đổi địa chỉ giao hàng
                             if(get_address_default.rows.length > 0){
+                                //cập nhật địa chỉ mặc định vào đơn hàng
                                 const add_adress_default = await pool.query(`update orders
                                 set address_id = $1
                                 where id=$2`, [get_address_default.rows[0]['id'], search_order.rows[0]['id']])
@@ -1307,6 +1170,7 @@ async function route(app){
                                 where owner_id = $1 and states = 'draft'`, [req.session.user_id])
                                 const address = await pool.query(`select * from addresses where id = $1`, [search_order_new.rows[0]['address_default']])
                                 if(discount>0){
+                                    //Tính tổng tiền đơn hàng
                                     const totals = Number(total) + Number(search_order.rows[0]['delivery_fee'])
                                     
                                     res.render("cart", {
@@ -1322,6 +1186,7 @@ async function route(app){
                                         errors: errors
                                     });
                                 }else{
+                                    //Tính tổng tiền đơn hàng
                                     const totals = (Number(total) + Number(search_order.rows[0]['delivery_fee'])) - Number(search_order.rows[0]['delivery_fee'])
                                     console.log('total = ', total);
                                     res.render("cart", {
@@ -1339,6 +1204,7 @@ async function route(app){
                                 }
                             }else{
                                 if(discount>0){
+                                    //Tính tổng tiền đơn hàng
                                     const totals = Number(total) + Number(search_order.rows[0]['delivery_fee'])
                                     
                                     res.render("cart", {
@@ -1354,6 +1220,7 @@ async function route(app){
                                         errors: errors
                                     });
                                 }else{
+                                    //Tính tổng tiền đơn hàng
                                     const totals = (Number(total) + Number(search_order.rows[0]['delivery_fee'])) - Number(search_order.rows[0]['delivery_fee'])
                                     console.log('total = ', total);
                                     res.render("cart", {
@@ -1456,7 +1323,9 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             const category_id = req.params.id;
             if(category_id == 0){
+                //lấy danh sách sản phẩm
                 const foods = await pool.query(`SELECT * FROM foods`);
+                //lấy danh sách danh mục
                 const category = await pool.query(`SELECT * FROM category`);
                 res.render('shop11', {foods: foods.rows, 
                     category: category.rows, 
@@ -1464,6 +1333,7 @@ async function route(app){
                     category_id: category_id
                 })
             }else{
+                //lấy danh sách sản phẩm
                 const foods = await pool.query(`SELECT * FROM foods where category_id = $1`,[category_id]);
                 const category = await pool.query(`SELECT * FROM category`);
                 res.render('shop11', {foods: foods.rows, 
@@ -1537,11 +1407,14 @@ async function route(app){
             }
         }
     })   
+
     //route thêm sản phẩm vào danh sách yêu thích       
     app.get('/add_wishlist/:id', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            //thêm sản phẩm yêu thích
+        
             const wishlist_user = await pool.query(`insert into wishlist (product_id, user_id)
             values ($1, $2);`,[req.params.id, req.session.user_id]);
             res.redirect("/wishlist");
@@ -1554,7 +1427,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            
+            //lấy danh sách yêu thích của ng dùng
             const wishlist_user = await pool.query(`select wishlist.id,wishlist.user_id, wishlist.product_id, foods.name, foods.description, foods.category_id, foods.images, foods.price
             from wishlist, foods
             where wishlist.product_id = foods.id and wishlist.user_id = $1`,[req.session.user_id]);
@@ -1563,6 +1436,7 @@ async function route(app){
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            //lấy thông tin đơ nahnfg của người dùng. Nếu kh có sản phẩm trong đơn hàng, SL = 0
             if (search_order.rows == '') {
 
                 console.log('wishlist = ', wishlist_user.rows)
@@ -1572,11 +1446,12 @@ async function route(app){
                     quantity_foods: [{"count": 0}]
                 });
             }else{
+                // đếm số lượng trong đơn hàng
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
                 where order_id = $1
                 GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
-    
+
     
                 console.log('wishlist = ', wishlist_user.rows)
                 res.render("wishlist", {
@@ -1595,6 +1470,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            //xóa danh sách yêu thích
             const del_wishlist = await pool.query(`DELETE FROM wishlist WHERE id = $1`,[req.params.id]);
             res.redirect("/wishlist")
         }
@@ -1606,6 +1482,7 @@ async function route(app){
             if(err){
                 throw err;
             }
+            //xóa sản phẩm
             pool.query(`DELETE FROM foods WHERE id = $1`, [req.params.id], (err, result)=>{
                 if(err){
                     throw err;
@@ -1621,7 +1498,9 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            //lấy thông tin sản phẩm
             const food = await pool.query(`select * FROM foods WHERE id = $1`, [req.params.id])
+            //lấy thông tin danh mục
             const category = await pool.query(`select * FROM category`)
 
             res.render('product_edit', {
@@ -1638,11 +1517,12 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-
+            //lấy thông tin đường dẫn
             const imagePath = path.join(__dirname, '../public/images/');
+            //Giảm kích thước ảnh
             const fileUpload = new Resize(imagePath);
             if (!req.file) {
-                // res.status(401).json({error: 'Please provide an image'});
+                //Nếu người dùng kh upload file mới thì mặc định lấy file ảnh đã lưu trước đó
                 const update_product = await pool.query(`update foods
                 set name=$1, description=$2,category_id=$3, price = $4
                 where id=$5;`, [req.body.name, req.body.description, req.body.category, req.body.price, req.params.id])
@@ -1650,7 +1530,9 @@ async function route(app){
                 console.log('Cập nhật thành công')
                 res.redirect('/product_dashboard');
             }else{
+                //Lưu file vào đường dẫn set ở trên
                 const filename = await fileUpload.save(req.file.buffer);
+                //Cập nhật thông tin sản phẩm
                 const update_product = pool.query(`update foods
                 set name=$1, description=$2,category_id=$3, price = $4, images=$5
                 where id=$6;`, [req.body.name, req.body.description, req.body.category, req.body.price, 'images/'+filename, req.params.id])
@@ -1700,6 +1582,7 @@ async function route(app){
                 const search_order = await pool.query(`select * 
                 from orders
                 where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                //Lấy thông tin đơn hàng, nếu chưa có sản phẩm thì mặc định là 0
                 if (search_order.rows == '') {
 
                     res.render("dia_chi", {
@@ -1708,7 +1591,7 @@ async function route(app){
                         errors: errors
                     });
                 }else{
-    
+                    //Đếm số lượng sản phẩm trong đơn hàng
                     const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                     FROM order_items
                     where order_id = $1
@@ -1722,6 +1605,7 @@ async function route(app){
                 }
             }else{
                 console.log('address_default = ', req.body.address_default);
+                //Nếu địa chỉ mới nhật vào là mặc định thì xóa dữ liệu mặc định cũ và thêm mới
                 if(req.body.address_default == 'on'){
 
                     const all_address = await pool.query(`select * from addresses where user_id = $1`, [req.session.user_id]);
@@ -1759,6 +1643,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            //lấy thông tin địa chỉ theo id
             const address = await pool.query(`select * FROM addresses WHERE id = $1`, [req.params.id])
             const search_order = await pool.query(`select * 
             from orders
@@ -1797,11 +1682,13 @@ async function route(app){
 
             var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
             let errors = []
+            //Kiểm tra tinh hợp lệ của sđt
             if(regex.test(req.body.phone) != true){
                 errors.push({message: "Phone invalid!"})
                 const search_order = await pool.query(`select * 
                 from orders
                 where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                //lấy thông tin đơn hàng theo user nếu không có thông tin sản phẩm trong giỏ hàng, SL = 0
                 if (search_order.rows == '') {
 
                     res.render("edit_dia_chi", {
@@ -1811,7 +1698,7 @@ async function route(app){
                         errors: errors
                     });
                 }else{
-    
+                    //Đếm số lượng sản phẩm trong đơn hàng
                     const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                     FROM order_items
                     where order_id = $1
@@ -1825,6 +1712,7 @@ async function route(app){
                     });
                 }
             }else{
+                
                 const all_address = await pool.query(`select * from addresses where user_id = $1`, [req.session.user_id]);
                 if(search_order.rows != ''){
                     const quantity_foods = await pool.query(`SELECT COUNT (food_id)
@@ -1889,7 +1777,8 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            const del_wishlist = await pool.query(`DELETE FROM addresses WHERE id = $1`,[req.params.id]);
+            //xóa địa chỉ theo id
+            const del_adress = await pool.query(`DELETE FROM addresses WHERE id = $1`,[req.params.id]);
             res.redirect("/show_dia_chi")
         }
     })
@@ -1900,6 +1789,7 @@ async function route(app){
             if(err){
                 throw err;
             }
+            //xóa category
             pool.query(`DELETE FROM category WHERE id = $1`, [req.params.id], (err, result)=>{
                 if(err){
                     throw err;
@@ -1915,6 +1805,8 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+
+            //Lấy danh sách sản phẩm
             pool.connect(function(err, client, done){
                 if(err){
                     return console.error('error fetching client from pool ', err)
@@ -1944,7 +1836,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-
+            //Lấy category theo id
             const category = await pool.query(`select * from category where id = $1`, [req.params.id])
             res.render('category_dashboard_edit', {
                 category: category.rows,
@@ -1959,7 +1851,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-
+            //Chỉnh sửa danh mục theo id
             const category = await pool.query(`update category
             set name = $1 , description=$2
             where id = $3;`, [req.body.name, req.body.description, req.params.id])
@@ -1973,7 +1865,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-
+            //Lấy thông tin người dùng theo id
             const user = await pool.query(`select * from users where id = $1`, [req.params.id])
             res.render('customer_dashboard_edit', {
                 user: user.rows,
@@ -1988,8 +1880,8 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            
-            const category = await pool.query(`update users
+            //Cập nhật người dùng theo id
+            const edit_users = await pool.query(`update users
             set name = $1 , phone=$2
             where id = $3;`, [req.body.name, req.body.phone, req.params.id])
             console.log('cập nhật thành công')
@@ -2003,7 +1895,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-
+            //Lấy danh sách đơn hàng
             const orders = await pool.query(`select orders.id, orders.owner_id, orders.delivery_time, orders.delivery_fee, orders.discount, orders.amount, orders.states, addresses.street, addresses.wardid, addresses.districtid, addresses.provinceid
             from orders, addresses
             where orders.address_id = addresses.id`)
@@ -2020,14 +1912,19 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            //Lấy đơn hàng theo id
             const order = await pool.query(`select orders.id, orders.address_id, orders.owner_id, orders.delivery_time, orders.delivery_fee, orders.discount, orders.amount, orders.states, addresses.street, addresses.wardid, addresses.districtid, addresses.provinceid
             from orders, addresses
             where orders.address_id = addresses.id and orders.id = $1`, [req.params.id])
+            //Lấy các sản phẩm trong đơn hàng
             const order_items = await pool.query(`select *
             from order_items
             where order_id = $1`, [req.params.id])
+            //Lấy khách hàng của đơn hàng
             const owner_order = await pool.query(`select * from users where id = $1`, [order.rows[0]['owner_id']])
+            //Lấy địa chỉ của khách hàng
             const address = await pool.query(`select * from addresses where id = $1`, [order.rows[0]['address_id']])
+            //Lấy danh sách sản phẩm
             const foods = await pool.query(`select * from foods`)
             res.render('orders_dashboard_edit', {
                 name: req.session.name, 
@@ -2047,7 +1944,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-
+            //lấy danh sách địa chỉ
             const addresses = await pool.query(`select *
             from addresses`)
             console.log('address = ', addresses.rows)
@@ -2064,6 +1961,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            //Lấy danh sách user là khách hàng (roles = 1)
             const users = await pool.query(`select * from users where roles = 1`)
             let errors = []
             res.render("address_dashboard_add", {
@@ -2083,9 +1981,9 @@ async function route(app){
             const users = await pool.query(`select * from users where roles = 1`)
             var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
             let errors = []
-            console.log('phone = ',req.body.phone)
-            console.log('typeof phone = ',typeof req.body.phone)
-            console.log('test = ',regex.test(req.body.phone))
+            
+            //Kiểm tra tính hợp lệ của số điện thoại
+            //Nếu sai thì báo lỗi và ngược lại
             if(regex.test(req.body.phone) != true){
                 errors.push({message: "Phone invalid!"})
                 res.render("address_dashboard_add", {
@@ -2095,7 +1993,10 @@ async function route(app){
                     errors: errors
                 });
             }else{
-                console.log('hello mấy cưng')
+                /*
+                Nếu là địa chỉ mặc định thì kiểm tra danh sách địa chỉ trước đó
+                Nếu đã có địa chỉ mặc định thì set địa chỉ vừa tìm đc bằng false rồi set địa chỉ mới là true
+                */
                 if(req.body.address_default == 'on'){
                     const all_address = await pool.query(`select * from addresses where user_id = $1`, [req.body.user_id])
                     for(var i=0; i<all_address.rows.length; i++){
@@ -2127,6 +2028,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            //Lấy danh sách các địa chỉ
             const address = await pool.query(`select * FROM addresses WHERE id = $1`, [req.params.id])
 
             res.render('address_dashboard_edit', {
@@ -2146,6 +2048,8 @@ async function route(app){
             const address = await pool.query(`select * FROM addresses WHERE id = $1`, [req.params.id])
             var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
             let errors = []
+            //Kiểm tra tính hợp lệ của số điện thoại
+            //Nếu sai thì báo lỗi và ngược lại
             if(regex.test(req.body.phone) != true){
                 errors.push({message: "Phone invalid!"})
                 
@@ -2160,9 +2064,11 @@ async function route(app){
                 const all_address_tmp = await pool.query(`select * from addresses where id = $1`,[req.params.id]);
                 // console.log('all_address_tmp = ', all_address_tmp.rows)
                 const all_address = await pool.query(`select * from addresses where user_id = $1`, [all_address_tmp.rows[0]['user_id']])
-                console.log('vào check nè')
+                /*
+                Nếu là địa chỉ mặc định thì kiểm tra danh sách địa chỉ trước đó
+                Nếu đã có địa chỉ mặc định thì set địa chỉ vừa tìm đc bằng false rồi set địa chỉ mới là true
+                */
                 if(req.body.address_default == 'on'){
-                    console.log('checked')
                     for(var i=0; i<all_address.rows.length; i++){
                         console.log('address_default = ', all_address.rows[i]['address_default'])
                         if(all_address.rows[i]['address_default'] == true){
@@ -2204,6 +2110,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            //Thêm category vào db
             pool.query(`INSERT INTO category (name, description)
                 VALUES ($1,$2);`,
                 [req.body.name, req.body.description], (err, result)=>{
@@ -2226,12 +2133,12 @@ async function route(app){
                 if(err){
                     throw err;
                 }
+                //Lấy danh sách category
                 pool.query(`SELECT * FROM category`,(err, result)=>{
                     if(err){
                         throw err;
                     }
-
-                    console.log('kết quả = ', result.rows);
+                    
                     res.render("product_add", {data: result.rows, name: req.session.name, email: req.session.email});
                 })
             })
@@ -2242,11 +2149,13 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            console.log('id = ',req.body.category)
+            //lưu đường dẫn lưu ảnh
             const imagePath = path.join(__dirname, '../public/images/');
+            //giảm kích thước ảnh
             const fileUpload = new Resize(imagePath);
             if (!req.file) {
                 // res.status(401).json({error: 'Please provide an image'});
+                //Nếu người dùng không up file ảnh thì mặc định là ảnh trắng
                 pool.query(`INSERT INTO foods (name, description, category_id, price, images)
                 VALUES ($1,$2,$3,$4,$5);`,
                 [req.body.name, req.body.description, req.body.category, req.body.price, ''], (err, result)=>{
@@ -2257,7 +2166,9 @@ async function route(app){
                     res.redirect('/product_dashboard');
                 });
             }else{
+                //Lưu file vào đường dẫn trên 
                 const filename = await fileUpload.save(req.file.buffer);
+                //Thêm sản phẩm vào database
                 pool.query(`INSERT INTO foods (name, description, category_id, price, images)
                 VALUES ($1,$2,$3,$4,$5);`,
                 [req.body.name, req.body.description, req.body.category, req.body.price, 'images/'+filename], (err, result)=>{
@@ -2275,6 +2186,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            //lấy danh sách cách category của sản phẩm
             pool.connect(function(err, client, done){
                 if(err){
                     return console.error('error fetching client from pool ', err)
@@ -2309,6 +2221,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            //lấy danh sách user có roles là khách hàng (roles = 1)
             const users = await pool.query(`select * from users where roles = 1`);
             res.render("customer_dashboard", {
                 users: users.rows,
@@ -2335,6 +2248,7 @@ async function route(app){
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+            //Nếu đơn hàng chưa có sản phẩm thì SL hiển thị là 0 và ngược lại
             if (search_order.rows == '') {
             
                 res.render('information_user', {
@@ -2344,6 +2258,7 @@ async function route(app){
                     quantity_foods: [{"count": 0}]
                 })
             }else{
+                //đếm sản phẩm trong giỏ hàng
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
                 where order_id = $1
@@ -2366,14 +2281,15 @@ async function route(app){
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
             let errors = []
+            //Nếu đơn hàng chưa có sản phẩm thì SL hiển thị là 0 và ngược lại
             if (search_order.rows == ''){
-                    
                 res.render("quen_mat_khau", {
                     name: req.session.name,
                     errors: errors,
                     quantity_foods: [{"count": 0}]
                 });
             }else{
+                //đếm số lượng sản phẩm trong đơn hàng
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
                 where order_id = $1
@@ -2403,6 +2319,7 @@ async function route(app){
             //kiểm tra mật khẩu mới và mật khẩu lặp lại
             if(req.body.new_password != req.body.confirm_password){
                 errors.push({new_confirm: "Confirm password don't match!"})
+                //Nếu đơn hàng chưa có sản phẩm thì SL hiển thị là 0 và ngược lại
                 if (search_order.rows == ''){
                     
                     res.render("quen_mat_khau", {
@@ -2411,6 +2328,7 @@ async function route(app){
                         quantity_foods: [{"count": 0}]
                     });
                 }else{
+                    //Đếm số lượng sản phẩm
                     const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                     FROM order_items
                     where order_id = $1
@@ -2423,15 +2341,18 @@ async function route(app){
                     });
                 }
             }else if (!bcrypt.compareSync(req.body.old_password, users.rows[0]['password'])){
+                //Giải mã mật khẩu lưu trong db
+                //Nếu không khớp sẽ báo lỗi và ngược lại
                 errors.push({new_confirm: "Password don't match!"})
+                //Nếu đơn hàng chưa có sản phẩm thì SL hiển thị là 0 và ngược lại
                 if (search_order.rows == ''){
-                    
                     res.render("quen_mat_khau", {
                         name: req.session.name,
                         errors: errors,
                         quantity_foods: [{"count": 0}]
                     });
                 }else{
+                    //Đếm số lượng sản phẩm trong đơn hàng
                     const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                     FROM order_items
                     where order_id = $1
@@ -2444,7 +2365,9 @@ async function route(app){
                     });
                 }
             }else{
+                //mã hóa mật khẩu mới để lưu vào db
                 let hashed_password = await bcrypt.hash(req.body.new_password, 10);
+                //tìm user theo id để lưu mật khẩu mã hóa mới
                 pool.query(
                     'SELECT * FROM users WHERE id = $1',[req.session.user_id],async (err, result) => {
                         if (err){
@@ -2465,17 +2388,21 @@ async function route(app){
     //route show tất cả địa chỉ của KH
     app.get('/show_dia_chi', urlencodedParser,async (req, res) => {
         if(typeof req.session.name != 'undefined'){
+            //Lấy thông tin đơn hàng của user
             const search_order = await pool.query(`select * 
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
             const list_address = await pool.query(`select * from addresses where user_id = $1`, [req.session.user_id])
+            //Nếu đơn hàng chưa có sản phẩm thì SL hiển thị là 0 và ngược lại
             if (search_order.rows == ''){
+                
                 res.render("show_dia_chi", {
                     name: req.session.name,
                     quantity_foods: [{'count': 0}],
                     list_address: list_address.rows
                 });
             }else{
+                //đếm số lượng sản phẩm
                 const quantity_foods = await pool.query(`SELECT COUNT (food_id)
                 FROM order_items
                 where order_id = $1
