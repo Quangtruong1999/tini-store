@@ -12,10 +12,12 @@ const upload = require('./uploadMiddleware');
 const Resize = require('./Resize');
 const foods_controller = require('../app/controllers/foods')
 
+
 // const initiablizePassport = require("./passportConfig"); 
 const e = require('express');
 const { type } = require('os');
 const { get } = require('http');
+const { response } = require('express');
 // initiablizePassport(passport);
 
 // create application/x-www-form-urlencoded parser
@@ -458,7 +460,6 @@ async function route(app){
             from orders
             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
             if (search_order.rows == '') {
-                    
                 res.render('order_users', {
                     quantity_foods: [{"count": 0}],
                     orders: orders.rows,
@@ -493,9 +494,26 @@ async function route(app){
             const order_items = await pool.query(`select *
             from order_items
             where order_id = $1`, [req.params.id])
-            const owner_order = await pool.query(`select * from users where id = $1`, [order.rows[0]['owner_id']])
-            const address = await pool.query(`select * from addresses where id = $1`, [order.rows[0]['address_id']])
-
+            var owner_order, address;
+            if(order.length > 0){
+                owner_order = await pool.query(`select * from users where id = $1`, [order.rows[0]['owner_id']])
+                address = await pool.query(`select * from addresses where id = $1`, [order.rows[0]['address_id']])
+            }else{
+                //Kiểm tra nếu khách hàng có địa chỉ mặc định thì set địa chỉ vào giỏ hàng
+                const order_tmp = await pool.query(`select * from orders where id = $1`, [req.params.id])
+                if(order_tmp.rows[0]['states'] == 'draft' && order_tmp.rows[0]['address_id'] == null){
+                    const get_address_default = await pool.query(`select * from addresses where user_id = $1 and address_default = true`, [req.session.user_id])
+                    if(get_address_default.rows.length >0){
+                        const add_adress_default = await pool.query(`update orders
+                        set address_id = $1
+                        where id=$2`, [get_address_default.rows[0]['id'], req.params.id])
+                    }
+                }
+                const order_tmp_new = await pool.query(`select * from orders where id = $1`, [req.params.id])
+                owner_order = await pool.query(`select * from users where id = $1`, [order_tmp_new.rows[0]['owner_id']])
+                address = await pool.query(`select * from addresses where id = $1`, [order_tmp_new.rows[0]['address_id']])
+            }
+            
             const orders = await pool.query(`select * from orders where owner_id = $1`, [req.session.user_id])
             const foods = await pool.query(`select * from foods`)
             const search_order = await pool.query(`select * 
@@ -603,6 +621,7 @@ async function route(app){
                             });
                         }
                     }else{
+                        console.log('hello mấy cưng')
                         if(get_address_default.rows.length > 0){
                             const add_adress_default = await pool.query(`update orders
                             set address_id = $1
@@ -610,7 +629,9 @@ async function route(app){
                             const search_order_new = await pool.query(`select * 
                             from orders
                             where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-                            const address = await pool.query(`select * from addresses where id = $1`, [search_order_new.rows[0]['address_default']])
+                            const address = await pool.query(`select * from addresses where id = $1`, [search_order_new.rows[0]['address_id']])
+                            console.log('search_order_new = ', search_order_new.rows)
+                            console.log('address = ', address.rows)
                             if(discount>0){
                                 const totals = Number(total) + Number(search_order.rows[0]['delivery_fee'])
                                 
@@ -777,16 +798,229 @@ async function route(app){
         res.render("blog-single", {name: req.session.name});
     })             
             
+    // //route xác nhận thanh toán
+
+    // app.get('/check_payment/', urlencodedParser, async(req, res)=>{
+    //     if(typeof req.session.user == 'undefined'){
+    //         res.redirect('/login');
+    //     }else{
+            
+    //         var MOMO_MESSAGES = {
+    //             '0': 'Giao dịch thành công.',
+    //             '9000': 'Giao dịch đã được xác nhận thành công.',
+    //             '8000': 'Giao dịch đang ở trạng thái cần được người dùng xác nhận thanh toán lại.',
+    //             '7000': 'Giao dịch đang được xử lý.',
+    //             '1000': 'Giao dịch đã được khởi tạo, chờ người dùng xác nhận thanh toán.',
+    //             '11': 'Truy cập bị từ chối.',
+    //             '12': 'Phiên bản API không được hỗ trợ cho yêu cầu này.',
+    //             '13': 'Xác thực doanh nghiệp thất bại.',
+    //             '20': 'Yêu cầu sai định dạng.',
+    //             '21': 'Số tiền giao dịch không hợp lệ.',
+    //             '40': 'RequestId bị trùng.',
+    //             '41': 'OrderId bị trùng.',
+    //             '42': 'OrderId không hợp lệ hoặc không được tìm thấy.',
+    //             '43': 'Yêu cầu bị từ chối vì xung đột trong quá trình xử lý giao dịch.',
+    //             '1001': 'Giao dịch thanh toán thất bại do tài khoản người dùng không đủ tiền.',
+    //             '1002': 'Giao dịch bị từ chối do nhà phát hành tài khoản thanh toán.',
+    //             '1003': 'Giao dịch bị đã bị hủy.',
+    //             '1004': 'Giao dịch thất bại do số tiền thanh toán vượt quá hạn mức thanh toán của người dùng.',
+    //             '1005': 'Giao dịch thất bại do url hoặc QR code đã hết hạn.',
+    //             '1006': 'Giao dịch thất bại do người dùng đã từ chối xác nhận thanh toán.',
+    //             '1007': 'Giao dịch bị từ chối vì tài khoản người dùng đang ở trạng thái tạm khóa.',
+    //             '1026': 'Giao dịch bị hạn chế theo thể lệ chương trình khuyến mãi.',
+    //             '1080': 'Giao dịch hoàn tiền bị từ chối. Giao dịch thanh toán ban đầu không được tìm thấy.',
+    //             '1081': 'Giao dịch hoàn tiền bị từ chối. Giao dịch thanh toán ban đầu có thể đã được hoàn.',
+    //             '2001': 'Giao dịch thất bại do sai thông tin liên kết.',
+    //             '2007': 'Giao dịch thất bại do liên kết hiện đang bị tạm khóa.',
+    //             '3001': 'Liên kết thất bại do người dùng từ chối xác nhận.',
+    //             '3002': 'Liên kết bị từ chối do không thỏa quy tắc liên kết.',
+    //             '3003': 'Hủy liên kết bị từ chối do đã vượt quá số lần hủy.',
+    //             '3004': 'Liên kết này không thể hủy do có giao dịch đang chờ xử lý.',
+    //             '4001': 'Giao dịch bị hạn chế do người dùng chưa hoàn tất xác thực tài khoản.',
+    //             '4010': 'Quá trình xác minh OTP thất bại.',
+    //             '4011': 'OTP chưa được gửi hoặc hết hạn.',
+    //             '4100': 'Giao dịch thất bại do người dùng không đăng nhập thành công.',
+    //             '4015': 'Quá trình xác minh 3DS thất bại.',
+    //             '10': 'Hệ thống đang được bảo trì.',
+    //             '99': 'Lỗi không xác định.'
+    //         }
+    //         var request = req
+    //         console.log('hello mấy cưng')
+    //         console.log('request query = ', request.query)
+    //         var status = request.query.resultCode
+    //         if(Number(status) == 0 || Number(status) == 9000){
+    //             res.redirect('/')
+    //         }else{
+    //             console.log('ăn lồn r con')
+    //         }
+    //     }
+    // })
+
+    app.post('/check_payment', urlencodedParser, async(req, res)=>{
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            
+            var partnerCode = "MOMORKA620211221";
+            var accessKey = "J7HpOQlRcCpdLEai";
+            var secretkey = "tSygxGX51JafYX6SIjvTPx2T8DRymaku";
+
+            var requestId = partnerCode + new Date().getTime();
+            var orderId = requestId;
+            var orderInfo = "Payment for the order with ID "+req.body.order_id;
+            var redirectUrl = "http://localhost:5001/check_payment";
+            var ipnUrl = "http://localhost:5001/check_payment/";
+            var amount = req.body.amount;
+            var requestType = "captureWallet"
+            var extraData = ""; //pass empty value if your merchant does not have stores
+
+            var rawSignature = "accessKey="+accessKey+"&amount=" + amount+"&extraData=" + extraData+"&ipnUrl=" + ipnUrl+"&orderId=" + orderId+"&orderInfo=" + orderInfo+"&partnerCode=" + partnerCode +"&redirectUrl=" + redirectUrl+"&requestId=" + requestId+"&requestType=" + requestType
+            //puts raw signature
+            console.log("--------------------RAW SIGNATURE----------------")
+            console.log(rawSignature)
+            //signature
+            const crypto = require('crypto');
+            var signature = crypto.createHmac('sha256', secretkey)
+                .update(rawSignature)
+                .digest('hex');
+            console.log("--------------------SIGNATURE----------------")
+            console.log(signature)
+
+            //json object send to MoMo endpoint
+            const requestBody = JSON.stringify({
+                partnerCode : partnerCode,
+                accessKey : accessKey,
+                requestId : requestId,
+                amount : amount,
+                orderId : orderId,
+                orderInfo : orderInfo,
+                redirectUrl : redirectUrl,
+                ipnUrl : ipnUrl,
+                extraData : extraData,
+                requestType : requestType,
+                signature : signature,
+                lang: 'en'
+            });
+            //Create the HTTPS objects
+            const https = require('https');
+            const options = {
+                hostname: 'test-payment.momo.vn',
+                port: 443,
+                path: '/v2/gateway/api/create',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(requestBody)
+                }
+            }
+
+            //Send the request and get the response
+
+            var request = https.request(options, response => {
+                console.log(`Status: ${response.statusCode}`);
+                console.log(`Headers: ${JSON.stringify(response.headers)}`);
+                response.setEncoding('utf8');
+                response.on('data', (body) => {
+                    console.log('Body: ');
+                    console.log(body);
+                    console.log('payUrl: ');
+                    console.log(JSON.parse(body).payUrl);
+                    res.redirect(JSON.parse(body).payUrl)
+                });
+                response.on('end', () => {
+                    console.log('No more data in response.');
+                });
+            })
+            console.log('request = ', request)
+
+            request.on('error', (e) => {
+                console.log(`problem with request: ${e.message}`);
+            });
+            // write data to request body
+            console.log("Sending....")
+            
+            request.write(requestBody);
+            request.end();
+        }
+    })
     //route xác nhận thanh toán
+
+    app.get('/checkout/', urlencodedParser, async(req, res)=>{
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+                
+            var MOMO_MESSAGES = {
+                '0': 'Giao dịch thành công.',
+                '9000': 'Giao dịch đã được xác nhận thành công.',
+                '8000': 'Giao dịch đang ở trạng thái cần được người dùng xác nhận thanh toán lại.',
+                '7000': 'Giao dịch đang được xử lý.',
+                '1000': 'Giao dịch đã được khởi tạo, chờ người dùng xác nhận thanh toán.',
+                '11': 'Truy cập bị từ chối.',
+                '12': 'Phiên bản API không được hỗ trợ cho yêu cầu này.',
+                '13': 'Xác thực doanh nghiệp thất bại.',
+                '20': 'Yêu cầu sai định dạng.',
+                '21': 'Số tiền giao dịch không hợp lệ.',
+                '40': 'RequestId bị trùng.',
+                '41': 'OrderId bị trùng.',
+                '42': 'OrderId không hợp lệ hoặc không được tìm thấy.',
+                '43': 'Yêu cầu bị từ chối vì xung đột trong quá trình xử lý giao dịch.',
+                '1001': 'Giao dịch thanh toán thất bại do tài khoản người dùng không đủ tiền.',
+                '1002': 'Giao dịch bị từ chối do nhà phát hành tài khoản thanh toán.',                    '1003': 'Giao dịch bị đã bị hủy.',
+                '1004': 'Giao dịch thất bại do số tiền thanh toán vượt quá hạn mức thanh toán của người dùng.',
+                '1005': 'Giao dịch thất bại do url hoặc QR code đã hết hạn.',
+                '1006': 'Giao dịch thất bại do người dùng đã từ chối xác nhận thanh toán.',
+                '1007': 'Giao dịch bị từ chối vì tài khoản người dùng đang ở trạng thái tạm khóa.',
+                '1026': 'Giao dịch bị hạn chế theo thể lệ chương trình khuyến mãi.',
+                '1080': 'Giao dịch hoàn tiền bị từ chối. Giao dịch thanh toán ban đầu không được tìm thấy.',
+                '1081': 'Giao dịch hoàn tiền bị từ chối. Giao dịch thanh toán ban đầu có thể đã được hoàn.',
+                '2001': 'Giao dịch thất bại do sai thông tin liên kết.',
+                '2007': 'Giao dịch thất bại do liên kết hiện đang bị tạm khóa.',
+                '3001': 'Liên kết thất bại do người dùng từ chối xác nhận.',
+                '3002': 'Liên kết bị từ chối do không thỏa quy tắc liên kết.',
+                '3003': 'Hủy liên kết bị từ chối do đã vượt quá số lần hủy.',
+                '3004': 'Liên kết này không thể hủy do có giao dịch đang chờ xử lý.',
+                '4001': 'Giao dịch bị hạn chế do người dùng chưa hoàn tất xác thực tài khoản.',
+                '4010': 'Quá trình xác minh OTP thất bại.',
+                '4011': 'OTP chưa được gửi hoặc hết hạn.',
+                '4100': 'Giao dịch thất bại do người dùng không đăng nhập thành công.',
+                '4015': 'Quá trình xác minh 3DS thất bại.',
+                '10': 'Hệ thống đang được bảo trì.',
+                '99': 'Lỗi không xác định.'
+            }
+            
+            console.log('hello mấy cưng')
+            console.log('request query = ', req.query)
+            var status = req.query.resultCode
+            if(Number(status) == 0 || Number(status) == 9000){
+                var output = req.query.orderInfo.split(' ')
+                const confirm_order = await pool.query(`update orders
+                set states = 'done'
+                where id = $1;`, [output[6]])
+                res.redirect('/order_details/'+output[6])
+            }else{
+                let errors = []
+                let alert = require('alert');
+                errors.push({errors: MOMO_MESSAGES[status]})
+                console.log('errors = ', errors)
+                var err = 'Errors: \n'+MOMO_MESSAGES[status]
+                // alert(err)
+                alert(message=err)
+                res.redirect('/cart')
+                // res.render('/')
+            }
+        }
+    })
+
     app.post('/checkout', urlencodedParser, async(req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            console.log('body = ', req.body)
-
+            
             let errors = []
             var today = new Date();
             var date, day, month, year;
+
             //tính thời gian giao hàng
             if((today.getMonth()+1) == 1 || (today.getMonth()+1) == 3 || (today.getMonth()+1) == 5 || (today.getMonth()+1) == 7 || (today.getMonth()+1) == 8 || (today.getMonth()+1) == 10 || (today.getMonth()+1) == 12){
                 var tmp_day = 3 - (31 - today.getDate())
@@ -901,30 +1135,107 @@ async function route(app){
             }
             
             const check_address = await pool.query(`select * from orders where id = $1`, [req.body.order_id])
-            
             const dates = new Date(Date.UTC(year, month-1, day,today.getHours(),today.getMinutes(), today.getSeconds()));
             if(check_address.rows[0]['address_id'] != null){
-                console.log('hello')
+                
                 if(typeof req.body.discount != 'undefined'){
                     const confirm_order = await pool.query(`update orders
-                    set delivery_time = $1, amount = $2, discount = $3, states = 'done'
+                    set delivery_time = $1, amount = $2, discount = $3
                     where id = $4;`, [new Intl.DateTimeFormat().format(dates), req.body.amount, req.body.discount, req.body.order_id])
                     
-                    console.log('mua hàng thành công')
-                    res.redirect('/')
+                    // console.log('mua hàng thành công')
+                    // res.redirect('/')
                 }else{
-    
                     const confirm_order = await pool.query(`update orders
-                    set delivery_time = $1, amount = $2, discount = $3, states = 'done'
+                    set delivery_time = $1, amount = $2, discount = $3
                     where id = $4;`, [new Intl.DateTimeFormat().format(dates), req.body.amount, 0, req.body.order_id])
                     
-                    console.log('mua hàng thành công')
-                    res.redirect('/')
+                    // console.log('mua hàng thành công')
+                    // res.redirect('/')
                 }
+                //cấu hình resquest
+                var partnerCode = "MOMORKA620211221";
+                var accessKey = "J7HpOQlRcCpdLEai";
+                var secretkey = "tSygxGX51JafYX6SIjvTPx2T8DRymaku";
+    
+                var requestId = partnerCode + new Date().getTime();
+                var orderId = requestId;
+                var orderInfo = "Payment for the order with ID "+req.body.order_id;
+                var redirectUrl = "http://localhost:5001/checkout";
+                var ipnUrl = "http://localhost:5001/checkout/";
+                var amount = req.body.amount;
+                var requestType = "captureWallet"
+                var extraData = ""; //pass empty value if your merchant does not have stores
+    
+                var rawSignature = "accessKey="+accessKey+"&amount=" + amount+"&extraData=" + extraData+"&ipnUrl=" + ipnUrl+"&orderId=" + orderId+"&orderInfo=" + orderInfo+"&partnerCode=" + partnerCode +"&redirectUrl=" + redirectUrl+"&requestId=" + requestId+"&requestType=" + requestType
+                //puts raw signature
+                console.log("--------------------RAW SIGNATURE----------------")
+                console.log(rawSignature)
+                //signature
+                const crypto = require('crypto');
+                var signature = crypto.createHmac('sha256', secretkey)
+                    .update(rawSignature)
+                    .digest('hex');
+                console.log("--------------------SIGNATURE----------------")
+                console.log(signature)
+    
+                //json object send to MoMo endpoint
+                const requestBody = JSON.stringify({
+                    partnerCode : partnerCode,
+                    accessKey : accessKey,
+                    requestId : requestId,
+                    amount : amount,
+                    orderId : orderId,
+                    orderInfo : orderInfo,
+                    redirectUrl : redirectUrl,
+                    ipnUrl : ipnUrl,
+                    extraData : extraData,
+                    requestType : requestType,
+                    signature : signature,
+                    lang: 'en'
+                });
+                //Create the HTTPS objects
+                const https = require('https');
+                const options = {
+                    hostname: 'test-payment.momo.vn',
+                    port: 443,
+                    path: '/v2/gateway/api/create',
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': Buffer.byteLength(requestBody)
+                    }
+                }
+    
+                //Send the request and get the response
+    
+                var request = https.request(options, response => {
+                    console.log(`Status: ${response.statusCode}`);
+                    console.log(`Headers: ${JSON.stringify(response.headers)}`);
+                    response.setEncoding('utf8');
+                    response.on('data', (body) => {
+                        console.log('Body: ');
+                        console.log(body);
+                        console.log('payUrl: ');
+                        console.log(JSON.parse(body).payUrl);
+                        res.redirect(JSON.parse(body).payUrl)
+                    });
+                    response.on('end', () => {
+                        console.log('No more data in response.');
+                    });
+                })
+                console.log('request = ', request)
+    
+                request.on('error', (e) => {
+                    console.log(`problem with request: ${e.message}`);
+                });
+                // write data to request body
+                console.log("Sending....")
+                
+                request.write(requestBody);
+                request.end();
             }else{
-                console.log('hello mấy cưng')
                 errors.push({errors: "Please choose address"})
-
                 const search_order = await pool.query(`select * 
                 from orders
                 where owner_id = $1 and states = 'draft'`, [req.session.user_id])

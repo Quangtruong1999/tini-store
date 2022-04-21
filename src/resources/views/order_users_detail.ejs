@@ -145,24 +145,24 @@
 				  <!-- END nav -->
 
 		<div class="hero-wrap hero-bread" style="background-image:
-			url('images/bg_1.jpg');">
+			url('/images/bg_1.jpg');">
 			<div class="container-fluid">
 				<div class="row no-gutters slider-text align-items-center
 					justify-content-center">
 					<div class="col-md-9 ftco-animate text-center">
 						<p class="breadcrumbs"><span class="mr-2"><a href="/">Home</a></span>
-							<span>Cart</span></p>
-						<h1 class="mb-0 bread">My Cart</h1>
+							<span>Order</span></p>
+						<h1 class="mb-0 bread">My Order</h1>
 					</div>
 				</div>
 			</div>
 		</div>
 	<!-- MAIN CONTENT-->
-	<div class="main-content">
+	<div class="main-content" style="padding-top: 10px;">
 		<div class="col-lg-10 mx-auto">
 			<div class="card">
 				<div class="card-header">
-					<strong>Order details</strong>
+					<strong><h2 style="text-align: center; color: #82ae46;">Order details</h2></strong>
 				</div>
 				<div class="card-body card-block">
 					<form action="" method="post" class="form-horizontal">
@@ -206,7 +206,7 @@
 												<label for="adress_owner" class="form-control-label">Address</label>
 											</div>
 											<div class="col-12 col-md-9">
-												<textarea type="text" id="adress_owner" name="adress_owner" class="form-control" readonly> <%= address[0]['street']%>, <%=address[0]['wardid']%>, <%=address[0]['disctrictid']%>, <%=address[0]['provinceid']%></textarea>
+												<textarea type="text" id="adress_owner" name="adress_owner" class="form-control" readonly> <%= address[0]['street']%>, <%=address[0]['wardid']%>, <%=address[0]['districtid']%>, <%=address[0]['provinceid']%></textarea>
 											</div>
 										</div>
 									</div>
@@ -264,7 +264,12 @@
 										<label for="name_owner" class=" form-control-label">Delivery time</label>
 									</div>
 									<div class="col-lg-9 col-md-12" style="margin-bottom: 20px;">
-										<input type="text" id="text-input" name="name_owner" value="<%= new Intl.DateTimeFormat(['ban', 'id']).format(order[0]['delivery_time'])%>" placeholder="Text" class="form-control" readonly>
+										<%if(order[0]['delivery_time'] != null){%>
+											<input type="text" id="text-input" name="name_owner" value="<%= new Intl.DateTimeFormat(['ban', 'id']).format(order[0]['delivery_time'])%>" placeholder="Estimated delivery time" class="form-control" readonly>
+										<%}else{%>
+											<input type="text" id="text-input" name="name_owner" value="" placeholder="Estimated delivery time" class="form-control" readonly>
+										
+										<%}%>
 									</div>
 								</div>
 								<div class="row">
@@ -272,7 +277,7 @@
 										<label for="name_owner" class=" form-control-label">Delivery fee</label>
 									</div>
 									<div class="col-lg-9 col-md-12" style="margin-bottom: 20px;">
-										<input type="text" id="text-input" name="name_owner" value="<%= order[0]['delivery_fee']%>" placeholder="Text" class="form-control" readonly>
+										<input type="text" id="text-input" name="name_owner" value="<%= order[0]['delivery_fee']%> đ" placeholder="Text" class="form-control" readonly>
 									</div>
 								</div>
 								<div class="row">
@@ -280,7 +285,7 @@
 										<label for="name_owner" class=" form-control-label">Discount</label>
 									</div>
 									<div class="col-lg-9 col-md-12" style="margin-bottom: 20px;">
-										<input type="text" id="text-input" name="name_owner" value="<%= order[0]['discount']%>" placeholder="Text" class="form-control" readonly>
+										<input type="text" id="text-input" name="name_owner" value="<%= order[0]['discount']%> đ" placeholder="Text" class="form-control" readonly>
 									</div>
 								</div>
 								<div class="row">
@@ -288,7 +293,7 @@
 										<label for="name_owner" class=" form-control-label">Amount</label>
 									</div>
 									<div class="col-lg-9 col-md-12" style="margin-bottom: 20px;">
-										<input type="text" id="text-input" name="name_owner" value="<%= order[0]['amount']%>" placeholder="Text" class="form-control" readonly>
+										<input type="text" id="text-input" name="name_owner" value="<%= order[0]['amount']%> đ" placeholder="Text" class="form-control" readonly>
 									</div>
 								</div>
 								<div class="row">

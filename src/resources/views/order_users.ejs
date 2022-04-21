@@ -185,7 +185,10 @@
 													</td>
 													<td>
 														<p style="text-align: center;">
-															<%=new Intl.DateTimeFormat(['ban', 'id']).format(orders[i]['delivery_time'])%>
+															<%if(orders[i]['delivery_time'] != null){%>
+																<%=new Intl.DateTimeFormat(['ban', 'id']).format(orders[i]['delivery_time'])%>
+															<%}else{%>
+															<%}%>
 														</p>
 													</td>
 													<td><%=orders[i]['delivery_fee']%> đ</td>
