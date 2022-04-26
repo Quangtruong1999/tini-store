@@ -144,7 +144,6 @@ async function route(app){
                     
                 }
             )
-
         }
         
     })  
@@ -173,7 +172,11 @@ async function route(app){
                             throw err;
                         }
                         
-                        res.render('information_user', {data: result.rows, errors: errors, name: req.session.name, user_id: req.session.user_id})
+                        res.render('information_user', {
+                            data: result.rows, 
+                            errors: errors, 
+                            name: req.session.name, 
+                            user_id: req.session.user_id})
                     })
                 });
             }else{
