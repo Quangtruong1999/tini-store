@@ -232,7 +232,7 @@
 													<%for(var j=0; j<foods.length; j++){%>
 													<tr>
 														<%if(order_items[i]['food_id'] == foods[j]['id']){%>
-															<td><%= foods[i]['name']%></td>
+															<td><%= foods[j]['name']%></td>
 															<td><%= order_items[i]['quantity']%></td>
 															<td><%= order_items[i]['price']%> đ</td>
 														<%}%>

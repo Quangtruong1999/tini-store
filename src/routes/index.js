@@ -517,7 +517,6 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-
             const order = await pool.query(`select orders.id, orders.address_id, orders.owner_id, orders.delivery_time, orders.delivery_fee, orders.discount, orders.amount, orders.states, addresses.street, addresses.wardid, addresses.districtid, addresses.provinceid
             from orders, addresses
             where orders.address_id = addresses.id and orders.id = $1`, [req.params.id])
@@ -749,6 +748,14 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            //Lấy thông tin đơn hàng
+            const order = await pool.query(`select * from order_items where id $1`,[req.params.id])
+            //Lấy số lượng sản phẩm trong kho theo id
+            const qty = await pool.query(`select * from iventory where food_id = $1`, [req.params.id])
+            //update inventory
+            const qty_food = await pool.query(`update inventory 
+            set quantity = $1
+            where id = $2`,[Number(qty.rows[0]['quantity']) + Number(order.rows[0]['quantity']), qty.rows[0]['id']])
             //Xóa sản phẩm ra khỏi giỏ hàng
             const del_pro_cart = await pool.query(`DELETE FROM order_items WHERE id = $1`,[req.params.id])
             console.log('xóa sản phẩm trong giỏ thành công')
@@ -767,58 +774,108 @@ async function route(app){
             const fee_delivery = await pool.query(`select * from type_of_delivery where id = 1`)
             var flag_order_items = 0
             var quantity_new = 0
-            /*
-            Khi add sản phẩm vào giỏ hàng, kiểm tra sp đó có trong giỏ hàng chưa
-            Nếu có sẽ tăng số lượng sản phẩm lên 1
-            nếu chưa có sẽ thêm vào giỏ hàng
-            */
-            for(var i=0; i<order_items.rows.length; i++){
-                if(req.params.id == order_items.rows[i]['food_id']){
-                    console.log('có trong order_item')
-                    flag_order_items = 1
-                }
-            }
-            // kiểm tra sản phẩm có tồn tại trong giỏ hàng chưa
-            if(flag_order_items > 0){
-                quantity_new = Number(order_items.rows[0]['quantity']) + Number(1)
-                const update_quantity = await pool.query(`update order_items
-                set quantity = $1
-                where food_id = $2;`,[quantity_new, req.params.id]);
-                console.log('Cập nhật thành công')
-                res.redirect('/shop/0');
-            }else{
-                const fee = fee_delivery.rows
-                // kiểm tra giỏ hàng có trạng thái là draft
-                const orders = await pool.query(`select * from orders where owner_id = $1 and states = 'draft'`,[req.session.user_id])
-                const orders_vals = orders.rows
-                console.log('orders_vals = ', orders_vals)
-                if(orders_vals != ''){
 
-                    const search_order_new = await pool.query(`select * 
-                    from orders
-                    where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-                    const order_new = search_order_new.rows
-                    
-                    const search_food = await pool.query(`select * from foods where id = $1`, [req.params.id])
-                    const price_food = search_food.rows
-                    //Thêm sản phẩm vào giỏ hàng
-                    const add_to_cart = await pool.query(`insert into order_items (order_id, food_id, quantity, price)
-                    values ($1,$2,1,$3);`, [order_new[0]['id'], req.params.id, price_food[0]['price']])
-                    
-                    res.redirect('/shop/0')
+            const qty_food_in_inventory = await pool.query(`select * from inventory where food_id = $1`, [req.params.id])
+            //kiểm tra sản phẩm trong kho
+            let errors = []
+            if(Number(qty_food_in_inventory.rows[0]['quantity']) - 1 < 0){
+                const product_single = await pool.query(`select * from foods where id = $1`, [req.params.id])
+                const search_order = await pool.query(`select * 
+                from orders
+                where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                
+                errors.push({code: 400, message: "The product is out of stock!"})
+                console.log('errors = ', errors)
+                if (search_order.rows == '') {
+                    res.render('product-single', {
+                        data: product_single.rows,
+                        quantity_foods: [{"count": 0}],
+                        name: req.session.name,
+                        errors: errors
+                    })
                 }else{
-                    const create_order = await pool.query(`insert into orders (owner_id, delivery_type_id, delivery_fee, states)
-                    values ($1,2,$2,'draft');`, [req.session.user_id, fee[0]['fee']])
-                    const search_order_new = await pool.query(`select * 
-                    from orders
-                    where owner_id = $1 and states = 'draft'`, [req.session.user_id])
-                    const order_new = search_order_new.rows
-                    const search_food = await pool.query(`select * from foods where id = $1`, [req.params.id])
-                    const price_food = search_food.rows
-                    //Thêm sản phẩm vào giỏ hàng
-                    const add_to_cart = await pool.query(`insert into order_items (order_id, food_id, quantity, price)
-                    values ($1,$2,1,$3);`, [order_new[0]['id'], req.params.id, price_food[0]['price']])
-                    res.redirect('/shop/0')
+                    const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                    FROM order_items
+                    where order_id = $1
+                    GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
+        
+                    res.render('product-single', {
+                        data: product_single.rows,
+                        name: req.session.name,
+                        quantity_foods: quantity_foods.rows,
+                        errors: errors
+                    })
+                }
+            }else{
+                /*
+                Khi add sản phẩm vào giỏ hàng, kiểm tra sp đó có trong giỏ hàng chưa
+                Nếu có sẽ tăng số lượng sản phẩm lên 1
+                nếu chưa có sẽ thêm vào giỏ hàng
+                */
+                for(var i=0; i<order_items.rows.length; i++){
+                    if(req.params.id == order_items.rows[i]['food_id']){
+                        console.log('có trong order_item')
+                        flag_order_items = 1
+                    }
+                }
+                // kiểm tra sản phẩm có tồn tại trong giỏ hàng chưa
+                if(flag_order_items > 0){
+                    quantity_new = Number(order_items.rows[0]['quantity']) + Number(1)
+                    const update_quantity = await pool.query(`update order_items
+                    set quantity = $1
+                    where food_id = $2;`,[quantity_new, req.params.id]);
+                    const qty_food = await pool.query(`select * from inventory where food_id = $1`, [req.params.id])
+                    const update_inventory = await pool.query(`update inventory
+                    set quantity = $1
+                    where id = $2`,[Number(qty_food.rows[0]['quantity']) - 1, qty_food.rows[0]['id']])
+
+
+                    console.log('Cập nhật thành công')
+                    res.redirect('/shop/0');
+                }else{
+                    const fee = fee_delivery.rows
+                    // kiểm tra giỏ hàng có trạng thái là draft
+                    const orders = await pool.query(`select * from orders where owner_id = $1 and states = 'draft'`,[req.session.user_id])
+                    const orders_vals = orders.rows
+                    console.log('orders_vals = ', orders_vals)
+                    if(orders_vals != ''){
+
+                        const search_order_new = await pool.query(`select * 
+                        from orders
+                        where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                        const order_new = search_order_new.rows
+                        
+                        const search_food = await pool.query(`select * from foods where id = $1`, [req.params.id])
+                        const price_food = search_food.rows
+                        //Thêm sản phẩm vào giỏ hàng
+                        const add_to_cart = await pool.query(`insert into order_items (order_id, food_id, quantity, price)
+                        values ($1,$2,1,$3);`, [order_new[0]['id'], req.params.id, price_food[0]['price']])
+                        //cập nhật kho
+                        const qty_food = await pool.query(`select * from inventory where food_id = $1`, [req.params.id])
+                        const update_inventory = await pool.query(`update inventory
+                        set quantity = $1
+                        where id = $2`,[Number(qty_food.rows[0]['quantity']) - 1, qty_food.rows[0]['id']])
+
+                        res.redirect('/shop/0')
+                    }else{
+                        const create_order = await pool.query(`insert into orders (owner_id, delivery_type_id, delivery_fee, states)
+                        values ($1,2,$2,'draft');`, [req.session.user_id, fee[0]['fee']])
+                        const search_order_new = await pool.query(`select * 
+                        from orders
+                        where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                        const order_new = search_order_new.rows
+                        const search_food = await pool.query(`select * from foods where id = $1`, [req.params.id])
+                        const price_food = search_food.rows
+                        //Thêm sản phẩm vào giỏ hàng
+                        const add_to_cart = await pool.query(`insert into order_items (order_id, food_id, quantity, price)
+                        values ($1,$2,1,$3);`, [order_new[0]['id'], req.params.id, price_food[0]['price']])
+                        //cập nhật kho
+                        const qty_food = await pool.query(`select * from inventory where food_id = $1`, [req.params.id])
+                        const update_inventory = await pool.query(`update inventory
+                        set quantity = $1
+                        where id = $2`,[Number(qty_food.rows[0]['quantity']) - 1, qty_food.rows[0]['id']])
+                        res.redirect('/shop/0')
+                    }
                 }
             }
         }
@@ -1321,6 +1378,7 @@ async function route(app){
         from orders
         where owner_id = $1 and states = 'draft'`, [req.session.user_id])
         let errors = []
+        errors.push({code: 200, message: "nothing!"})
         if (search_order.rows == '') {
             res.render('product-single', {
                 data: product_single.rows,
@@ -1366,7 +1424,8 @@ async function route(app){
                 from orders
                 where owner_id = $1 and states = 'draft'`, [req.session.user_id])
                 
-                errors.push({message: "The product is out of stock!"})
+                errors.push({code: 400, message: "The product is out of stock!"})
+                console.log('errors = ', errors)
                 if (search_order.rows == '') {
                     res.render('product-single', {
                         data: product_single.rows,
@@ -1408,10 +1467,15 @@ async function route(app){
                     const update_quantity = await pool.query(`update order_items
                     set quantity = $1
                     where food_id = $2;`,[quantity_new, req.body.id]);
+                    const qty_food = await pool.query(`select * from inventory where food_id = $1`, [req.body.id])
+                    const update_inventory = await pool.query(`update inventory
+                    set quantity = $1
+                    where id = $2`,[Number(qty_food.rows[0]['quantity']) - Number(req.body.quantity), qty_food.rows[0]['id']])
+
                     console.log('Cập nhật thành công')
                     res.redirect('/product-single/'+req.body.id);
                 }else{
-                    console.log('Hello 1 = ', flag_order_items)
+                    
                     const fee = fee_delivery.rows
                     // kiểm tra giỏ hàng có trạng thái là draft
                     const orders = await pool.query(`select * from orders where owner_id = $1 and states = 'draft'`,[req.session.user_id])
@@ -1419,7 +1483,6 @@ async function route(app){
                     console.log('orders_vals = ', orders_vals)
                     if(orders_vals != ''){
 
-                        console.log('Hello 2 = ', flag_order_items)
                         const search_order_new = await pool.query(`select * 
                         from orders
                         where owner_id = $1 and states = 'draft'`, [req.session.user_id])
@@ -1430,11 +1493,15 @@ async function route(app){
                         //Thêm sản phẩm vào giỏ hàng
                         const add_to_cart = await pool.query(`insert into order_items (order_id, food_id, quantity, price)
                         values ($1,$2,$3,$4);`, [order_new[0]['id'], req.body.id, req.body.quantity, price_food[0]['price']])
-                            
+                        const qty_food = await pool.query(`select * from inventory where food_id = $1`, [req.body.id])
+                        const update_inventory = await pool.query(`update inventory
+                        set quantity = $1
+                        where id = $2`,[Number(qty_food.rows[0]['quantity']) - Number(req.body.quantity), qty_food.rows[0]['id']])
+
                         console.log('Cập nhật thành công')
                         res.redirect('/product-single/'+req.body.id);
                     }else{
-                        console.log('Hello 3 = ', flag_order_items)
+                        
                         const create_order = await pool.query(`insert into orders (owner_id, delivery_type_id, delivery_fee, states)
                         values ($1,2,$2,'draft');`, [req.session.user_id, fee[0]['fee']])
                         const search_order_new = await pool.query(`select * 
@@ -1446,7 +1513,11 @@ async function route(app){
                         //Thêm sản phẩm vào giỏ hàng
                         const add_to_cart = await pool.query(`insert into order_items (order_id, food_id, quantity, price)
                         values ($1,$2,$3,$4);`, [order_new[0]['id'], req.body.id, req.body.quantity, price_food[0]['price']])
-
+                        const qty_food = await pool.query(`select * from inventory where food_id = $1`, [req.body.id])
+                        const update_inventory = await pool.query(`update inventory
+                        set quantity = $1
+                        where id = $2`,[ Number(qty_food.rows[0]['quantity']) - Number(req.body.quantity), qty_food.rows[0]['id']])
+                        
                         console.log('Cập nhật thành công')
                         res.redirect('/product-single/'+req.body.id);
                     }
@@ -1959,6 +2030,72 @@ async function route(app){
             })
         }
     }) 
+    
+    //route lấy thông tin sản phẩm trong kho
+    app.get('/inventory_dashboard_edit/:id', async(req, res)=>{
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                const qty_food = await pool.query(`select inventory.id, inventory.food_id, inventory.quantity, foods.name
+                from inventory, foods
+                where inventory.food_id = foods.id and inventory.id = $1`, [req.params.id])
+                console.log('qty food = ', qty_food.rows)
+                res.render('inventory_dashboard_edit', {
+                    menu: 'inventory_dashboard',
+                    data: qty_food.rows,
+                    name: req.session.name, 
+                    email: req.session.email
+                })
+            }
+        }
+    })
+    
+    //route chỉnh sửa sản phẩm trong kho
+    app.get('/inventory_dashboard', async(req, res)=>{
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                const info_inventory = await pool.query(`select inventory.id,inventory.food_id, inventory.quantity, foods.name
+                from inventory, foods
+                where inventory.food_id = foods.id
+                order by inventory.id `)
+                
+                console.log('qty_food = ', info_inventory.rows)
+                res.render('inventory_dashboard', {
+                    menu: 'inventory_dashboard',
+                    data: info_inventory.rows,
+                    name: req.session.name, 
+                    email: req.session.email
+                })
+            }
+        }
+    })
+
+    //route nhận thông tin chỉnh sửa thông tin sản phẩm trong kho
+    app.post('/inventory_dashboard_edit/:id', urlencodedParser, async(req, res)=>{
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                const update_qty_food = await pool.query(`update inventory
+                set quantity = $1
+                where id = $2`, [req.body.quantity, req.params.id])
+                res.redirect('/inventory_dashboard')
+            }
+        }
+    })
+
     //route trang chủ admin
     app.get('/product_dashboard', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
@@ -2353,7 +2490,7 @@ async function route(app){
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
-                
+                let errors = []
                 pool.connect(function(err,client, done){
                     if(err){
                         throw err;
@@ -2363,48 +2500,99 @@ async function route(app){
                         if(err){
                             throw err;
                         }
-                        
-                        res.render("product_add", {data: result.rows, name: req.session.name, email: req.session.email});
+                        res.render("product_add", {
+                            data: result.rows, 
+                            menu: 'product_dashboard',
+                            name: req.session.name, 
+                            email: req.session.email,
+                            errors: [{
+                                code: 200,
+                                message: "None"
+                            }]
+                        });
                     })
                 })
             }
         }
     })  
     //route thêm sản phẩm của admin
-    app.post('/pro_add', urlencodedParser, upload.single('image'),async (req, res) => {
+    app.post('/product_add', urlencodedParser, upload.single('image'),async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //lưu đường dẫn lưu ảnh
-            const imagePath = path.join(__dirname, '../public/images/');
-            //giảm kích thước ảnh
-            const fileUpload = new Resize(imagePath);
-            if (!req.file) {
-                // res.status(401).json({error: 'Please provide an image'});
-                //Nếu người dùng không up file ảnh thì mặc định là ảnh trắng
-                pool.query(`INSERT INTO foods (name, description, category_id, price, images)
-                VALUES ($1,$2,$3,$4,$5);`,
-                [req.body.name, req.body.description, req.body.category, req.body.price, ''], (err, result)=>{
-                    if(err){
-                        throw err;
-                    }
-                    console.log('Thêm thành công')
-                    res.redirect('/product_dashboard');
-                });
-            }else{
-                //Lưu file vào đường dẫn trên 
-                const filename = await fileUpload.save(req.file.buffer);
-                //Thêm sản phẩm vào database
-                pool.query(`INSERT INTO foods (name, description, category_id, price, images)
-                VALUES ($1,$2,$3,$4,$5);`,
-                [req.body.name, req.body.description, req.body.category, req.body.price, 'images/'+filename], (err, result)=>{
-                    if(err){
-                        throw err;
-                    }
-                    console.log('Thêm thành công')
-                    res.redirect('/product_dashboard');
-                });
+            //Kiểm tra sản phẩm đã tồn tại chưa
+            const foods = await pool.query(`select * from foods`)
+            var food_exist = 0
+            let errors = []
+            for(var i=0; i<foods.rows.length; i++){
+                if(foods.rows[i]['name'].toLowerCase() == req.body.name.toLowerCase()){
+                    food_exist = 1
+                }
             }
+            if(food_exist != 0){
+                errors.push({
+                    code: 400,
+                    message: "Product already exists!"
+                })
+                const category = await pool.query(`select * from category order by id`)
+                res.render("product_add", {
+                    data: category.rows, 
+                    name: req.session.name, 
+                    email: req.session.email,
+                    menu: 'product_dashboard',
+                    errors: errors
+                });
+
+            }else{
+
+                //lưu đường dẫn lưu ảnh
+                const imagePath = path.join(__dirname, '../public/images/');
+                //giảm kích thước ảnh
+                const fileUpload = new Resize(imagePath);
+                if (!req.file) {
+                    // res.status(401).json({error: 'Please provide an image'});
+                    //Nếu người dùng không up file ảnh thì mặc định là ảnh trắng
+                    const insert_food = await pool.query(`INSERT INTO foods (name, description, category_id, price, images)
+                    VALUES ($1,$2,$3,$4,$5);`, [req.body.name, req.body.description, req.body.category, req.body.price, ''])
+                    const search_food = await pool.query(`select * from foods where name = $1`, [req.body.name])
+                    const add_inventory = await pool.query(`insert into inventory (food_id, quantity)
+                    values ($1, $2);`, [search_food.rows[0]['id'], 0])
+                    console.log('Thêm thành công')
+                    res.redirect('/product_dashboard');
+                    
+                    // pool.query(`INSERT INTO foods (name, description, category_id, price, images)
+                    // VALUES ($1,$2,$3,$4,$5);`,
+                    // [req.body.name, req.body.description, req.body.category, req.body.price, ''], (err, result)=>{
+                    //     if(err){
+                    //         throw err;
+                    //     }
+                    //     console.log('Thêm thành công')
+                    //     res.redirect('/product_dashboard');
+                    // });
+                }else{
+                    //Lưu file vào đường dẫn trên 
+                    const filename = await fileUpload.save(req.file.buffer);
+                    //Thêm sản phẩm vào database
+                    const insert_food = await pool.query(`INSERT INTO foods (name, description, category_id, price, images)
+                    VALUES ($1,$2,$3,$4,$5);`, [req.body.name, req.body.description, req.body.category, req.body.price, 'images/'+filename])
+                    const search_food = await pool.query(`select * from foods where name = $1`, [req.body.name])
+                    const add_inventory = await pool.query(`insert into inventory (food_id, quantity)
+                    values ($1, $2);`, [search_food.rows[0]['id'], 0])
+                    console.log('Thêm thành công')
+                    res.redirect('/product_dashboard');
+
+                    // pool.query(`INSERT INTO foods (name, description, category_id, price, images)
+                    // VALUES ($1,$2,$3,$4,$5);`,
+                    // [req.body.name, req.body.description, req.body.category, req.body.price, 'images/'+filename], (err, result)=>{
+                    //     if(err){
+                    //         throw err;
+                    //     }
+                    //     console.log('Thêm thành công')
+                    //     res.redirect('/product_dashboard');
+                    // });
+                }
+            }
+
         }
     })
     //route danh mục sản phẩm của admin

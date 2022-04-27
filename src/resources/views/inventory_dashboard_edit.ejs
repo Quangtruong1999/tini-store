@@ -9,7 +9,7 @@
         <meta name="keywords" content="au theme template">
 
         <!-- Title Page-->
-        <title>Tini Store - Edit customer</title>
+        <title>Tini Store - Edit quantity</title>
 
         <!-- Fontfaces CSS-->
         <link href="/css/font-face.css" rel="stylesheet" media="all">
@@ -112,7 +112,6 @@
                         </div>
                         <div class="menu-sidebar__content js-scrollbar1">
                             <nav class="navbar-sidebar">
-                                
                                 <%if(menu == 'customer_dashboard' || menu == 'addresses_dashboard' || menu == 'edit_users' || menu == 'address_dashboard_add' || menu == 'edit_address_dashboard'){%>
                                     <ul class="list-unstyled navbar__list">
                                         <li class="has-sub">
@@ -360,40 +359,36 @@
                 <div class="col-lg-6 mx-auto">
                     <div class="card">
                         <div class="card-header">
-                            <strong>Edit users</strong>
+                            <strong>Edit quantitiy</strong>
                         </div>
                         <div class="card-body card-block">
-                            <form action="/edit_users/<%= user[0]['id']%>" method="post" class="form-horizontal">
+                            <form action="/inventory_dashboard_edit/<%= data[0]['id']%>" method="post" class="form-horizontal">
                                 <div class="row form-group">
                                     <div class="col col-md-3">
                                         <label for="name" class=" form-control-label">Name</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <input type="text" id="text-input" name="name" value="<%= user[0]['name']%>" placeholder="Text" class="form-control">
+                                        <input type="text" id="text-input" value="<%= data[0]['name']%>" placeholder="Text" class="form-control" disabled>
                                         
                                     </div>
                                 </div>
                                 <div class="row form-group">
                                     <div class="col col-md-3">
-                                        <label for="phone" class="form-control-label">Phone</label>
+                                        <label for="phone" class="form-control-label">Quantity</label>
                                     </div>
                                     <div class="col-12 col-md-9">
-                                        <input type="number" id="phone" name="phone" value="<%= user[0]['phone']%>" class="form-control">
+                                        <input type="number" id="phone" name="quantity" value="<%= data[0]['quantity']%>" class="form-control">
                                     </div>
                                 </div>
-                                <div class="row form-group">
-                                    <div class="col col-md-3">
-                                        <label for="email-input" class=" form-control-label">Email</label>
-                                    </div>
-                                    <div class="col-12 col-md-9">
-                                        <input type="email" id="email-input" name="email" value="<%= user[0]['email']%>" class="form-control" readonly>
-                                    </div>
-                                </div>
+                                
                                         
                                 <div class="card-footer">
                                     <button type="submit" class="btn btn-sm" style="background-color: #82AE46; color: #fff;">
                                         <i class="fa fa-dot-circle-o"></i> Edit
                                     </button>
+                                    <a type="button" href="/inventory_dashboard" class="btn btn-sm" style="background-color: #82AE46; color: #fff;">
+                                        <i class="fa fa-dot-circle-o"></i> Back
+                                    </a>
                                 </div>
                             </form>
                         </div>

@@ -37,15 +37,16 @@
 </head>
 
 <body class="goto-here">
+
 	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
 		aria-labelledby="staticBackdropLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+					<h5 class="modal-title" id="staticBackdropLabel">Errors</h5>
 				</div>
 				<div class="modal-body">
-					...
+					<%= errors[0].message%>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -53,6 +54,13 @@
 			</div>
 		</div>
 	</div>
+	<!-- Button trigger modal -->
+	<button type="button" id="btn_modal" class="btn btn-primary" data-bs-toggle="modal"
+		data-bs-target="#staticBackdrop" hidden>
+		Launch static backdrop modal
+	</button>
+
+						<!-- Modal -->
 	<div class="py-1 bg-primary">
 		<div class="container">
 			<div class="row no-gutters d-flex align-items-start align-items-center
@@ -220,7 +228,7 @@
 						<%=data[0]['description']%>
 					</p>
 
-					<form action="/add_cart" method="post" class="form-horizontal">
+					<form action="/product-single/<%=data[0]['id']%>" method="post" class="form-horizontal">
 						<div class="row mt-4">
 							<div class="col-md-6">
 								<!-- <div class="form-group d-flex">
@@ -260,24 +268,6 @@
 						</div>
 						<p><button type="submit"
 								style="background-color: #82AE46 !important; color: #fff !important; border: none !important; ">Addto Cart</button></p>
-
-
-
-
-
-
-						<!-- Button trigger modal -->
-						<button type="button" class="btn btn-primary" data-bs-toggle="modal"
-							data-bs-target="#staticBackdrop">
-							Launch static backdrop modal
-						</button>
-
-						<!-- Modal -->
-
-
-
-
-
 
 
 					</form>
@@ -462,6 +452,14 @@
 	<script src="/js/google-map.js"></script>
 	<script src="/js/main.js"></script>
 
+	<%if(errors[0]['code'] == 400){%>
+		<script>
+			console.log('hello')
+			$(document).ready(function(){
+				$('#btn_modal').click();
+			});
+		</script>
+	<%}%>
 	<script>
 		$(document).ready(function () {
 
