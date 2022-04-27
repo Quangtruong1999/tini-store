@@ -61,42 +61,81 @@
                         </div>
                         <nav class="navbar-mobile">
                             <div class="container-fluid">
-                                <ul class="navbar-mobile__list list-unstyled">
-                                    <li class="has-sub">
-                                        <a class="js-arrow" href="#">
-                                            <i class="fas fa-tachometer-alt"></i>Management</a>
-                                        <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
-                                            <li>
-                                                <a href="/product_dashboard">Products</a>
-                                            </li>
-                                            <li>
-                                                <a href="/category_dashboard">Category</a>
-                                            </li>
-                                        </ul>
-                                    </li>
+                                <%if(menu == 'order_dashboard' || menu == 'edit_order_dashboard'){%>
+                                    
+                                    <ul class="navbar-mobile__list list-unstyled">
+                                        <li>
+                                            <a class="js-arrow" href="#">
+                                                <i class="fas fa-tachometer-alt"></i>Management</a>
+                                            <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+                                                <li>
+                                                    <a href="/product_dashboard">Products</a>
+                                                </li>
+                                                <li>
+                                                    <a href="/category_dashboard">Category</a>
+                                                </li>
+                                            </ul>
+                                        </li>
 
-                                    <li>
-                                        <a class="js-arrow" href="#">
-                                            <i class="fas fa-chart-bar"></i>User management
-                                        </a>
-                                            
-                                        <ul class="list-unstyled navbar__sub-list js-sub-list">
-                                            <li>
-                                                <a href="/customer_dashboard">Users</a>
-                                            </li>
-                                            <li>
-                                                <a href="/addresses_dashboard">Address of user</a>
-                                            </li>
-                                        </ul>
-                                    </li>
+                                        <li>
+                                            <a class="js-arrow" href="#">
+                                                <i class="fas fa-chart-bar"></i>User management
+                                            </a>
+                                                
+                                            <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                                <li>
+                                                    <a href="/customer_dashboard">Users</a>
+                                                </li>
+                                                <li>
+                                                    <a href="/addresses_dashboard">Address of user</a>
+                                                </li>
+                                            </ul>
+                                        </li>
 
-                                    <li>
-                                        <a class="js-arrow" href="/order_dashboard">
-                                            <i class="fas fa-chart-bar"></i>Order management
-                                        </a>
-                                            
-                                    </li>
-                                </ul>
+                                        <li class="has-sub">
+                                            <a class="js-arrow" href="/order_dashboard">
+                                                <i class="fas fa-chart-bar"></i>Order management
+                                            </a>
+                                        </li>
+                                    </ul>
+                                <%}else{%>
+
+                                    <ul class="navbar-mobile__list list-unstyled">
+                                        <li class="has-sub">
+                                            <a class="js-arrow" href="#">
+                                                <i class="fas fa-tachometer-alt"></i>Management</a>
+                                            <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+                                                <li>
+                                                    <a href="/product_dashboard">Products</a>
+                                                </li>
+                                                <li>
+                                                    <a href="/category_dashboard">Category</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <li>
+                                            <a class="js-arrow" href="#">
+                                                <i class="fas fa-chart-bar"></i>User management
+                                            </a>
+                                                
+                                            <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                                <li>
+                                                    <a href="/customer_dashboard">Users</a>
+                                                </li>
+                                                <li>
+                                                    <a href="/addresses_dashboard">Address of user</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <li>
+                                            <a class="js-arrow" href="/order_dashboard">
+                                                <i class="fas fa-chart-bar"></i>Order management
+                                            </a>
+                                        </li>
+                                    </ul>
+                                <%}%>
                             </div>
                         </nav>
                     </header>
@@ -109,40 +148,78 @@
                         </div>
                         <div class="menu-sidebar__content js-scrollbar1">
                             <nav class="navbar-sidebar">
-                                <ul class="list-unstyled navbar__list">
-                                    <li class="active has-sub">
-                                        <a class="js-arrow" href="#">
-                                            <i class="fas fa-tachometer-alt"></i>Management</a>
-                                        <ul class="list-unstyled navbar__sub-list js-sub-list">
-                                            <li>
-                                                <a href="/product_dashboard">Products</a>
-                                            </li>
-                                            <li>
-                                                <a href="/category_dashboard">Category</a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <a class="js-arrow" href="#">
-                                            <i class="fas fa-chart-bar"></i>User management
-                                        </a>
-                                            
-                                        <ul class="list-unstyled navbar__sub-list js-sub-list">
-                                            <li>
-                                                <a href="/customer_dashboard">Users</a>
-                                            </li>
-                                            <li>
-                                                <a href="/addresses_dashboard">Address of user</a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <a class="js-arrow" href="/order_dashboard">
-                                            <i class="fas fa-chart-bar"></i>Order management
-                                        </a>
-                                            
-                                    </li>
-                                </ul>
+                                
+                                <%if(menu == 'order_dashboard' || menu == 'edit_order_dashboard'){%>
+                                    <ul class="list-unstyled navbar__list">
+                                        <li class="has-sub">
+                                            <a class="js-arrow" href="#">
+                                                <i class="fas fa-tachometer-alt"></i>Management</a>
+                                            <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                                <li>
+                                                    <a href="/product_dashboard">Products</a>
+                                                </li>
+                                                <li>
+                                                    <a href="/category_dashboard">Category</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <a class="js-arrow" href="#">
+                                                <i class="fas fa-chart-bar"></i>User management
+                                            </a>
+                                                
+                                            <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                                <li>
+                                                    <a href="/customer_dashboard">Users</a>
+                                                </li>
+                                                <li>
+                                                    <a href="/addresses_dashboard">Address of user</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="active">
+                                            <a class="js-arrow" href="/order_dashboard">
+                                                <i class="fas fa-chart-bar"></i>Order management
+                                            </a>
+                                                
+                                        </li>
+                                    </ul>
+                                <%}else{%>
+                                    <ul class="list-unstyled navbar__list">
+                                        <li class="active has-sub">
+                                            <a class="js-arrow" href="#">
+                                                <i class="fas fa-tachometer-alt"></i>Management</a>
+                                            <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                                <li>
+                                                    <a href="/product_dashboard">Products</a>
+                                                </li>
+                                                <li>
+                                                    <a href="/category_dashboard">Category</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <a class="js-arrow" href="#">
+                                                <i class="fas fa-chart-bar"></i>User management
+                                            </a>
+                                                
+                                            <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                                <li>
+                                                    <a href="/customer_dashboard">Users</a>
+                                                </li>
+                                                <li>
+                                                    <a href="/addresses_dashboard">Address of user</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <a class="js-arrow" href="/order_dashboard">
+                                                <i class="fas fa-chart-bar"></i>Order management
+                                            </a>
+                                                
+                                        </li>
+                                    </ul>
+                                <%}%>
                             </nav>
                         </div>
                     </aside>
@@ -305,7 +382,7 @@
                                                         <label for="adress_owner" class="form-control-label">Address</label>
                                                     </div>
                                                     <div class="col-12 col-md-9">
-                                                        <textarea type="text" id="adress_owner" name="adress_owner" class="form-control" readonly> <%= address[0]['street']%>, <%=address[0]['wardid']%>, <%=address[0]['disctrictid']%>, <%=address[0]['provinceid']%></textarea>
+                                                        <textarea type="text" id="adress_owner" name="adress_owner" class="form-control" readonly> <%= address[0]['street']%>, <%=address[0]['wardid']%>, <%=address[0]['districtid']%>, <%=address[0]['provinceid']%></textarea>
                                                     </div>
                                                 </div>
                                             </div>

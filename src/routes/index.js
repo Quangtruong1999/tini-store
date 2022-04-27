@@ -149,7 +149,7 @@ async function route(app){
     })  
     
     //route cập nhật thông tin tài khoản
-    app.post('/update/:id', urlencodedParser, (req, res) => {
+    app.post('/update/:id', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
@@ -167,16 +167,39 @@ async function route(app){
                         throw err;
                     }
     
-                    pool.query(`select * from users where email = $1`, [req.session.email], (err, result)=>{
+                    pool.query(`select * from users where email = $1`, [req.session.email], async (err, result)=>{
                         if(err){
                             throw err;
                         }
+
+                        const search_order = await pool.query(`select * 
+                        from orders
+                        where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                        //Nếu đơn hàng chưa có sản phẩm thì SL hiển thị là 0 và ngược lại
+                        if (search_order.rows == '') {
                         
-                        res.render('information_user', {
-                            data: result.rows, 
-                            errors: errors, 
-                            name: req.session.name, 
-                            user_id: req.session.user_id})
+                            res.render('information_user', {
+                                data: result.rows,
+                                errors: errors, 
+                                name: req.session.name, 
+                                user_id: req.session.user_id,
+                                quantity_foods: [{"count": 0}]
+                            })
+                        }else{
+                            //đếm sản phẩm trong giỏ hàng
+                            const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                            FROM order_items
+                            where order_id = $1
+                            GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
+                        
+                            res.render('information_user', {
+                                data: result.rows, 
+                                quantity_foods: quantity_foods.rows,
+                                errors: errors, 
+                                name: req.session.name, 
+                                user_id: req.session.user_id})
+                        }
+                        
                     })
                 });
             }else{
@@ -732,8 +755,8 @@ async function route(app){
             res.redirect('/cart')
         }
     })
-        
-    //route thêm sản phẩm khỏi giỏ hàng
+
+    //route thêm sản phẩm vào giỏ hàng
     app.get('/add_to_cart/:id', urlencodedParser, async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
@@ -757,7 +780,7 @@ async function route(app){
             }
             // kiểm tra sản phẩm có tồn tại trong giỏ hàng chưa
             if(flag_order_items > 0){
-                quantity_new = order_items.rows[0]['quantity'] + 1
+                quantity_new = Number(order_items.rows[0]['quantity']) + Number(1)
                 const update_quantity = await pool.query(`update order_items
                 set quantity = $1
                 where food_id = $2;`,[quantity_new, req.params.id]);
@@ -795,7 +818,6 @@ async function route(app){
                     //Thêm sản phẩm vào giỏ hàng
                     const add_to_cart = await pool.query(`insert into order_items (order_id, food_id, quantity, price)
                     values ($1,$2,1,$3);`, [order_new[0]['id'], req.params.id, price_food[0]['price']])
-
                     res.redirect('/shop/0')
                 }
             }
@@ -1291,20 +1313,20 @@ async function route(app){
     })      
     //route xem sản phẩm chi tiết    
     app.get('/product-single/:id', async (req, res) => {
-        const product_signle = await pool.query(`select * from foods where id = $1`, [req.params.id])
+        const product_single = await pool.query(`select * from foods where id = $1`, [req.params.id])
         const wishlist = await pool.query(`select count(*)
         from wishlist
         where user_id = $1;`, [req.params.id])
-        
         const search_order = await pool.query(`select * 
         from orders
         where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+        let errors = []
         if (search_order.rows == '') {
-                
             res.render('product-single', {
-                data: product_signle.rows,
+                data: product_single.rows,
                 quantity_foods: [{"count": 0}],
-                name: req.session.name
+                name: req.session.name,
+                errors: errors
             })
         }else{
             const quantity_foods = await pool.query(`SELECT COUNT (food_id)
@@ -1313,13 +1335,126 @@ async function route(app){
             GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
 
             res.render('product-single', {
-                data: product_signle.rows,
+                data: product_single.rows,
                 name: req.session.name,
                 quantity_foods: quantity_foods.rows,
                 wishlist: wishlist.rows,
+                errors: errors
             })
         }
-    })          
+    })   
+    
+    app.post('/product-single/:id', urlencodedParser, async(req, res)=>{
+        if(typeof req.session.user == 'undefined'){
+            res.redirect('/login');
+        }else{
+            const order_items = await pool.query(`select order_items.id, order_items.food_id, order_items.quantity
+            from orders, order_items
+            where orders.id = order_items.order_id and order_items.food_id = $1 and orders.owner_id = $2 and orders.states='draft'`, [req.body.id,req.session.user_id])
+            const fee_delivery = await pool.query(`select * from type_of_delivery where id = 1`)
+            const qty_food_in_inventory = await pool.query(`select * from inventory where food_id = $1`, [req.body.id])
+            var flag_order_items = 0
+            var quantity_new = 0
+            //kiểm tra sản phẩm trong kho
+            let errors = []
+            if(req.body.quantity > qty_food_in_inventory.rows[0]['quantity']){
+                const product_single = await pool.query(`select * from foods where id = $1`, [req.params.id])
+                const wishlist = await pool.query(`select count(*)
+                from wishlist
+                where user_id = $1;`, [req.params.id])
+                const search_order = await pool.query(`select * 
+                from orders
+                where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                
+                errors.push({message: "The product is out of stock!"})
+                if (search_order.rows == '') {
+                    res.render('product-single', {
+                        data: product_single.rows,
+                        quantity_foods: [{"count": 0}],
+                        name: req.session.name,
+                        errors: errors
+                    })
+                }else{
+                    const quantity_foods = await pool.query(`SELECT COUNT (food_id)
+                    FROM order_items
+                    where order_id = $1
+                    GROUP BY order_id = $2`, [search_order.rows[0]['id'], search_order.rows[0]['id']])
+        
+                    res.render('product-single', {
+                        data: product_single.rows,
+                        name: req.session.name,
+                        quantity_foods: quantity_foods.rows,
+                        wishlist: wishlist.rows,
+                        errors: errors
+                    })
+                }
+            }else{
+                /*
+                Khi add sản phẩm vào giỏ hàng, kiểm tra sp đó có trong giỏ hàng chưa
+                Nếu có sẽ tăng số lượng sản phẩm lên 1
+                nếu chưa có sẽ thêm vào giỏ hàng
+                */
+                for(var i=0; i<order_items.rows.length; i++){
+                    if(req.body.id == order_items.rows[i]['food_id']){
+                        console.log('có trong order_item')
+                        flag_order_items = 1
+                    }
+                }
+                
+                // kiểm tra sản phẩm có tồn tại trong giỏ hàng chưa
+                if(flag_order_items > 0){
+                    
+                    quantity_new = Number(order_items.rows[0]['quantity']) + Number(req.body.quantity)
+                    const update_quantity = await pool.query(`update order_items
+                    set quantity = $1
+                    where food_id = $2;`,[quantity_new, req.body.id]);
+                    console.log('Cập nhật thành công')
+                    res.redirect('/product-single/'+req.body.id);
+                }else{
+                    console.log('Hello 1 = ', flag_order_items)
+                    const fee = fee_delivery.rows
+                    // kiểm tra giỏ hàng có trạng thái là draft
+                    const orders = await pool.query(`select * from orders where owner_id = $1 and states = 'draft'`,[req.session.user_id])
+                    const orders_vals = orders.rows
+                    console.log('orders_vals = ', orders_vals)
+                    if(orders_vals != ''){
+
+                        console.log('Hello 2 = ', flag_order_items)
+                        const search_order_new = await pool.query(`select * 
+                        from orders
+                        where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                        const order_new = search_order_new.rows
+                        
+                        const search_food = await pool.query(`select * from foods where id = $1`, [req.body.id])
+                        const price_food = search_food.rows
+                        //Thêm sản phẩm vào giỏ hàng
+                        const add_to_cart = await pool.query(`insert into order_items (order_id, food_id, quantity, price)
+                        values ($1,$2,$3,$4);`, [order_new[0]['id'], req.body.id, req.body.quantity, price_food[0]['price']])
+                            
+                        console.log('Cập nhật thành công')
+                        res.redirect('/product-single/'+req.body.id);
+                    }else{
+                        console.log('Hello 3 = ', flag_order_items)
+                        const create_order = await pool.query(`insert into orders (owner_id, delivery_type_id, delivery_fee, states)
+                        values ($1,2,$2,'draft');`, [req.session.user_id, fee[0]['fee']])
+                        const search_order_new = await pool.query(`select * 
+                        from orders
+                        where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+                        const order_new = search_order_new.rows
+                        const search_food = await pool.query(`select * from foods where id = $1`, [req.body.id])
+                        const price_food = search_food.rows
+                        //Thêm sản phẩm vào giỏ hàng
+                        const add_to_cart = await pool.query(`insert into order_items (order_id, food_id, quantity, price)
+                        values ($1,$2,$3,$4);`, [order_new[0]['id'], req.body.id, req.body.quantity, price_food[0]['price']])
+
+                        console.log('Cập nhật thành công')
+                        res.redirect('/product-single/'+req.body.id);
+                    }
+                }
+            }
+        }
+    })
+               
 
     //route trang shop
     app.get('/shop/:id', async(req, res) =>{
@@ -1501,17 +1636,24 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //lấy thông tin sản phẩm
-            const food = await pool.query(`select * FROM foods WHERE id = $1`, [req.params.id])
-            //lấy thông tin danh mục
-            const category = await pool.query(`select * FROM category`)
+            
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                
+                //lấy thông tin sản phẩm
+                const food = await pool.query(`select * FROM foods WHERE id = $1`, [req.params.id])
+                //lấy thông tin danh mục
+                const category = await pool.query(`select * FROM category`)
 
-            res.render('product_edit', {
-                data: food.rows, 
-                name: req.session.name, 
-                email: req.session.email,
-                category: category.rows
-            });
+                res.render('product_edit', {
+                    data: food.rows, 
+                    name: req.session.name, 
+                    email: req.session.email,
+                    category: category.rows
+                });
+            }
         }
     })
 
@@ -1520,28 +1662,35 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //lấy thông tin đường dẫn
-            const imagePath = path.join(__dirname, '../public/images/');
-            //Giảm kích thước ảnh
-            const fileUpload = new Resize(imagePath);
-            if (!req.file) {
-                //Nếu người dùng kh upload file mới thì mặc định lấy file ảnh đã lưu trước đó
-                const update_product = await pool.query(`update foods
-                set name=$1, description=$2,category_id=$3, price = $4
-                where id=$5;`, [req.body.name, req.body.description, req.body.category, req.body.price, req.params.id])
-
-                console.log('Cập nhật thành công')
-                res.redirect('/product_dashboard');
+            
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
             }else{
-                //Lưu file vào đường dẫn set ở trên
-                const filename = await fileUpload.save(req.file.buffer);
-                //Cập nhật thông tin sản phẩm
-                const update_product = pool.query(`update foods
-                set name=$1, description=$2,category_id=$3, price = $4, images=$5
-                where id=$6;`, [req.body.name, req.body.description, req.body.category, req.body.price, 'images/'+filename, req.params.id])
-                console.log('Cập nhật thành công')
-                res.redirect('/product_dashboard');
                 
+                //lấy thông tin đường dẫn
+                const imagePath = path.join(__dirname, '../public/images/');
+                //Giảm kích thước ảnh
+                const fileUpload = new Resize(imagePath);
+                if (!req.file) {
+                    //Nếu người dùng kh upload file mới thì mặc định lấy file ảnh đã lưu trước đó
+                    const update_product = await pool.query(`update foods
+                    set name=$1, description=$2,category_id=$3, price = $4
+                    where id=$5;`, [req.body.name, req.body.description, req.body.category, req.body.price, req.params.id])
+
+                    console.log('Cập nhật thành công')
+                    res.redirect('/product_dashboard');
+                }else{
+                    //Lưu file vào đường dẫn set ở trên
+                    const filename = await fileUpload.save(req.file.buffer);
+                    //Cập nhật thông tin sản phẩm
+                    const update_product = pool.query(`update foods
+                    set name=$1, description=$2,category_id=$3, price = $4, images=$5
+                    where id=$6;`, [req.body.name, req.body.description, req.body.category, req.body.price, 'images/'+filename, req.params.id])
+                    console.log('Cập nhật thành công')
+                    res.redirect('/product_dashboard');
+                    
+                }
             }
         }
     })
@@ -1787,50 +1936,63 @@ async function route(app){
     })
 
     //route xóa danh mục sản phẩm
-    app.get('/del_category/:id', urlencodedParser, (req, res) => {
-        pool.connect(function(err,client, done){
-            if(err){
-                throw err;
-            }
-            //xóa category
-            pool.query(`DELETE FROM category WHERE id = $1`, [req.params.id], (err, result)=>{
+    app.get('/del_category/:id', urlencodedParser, async (req, res) => {
+        
+        const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+        if(roles_user.rows[0]['roles'] == 1){
+            res.redirect('/')
+        }else{
+            
+            pool.connect(function(err,client, done){
                 if(err){
                     throw err;
                 }
+                //xóa category
+                pool.query(`DELETE FROM category WHERE id = $1`, [req.params.id], (err, result)=>{
+                    if(err){
+                        throw err;
+                    }
 
-                console.log('xóa thành công');
-                res.redirect('/category_dashboard');
+                    console.log('xóa thành công');
+                    res.redirect('/category_dashboard');
+                })
             })
-        })
+        }
     }) 
     //route trang chủ admin
-    app.get('/product_dashboard', (req, res) => {
+    app.get('/product_dashboard', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-
-            //Lấy danh sách sản phẩm
-            pool.connect(function(err, client, done){
-                if(err){
-                    return console.error('error fetching client from pool ', err)
-                }
-                client.query(`select foods.id, foods.category_id, foods.name, foods.description, foods.price, foods.images, category.name as category_name
-                from foods, category
-                WHERE foods.category_id = category.id`, (err, result) => {
-                    done();
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
                 
+                //Lấy danh sách sản phẩm
+                pool.connect(function(err, client, done){
                     if(err){
-                        res.end();
-                        return console.error('error running query ', err)
+                        return console.error('error fetching client from pool ', err)
                     }
-                    console.log('foods = ', result.rows);
-                    res.render('product_dashboard', {
-                        data: result.rows,
-                        name: req.session.name, 
-                        email: req.session.email
+                    client.query(`select foods.id, foods.category_id, foods.name, foods.description, foods.price, foods.images, category.name as category_name
+                    from foods, category
+                    WHERE foods.category_id = category.id`, (err, result) => {
+                        done();
+                    
+                        if(err){
+                            res.end();
+                            return console.error('error running query ', err)
+                        }
+                        console.log('foods = ', result.rows);
+                        res.render('product_dashboard', {
+                            menu: 'product_dashboard',
+                            data: result.rows,
+                            name: req.session.name, 
+                            email: req.session.email
+                        });
                     });
                 });
-            });
+            }
         }
     })  
 
@@ -1839,13 +2001,20 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //Lấy category theo id
-            const category = await pool.query(`select * from category where id = $1`, [req.params.id])
-            res.render('category_dashboard_edit', {
-                category: category.rows,
-                name: req.session.name,
-                email: req.session.email
-            })
+            
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                
+                //Lấy category theo id
+                const category = await pool.query(`select * from category where id = $1`, [req.params.id])
+                res.render('category_dashboard_edit', {
+                    category: category.rows,
+                    name: req.session.name,
+                    email: req.session.email
+                })
+            }
         }
     })
     
@@ -1854,12 +2023,19 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //Chỉnh sửa danh mục theo id
-            const category = await pool.query(`update category
-            set name = $1 , description=$2
-            where id = $3;`, [req.body.name, req.body.description, req.params.id])
-            console.log('cập nhật thành công')
-            res.redirect('/category_dashboard')
+            
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                    
+                //Chỉnh sửa danh mục theo id
+                const category = await pool.query(`update category
+                set name = $1 , description=$2
+                where id = $3;`, [req.body.name, req.body.description, req.params.id])
+                console.log('cập nhật thành công')
+                res.redirect('/category_dashboard')
+            }
         }
     })
     
@@ -1868,13 +2044,20 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //Lấy thông tin người dùng theo id
-            const user = await pool.query(`select * from users where id = $1`, [req.params.id])
-            res.render('customer_dashboard_edit', {
-                user: user.rows,
-                name: req.session.name,
-                email: req.session.email
-            })
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                
+                //Lấy thông tin người dùng theo id
+                const user = await pool.query(`select * from users where id = $1`, [req.params.id])
+                res.render('customer_dashboard_edit', {
+                    menu: 'edit_users',
+                    user: user.rows,
+                    name: req.session.name,
+                    email: req.session.email
+                })
+            }
         }
     })
     
@@ -1898,16 +2081,23 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //Lấy danh sách đơn hàng
-            const orders = await pool.query(`select orders.id, orders.owner_id, orders.delivery_time, orders.delivery_fee, orders.discount, orders.amount, orders.states, addresses.street, addresses.wardid, addresses.districtid, addresses.provinceid
-            from orders, addresses
-            where orders.address_id = addresses.id`)
-            console.log('orders = ', orders.rows)
-            res.render('orders_dashboard', {
-                orders: orders.rows,
-                name: req.session.name,
-                email: req.session.email
-            })
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                
+                //Lấy danh sách đơn hàng
+                const orders = await pool.query(`select orders.id, orders.owner_id, orders.delivery_time, orders.delivery_fee, orders.discount, orders.amount, orders.states, addresses.street, addresses.wardid, addresses.districtid, addresses.provinceid
+                from orders, addresses
+                where orders.address_id = addresses.id`)
+                console.log('orders = ', orders.rows)
+                res.render('orders_dashboard', {
+                    menu: 'order_dashboard',
+                    orders: orders.rows,
+                    name: req.session.name,
+                    email: req.session.email
+                })
+            }
         }
     })
     //route lấy form chỉnh sửa order của admin
@@ -1915,30 +2105,37 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //Lấy đơn hàng theo id
-            const order = await pool.query(`select orders.id, orders.address_id, orders.owner_id, orders.delivery_time, orders.delivery_fee, orders.discount, orders.amount, orders.states, addresses.street, addresses.wardid, addresses.districtid, addresses.provinceid
-            from orders, addresses
-            where orders.address_id = addresses.id and orders.id = $1`, [req.params.id])
-            //Lấy các sản phẩm trong đơn hàng
-            const order_items = await pool.query(`select *
-            from order_items
-            where order_id = $1`, [req.params.id])
-            //Lấy khách hàng của đơn hàng
-            const owner_order = await pool.query(`select * from users where id = $1`, [order.rows[0]['owner_id']])
-            //Lấy địa chỉ của khách hàng
-            const address = await pool.query(`select * from addresses where id = $1`, [order.rows[0]['address_id']])
-            //Lấy danh sách sản phẩm
-            const foods = await pool.query(`select * from foods`)
-            res.render('orders_dashboard_edit', {
-                name: req.session.name, 
-                email: req.session.email,
-                user_id: req.session.user_id,
-                order: order.rows,
-                order_items: order_items.rows,
-                owner_order: owner_order.rows,
-                address: address.rows,
-                foods: foods.rows
-            })
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                
+                //Lấy đơn hàng theo id
+                const order = await pool.query(`select orders.id, orders.address_id, orders.owner_id, orders.delivery_time, orders.delivery_fee, orders.discount, orders.amount, orders.states, addresses.street, addresses.wardid, addresses.districtid, addresses.provinceid
+                from orders, addresses
+                where orders.address_id = addresses.id and orders.id = $1`, [req.params.id])
+                //Lấy các sản phẩm trong đơn hàng
+                const order_items = await pool.query(`select *
+                from order_items
+                where order_id = $1`, [req.params.id])
+                //Lấy khách hàng của đơn hàng
+                const owner_order = await pool.query(`select * from users where id = $1`, [order.rows[0]['owner_id']])
+                //Lấy địa chỉ của khách hàng
+                const address = await pool.query(`select * from addresses where id = $1`, [order.rows[0]['address_id']])
+                //Lấy danh sách sản phẩm
+                const foods = await pool.query(`select * from foods`)
+                res.render('orders_dashboard_edit', {
+                    menu: 'edit_order_dashboard',
+                    name: req.session.name, 
+                    email: req.session.email,
+                    user_id: req.session.user_id,
+                    order: order.rows,
+                    order_items: order_items.rows,
+                    owner_order: owner_order.rows,
+                    address: address.rows,
+                    foods: foods.rows
+                })
+            }
         }
     })
 
@@ -1964,15 +2161,22 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //Lấy danh sách user là khách hàng (roles = 1)
-            const users = await pool.query(`select * from users where roles = 1`)
-            let errors = []
-            res.render("address_dashboard_add", {
-                users: users.rows,
-                name: req.session.name,
-                email: req.session.email,
-                errors: errors
-            });
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                
+                //Lấy danh sách user là khách hàng (roles = 1)
+                const users = await pool.query(`select * from users where roles = 1`)
+                let errors = []
+                res.render("address_dashboard_add", {
+                    menu: 'address_dashboard_add',
+                    users: users.rows,
+                    name: req.session.name,
+                    email: req.session.email,
+                    errors: errors
+                });
+            }
         }
     }) 
       
@@ -2031,15 +2235,22 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //Lấy danh sách các địa chỉ
-            const address = await pool.query(`select * FROM addresses WHERE id = $1`, [req.params.id])
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                
+                //Lấy danh sách các địa chỉ
+                const address = await pool.query(`select * FROM addresses WHERE id = $1`, [req.params.id])
 
-            res.render('address_dashboard_edit', {
-                name: req.session.name, 
-                email: req.session.email,
-                user_id: req.session.user_id,
-                address: address.rows
-            })
+                res.render('address_dashboard_edit', {
+                    menu: 'edit_address_dashboard',
+                    name: req.session.name, 
+                    email: req.session.email,
+                    user_id: req.session.user_id,
+                    address: address.rows
+                })
+            }
         }
     })
 
@@ -2113,38 +2324,50 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //Thêm category vào db
-            pool.query(`INSERT INTO category (name, description)
-                VALUES ($1,$2);`,
-                [req.body.name, req.body.description], (err, result)=>{
-                    if(err){
-                        throw err;
-                    }
-                    console.log('Thêm thành công')
-                    res.redirect('/category_dashboard');
-                });
-            
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                
+                //Thêm category vào db
+                pool.query(`INSERT INTO category (name, description)
+                    VALUES ($1,$2);`,
+                    [req.body.name, req.body.description], (err, result)=>{
+                        if(err){
+                            throw err;
+                        }
+                        console.log('Thêm thành công')
+                        res.redirect('/category_dashboard');
+                    });
+                }
         }
     })
     
     //route lấy form thêm sản phẩm của admin
-    app.get('/product_add', (req, res) => {
+    app.get('/product_add', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            pool.connect(function(err,client, done){
-                if(err){
-                    throw err;
-                }
-                //Lấy danh sách category
-                pool.query(`SELECT * FROM category`,(err, result)=>{
+            
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                
+                pool.connect(function(err,client, done){
                     if(err){
                         throw err;
                     }
-                    
-                    res.render("product_add", {data: result.rows, name: req.session.name, email: req.session.email});
+                    //Lấy danh sách category
+                    pool.query(`SELECT * FROM category`,(err, result)=>{
+                        if(err){
+                            throw err;
+                        }
+                        
+                        res.render("product_add", {data: result.rows, name: req.session.name, email: req.session.email});
+                    })
                 })
-            })
+            }
         }
     })  
     //route thêm sản phẩm của admin
@@ -2185,38 +2408,52 @@ async function route(app){
         }
     })
     //route danh mục sản phẩm của admin
-    app.get('/category_dashboard', (req, res) => {
+    app.get('/category_dashboard', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //lấy danh sách cách category của sản phẩm
-            pool.connect(function(err, client, done){
-                if(err){
-                    return console.error('error fetching client from pool ', err)
-                }
-                client.query(`select * from category`, (err, result) => {
-                    done();
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
                 
+                //lấy danh sách cách category của sản phẩm
+                pool.connect(function(err, client, done){
                     if(err){
-                        res.end();
-                        return console.error('error running query ', err)
+                        return console.error('error fetching client from pool ', err)
                     }
-                    console.log('category = ', result.rows);
-                    res.render('category_dashboard', {
-                        data: result.rows,
-                        name: req.session.name, 
-                        email: req.session.email
+                    client.query(`select * from category`, (err, result) => {
+                        done();
+                    
+                        if(err){
+                            res.end();
+                            return console.error('error running query ', err)
+                        }
+                        console.log('category = ', result.rows);
+                        res.render('category_dashboard', {
+                            menu: 'category_dashboard',
+                            data: result.rows,
+                            name: req.session.name, 
+                            email: req.session.email
+                        });
                     });
                 });
-            });
+            }
         }
     })  
     //route thêm danh mục sản phẩm của admin
-    app.get('/category_dashboard_add', (req, res) => {
+    app.get('/category_dashboard_add', async (req, res) => {
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            res.render("category_dashboard_add", {name: req.session.name});
+            
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                
+                res.render("category_dashboard_add", {name: req.session.name});
+            }
         }
     })  
     //route thông tin người dùng của admin
@@ -2224,13 +2461,20 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //lấy danh sách user có roles là khách hàng (roles = 1)
-            const users = await pool.query(`select * from users where roles = 1`);
-            res.render("customer_dashboard", {
-                users: users.rows,
-                email: req.session.email,
-                name: req.session.name
-            });
+            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            if(roles_user.rows[0]['roles'] == 1){
+                res.redirect('/')
+            }else{
+                
+                //lấy danh sách user có roles là khách hàng (roles = 1)
+                const users = await pool.query(`select * from users where roles = 1`);
+                res.render("customer_dashboard", {
+                    menu:'customer_dashboard',
+                    users: users.rows,
+                    email: req.session.email,
+                    name: req.session.name
+                });
+            }    
         }
     })  
     app.get('/customer_dashboard_add', (req, res) => {

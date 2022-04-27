@@ -114,7 +114,16 @@ CREATE TABLE IF NOT EXISTS type_of_delivery(
     CONSTRAINT A_type_of_delivery_PK PRIMARY KEY (ID)
 );
 
+--Create a table inventory
+CREATE TABLE IF NOT EXISTS inventory(
+    ID SERIAL,
+    food_id INT,
+    quantity INT,
+    CONSTRAINT A_inventory_PK PRIMARY KEY (ID)
+);
+
 --set foreign key
+ALTER TABLE inventory ADD CONSTRAINT FK_INVENTORY_FOODS FOREIGN KEY (food_id) REFERENCES foods (ID);
 ALTER TABLE foods ADD CONSTRAINT FK_FOODS_CATEGORY FOREIGN KEY (category_id) REFERENCES category (ID);
 ALTER TABLE food_tag ADD CONSTRAINT FK_FOODTAG_TAG FOREIGN KEY (tag_id) REFERENCES tag (ID);
 ALTER TABLE food_tag ADD CONSTRAINT FK_FOODTAG_FOODS FOREIGN KEY (food_id) REFERENCES foods (ID);
