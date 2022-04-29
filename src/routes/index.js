@@ -447,11 +447,22 @@ async function route(app){
             res.redirect('/login');
         }else{
             const get_quantity = await pool.query(`select * from order_items where id=$1`,[req.params.order_item_id])
-            //Cộng 1 sp vào giỏ hàng
-            const update_quantity = await pool.query(`update order_items
-            set quantity = $1
-            where id=$2`,[get_quantity.rows[0]['quantity']+1, req.params.order_item_id]);
-            res.redirect("/cart")
+            const qty_food_in_inventory = await pool.query(`select * from inventory where food_id = $1`, [get_quantity.rows[0]['food_id']])
+            
+            // let errors = []
+            // if(get_quantity.rows[0]['quantity'] > qty_food_in_inventory.rows[0]['quantity']){
+            //     errors.push([{
+            //         "code": 400,
+            //         "message": "The product is out of stock!"
+            //     }])
+            // }else{
+
+                //Cộng 1 sp vào giỏ hàng
+                const update_quantity = await pool.query(`update order_items
+                set quantity = $1
+                where id=$2`,[get_quantity.rows[0]['quantity']+1, req.params.order_item_id]);
+                res.redirect("/cart")
+            // }
         }
     })
 
