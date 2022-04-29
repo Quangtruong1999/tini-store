@@ -51,6 +51,7 @@ async function route(app){
                 top_foods: top_foods.rows,
                 foods: foods.rows,
                 name: req.session.name,
+                roles: req.session.roles,
                 category_list: category_list.rows
             });
         }else{
@@ -66,6 +67,7 @@ async function route(app){
                     name: req.session.name,
                     foods: foods.rows,
                     top_foods: top_foods.rows,
+                    roles: req.session.roles,
                     category_list: category_list.rows
                 })
             }else{
@@ -78,6 +80,7 @@ async function route(app){
                     name: req.session.name,
                     foods: foods.rows,
                     top_foods: top_foods.rows,
+                    roles: req.session.roles,
                     category_list: category_list.rows
                 })
             }
@@ -183,6 +186,7 @@ async function route(app){
                                 errors: errors, 
                                 name: req.session.name, 
                                 user_id: req.session.user_id,
+                                roles: req.session.roles,
                                 quantity_foods: [{"count": 0}]
                             })
                         }else{
@@ -197,6 +201,7 @@ async function route(app){
                                 quantity_foods: quantity_foods.rows,
                                 errors: errors, 
                                 name: req.session.name, 
+                                roles: req.session.roles,
                                 user_id: req.session.user_id})
                         }
                         
@@ -246,6 +251,7 @@ async function route(app){
                     
                 res.render('about', {
                     quantity_foods: [{"count": 0}],
+                    roles: req.session.roles,
                     name: req.session.name
                 })
             }else{
@@ -256,6 +262,7 @@ async function route(app){
     
                 res.render("about", {
                     name: req.session.name,
+                    roles: req.session.roles,
                     quantity_foods: quantity_foods.rows
                 });
             }
@@ -278,6 +285,7 @@ async function route(app){
                 res.render('blog', {
                     quantity_foods: [{"count": 0}],
                     name: req.session.name,
+                    roles: req.session.roles,
                     category: category.rows
                 })
             }else{
@@ -289,12 +297,14 @@ async function route(app){
                 res.render("blog", {
                     name: req.session.name,
                     quantity_foods: quantity_foods.rows,
+                    roles: req.session.roles,
                     category: category.rows
                 });
             }
         }else{
             res.render("blog", {
                 name: req.session.name,
+                roles: req.session.roles,
                 category: category.rows});
         }
     }) 
@@ -308,6 +318,7 @@ async function route(app){
             if (search_order.rows == '') {
                 res.render("new_address", {
                     name: req.session.name,
+                    roles: req.session.roles,
                     quantity_foods: [{'count': 0}]
                 });
             }else{
@@ -318,6 +329,7 @@ async function route(app){
 
                 res.render("new_address", {
                     name: req.session.name,
+                    roles: req.session.roles,
                     quantity_foods: quantity_foods.rows
                 });
             }
@@ -341,6 +353,7 @@ async function route(app){
 
                     res.render("dia_chi", {
                         name: req.session.name,
+                        roles: req.session.roles,
                         quantity_foods: [{'count': 0}],
                         errors: errors
                     });
@@ -353,6 +366,7 @@ async function route(app){
         
                     res.render("dia_chi", {
                         name: req.session.name,
+                        roles: req.session.roles,
                         quantity_foods: quantity_foods.rows,
                         errors: errors
                     });
@@ -404,6 +418,7 @@ async function route(app){
                 res.render("change_address", {
                     name: req.session.name,
                     order: search_order.rows,
+                    roles: req.session.roles,
                     list_address: list_address.rows
                 });
                     
@@ -416,6 +431,7 @@ async function route(app){
                 res.render("change_address", {
                     name: req.session.name,
                     order: search_order.rows,
+                    roles: req.session.roles,
                     quantity_foods: quantity_foods.rows,
                     list_address: list_address.rows
                 });
@@ -504,6 +520,7 @@ async function route(app){
                 res.render('order_users', {
                     quantity_foods: [{"count": 0}],
                     orders: orders.rows,
+                    roles: req.session.roles,
                     name: req.session.name
                 })
             }else{
@@ -515,6 +532,7 @@ async function route(app){
                 res.render("order_users", {
                     name: req.session.name,
                     orders: orders.rows,
+                    roles: req.session.roles,
                     quantity_foods: quantity_foods.rows
                 });
             }
@@ -569,6 +587,7 @@ async function route(app){
                     order_items: order_items.rows,
                     owner_order: owner_order.rows,
                     address: address.rows,
+                    roles: req.session.roles,
                     foods: foods.rows
                 })
             }else{
@@ -585,6 +604,7 @@ async function route(app){
                     order_items: order_items.rows,
                     owner_order: owner_order.rows,
                     address: address.rows,
+                    roles: req.session.roles,
                     foods: foods.rows
                 });
             }
@@ -640,6 +660,7 @@ async function route(app){
                                 fee_ship: search_order.rows[0]['delivery_fee'],
                                 total: totals,
                                 discount: discount,
+                                roles: req.session.roles,
                                 errors: errors
                             });
                         }else{
@@ -655,6 +676,7 @@ async function route(app){
                                 fee_ship: search_order.rows[0]['delivery_fee'],
                                 total: totals,
                                 discount: discount,
+                                roles: req.session.roles,
                                 errors: errors
                             });
                         }
@@ -683,6 +705,7 @@ async function route(app){
                                     fee_ship: search_order_new.rows[0]['delivery_fee'],
                                     total: totals,
                                     discount: discount,
+                                    roles: req.session.roles,
                                     errors: errors
                                 });
                             }else{
@@ -698,6 +721,7 @@ async function route(app){
                                     fee_ship: search_order.rows[0]['delivery_fee'],
                                     total: totals,
                                     discount: discount,
+                                    roles: req.session.roles,
                                     errors: errors
                                 });
                             }
@@ -715,6 +739,7 @@ async function route(app){
                                     fee_ship: search_order.rows[0]['delivery_fee'],
                                     total: totals,
                                     discount: discount,
+                                    roles: req.session.roles,
                                     errors: errors
                                 });
                             }else{
@@ -730,6 +755,7 @@ async function route(app){
                                     fee_ship: search_order.rows[0]['delivery_fee'],
                                     total: totals,
                                     discount: discount,
+                                    roles: req.session.roles,
                                     errors: errors
                                 });
                             }
@@ -740,6 +766,7 @@ async function route(app){
                         cart_user: cart_user.rows, 
                         name: req.session.name,
                         quantity_foods: [{"count": 0}],
+                        roles: req.session.roles,
                         errors: errors
                     });
                 }
@@ -748,6 +775,7 @@ async function route(app){
                     cart_user: cart_user.rows, 
                     name: req.session.name,
                     quantity_foods: [{"count": 0}],
+                    roles: req.session.roles,
                     errors: errors
                 });
             }
@@ -802,6 +830,7 @@ async function route(app){
                         data: product_single.rows,
                         quantity_foods: [{"count": 0}],
                         name: req.session.name,
+                        roles: req.session.roles,
                         errors: errors
                     })
                 }else{
@@ -814,6 +843,7 @@ async function route(app){
                         data: product_single.rows,
                         name: req.session.name,
                         quantity_foods: quantity_foods.rows,
+                        roles: req.session.roles,
                         errors: errors
                     })
                 }
@@ -1231,6 +1261,7 @@ async function route(app){
                                     fee_ship: search_order.rows[0]['delivery_fee'],
                                     total: totals,
                                     discount: discount,
+                                    roles: req.session.roles,
                                     errors: errors
                                 });
                             }else{
@@ -1247,6 +1278,7 @@ async function route(app){
                                     fee_ship: search_order.rows[0]['delivery_fee'],
                                     total: totals,
                                     discount: discount,
+                                    roles: req.session.roles,
                                     errors: errors
                                 });
                             }
@@ -1276,6 +1308,7 @@ async function route(app){
                                         fee_ship: search_order_new.rows[0]['delivery_fee'],
                                         total: totals,
                                         discount: discount,
+                                        roles: req.session.roles,
                                         errors: errors
                                     });
                                 }else{
@@ -1292,6 +1325,7 @@ async function route(app){
                                         fee_ship: search_order.rows[0]['delivery_fee'],
                                         total: totals,
                                         discount: discount,
+                                        roles: req.session.roles,
                                         errors: errors
                                     });
                                 }
@@ -1310,6 +1344,7 @@ async function route(app){
                                         fee_ship: search_order.rows[0]['delivery_fee'],
                                         total: totals,
                                         discount: discount,
+                                        roles: req.session.roles,
                                         errors: errors
                                     });
                                 }else{
@@ -1326,6 +1361,7 @@ async function route(app){
                                         fee_ship: search_order.rows[0]['delivery_fee'],
                                         total: totals,
                                         discount: discount,
+                                        roles: req.session.roles,
                                         errors: errors
                                     });
                                 }
@@ -1336,6 +1372,7 @@ async function route(app){
                             cart_user: cart_user.rows, 
                             name: req.session.name,
                             quantity_foods: [{"count": 0}],
+                            roles: req.session.roles,
                             errors: errors
                         });
                     }
@@ -1344,6 +1381,7 @@ async function route(app){
                         cart_user: cart_user.rows, 
                         name: req.session.name,
                         quantity_foods: [{"count": 0}],
+                        roles: req.session.roles,
                         errors: errors
                     });
                 }
@@ -1372,6 +1410,7 @@ async function route(app){
 
                 res.render("contact", {
                     name: req.session.name,
+                    roles: req.session.roles,
                     quantity_foods: quantity_foods.rows
                 });
             }
@@ -1397,6 +1436,7 @@ async function route(app){
                 quantity_foods: [{"count": 0}],
                 name: req.session.name,
                 category_food:category_food.rows,
+                roles: req.session.roles,
                 errors: errors
             })
         }else{
@@ -1411,6 +1451,7 @@ async function route(app){
                 quantity_foods: quantity_foods.rows,
                 wishlist: wishlist.rows,
                 category_food:category_food.rows,
+                roles: req.session.roles,
                 errors: errors
             })
         }
@@ -1450,6 +1491,7 @@ async function route(app){
                         quantity_foods: [{"count": 0}],
                         name: req.session.name,
                         category_food: category_food.rows,
+                        roles: req.session.roles,
                         errors: errors
                     })
                 }else{
@@ -1464,6 +1506,7 @@ async function route(app){
                         quantity_foods: quantity_foods.rows,
                         wishlist: wishlist.rows,
                         category_food: category_food.rows,
+                        roles: req.session.roles,
                         errors: errors
                     })
                 }
@@ -1559,6 +1602,7 @@ async function route(app){
                 res.render('shop11', {foods: foods.rows, 
                     category: category.rows, 
                     name:req.session.name,
+                    roles: req.session.roles,
                     category_id: category_id
                 })
             }else{
@@ -1568,6 +1612,7 @@ async function route(app){
                 res.render('shop11', {foods: foods.rows, 
                     category: category.rows, 
                     name:req.session.name,
+                    roles: req.session.roles,
                     category_id: category_id
                 })
             }
@@ -1590,6 +1635,7 @@ async function route(app){
                         category: category.rows, 
                         name:req.session.name,
                         category_id: category_id,
+                        roles: req.session.roles,
                         quantity_foods: [{"count": 0}],
                         wishlist: wishlist.rows
                     })
@@ -1600,6 +1646,7 @@ async function route(app){
                         category: category.rows, 
                         name:req.session.name,
                         category_id: category_id,
+                        roles: req.session.roles,
                         quantity_foods: [{"count": 0}],
                         wishlist: wishlist.rows
                     })
@@ -1619,6 +1666,7 @@ async function route(app){
                         category: category.rows, 
                         name:req.session.name,
                         category_id: category_id,
+                        roles: req.session.roles,
                         quantity_foods: quantity_foods.rows,
                         wishlist: wishlist.rows
                     })
@@ -1629,6 +1677,7 @@ async function route(app){
                         category: category.rows, 
                         name:req.session.name,
                         category_id: category_id,
+                        roles: req.session.roles,
                         quantity_foods: quantity_foods.rows,
                         wishlist: wishlist.rows
                     })
@@ -1672,6 +1721,7 @@ async function route(app){
                 res.render("wishlist", {
                     wishlist: wishlist_user.rows,
                     name: req.session.name,
+                    roles: req.session.roles,
                     quantity_foods: [{"count": 0}]
                 });
             }else{
@@ -1686,6 +1736,7 @@ async function route(app){
                 res.render("wishlist", {
                     wishlist: wishlist_user.rows,
                     name: req.session.name,
+                    roles: req.session.roles,
                     quantity_foods: quantity_foods.rows
                 });
             }
@@ -1742,6 +1793,7 @@ async function route(app){
                     data: food.rows, 
                     name: req.session.name, 
                     email: req.session.email,
+                    roles: req.session.roles,
                     category: category.rows
                 });
             }
@@ -1795,6 +1847,7 @@ async function route(app){
             if (search_order.rows == '') {
                 res.render("dia_chi", {
                     name: req.session.name,
+                    roles: req.session.roles,
                     quantity_foods: [{'count': 0}]
                 });
             }else{
@@ -1806,6 +1859,7 @@ async function route(app){
 
                 res.render("dia_chi", {
                     name: req.session.name,
+                    roles: req.session.roles,
                     quantity_foods: quantity_foods.rows
                 });
             }
@@ -1831,6 +1885,7 @@ async function route(app){
                     res.render("dia_chi", {
                         name: req.session.name,
                         quantity_foods: [{'count': 0}],
+                        roles: req.session.roles,
                         errors: errors
                     });
                 }else{
@@ -1843,6 +1898,7 @@ async function route(app){
                     res.render("dia_chi", {
                         name: req.session.name,
                         quantity_foods: quantity_foods.rows,
+                        roles: req.session.roles,
                         errors: errors
                     });
                 }
@@ -1900,6 +1956,7 @@ async function route(app){
                 res.render('edit_dia_chi', {
                     name: req.session.name, 
                     user_id: req.session.user_id,
+                    roles: req.session.roles,
                     quantity_foods: quantity_foods.rows,
                     address: address.rows
                 })
@@ -1907,6 +1964,7 @@ async function route(app){
                 res.render('edit_dia_chi', {
                     name: req.session.name,
                     address: address.rows,
+                    roles: req.session.roles,
                     quantity_foods: [{"count": 0}]
                 });
             }
@@ -1937,6 +1995,7 @@ async function route(app){
                     res.render("edit_dia_chi", {
                         name: req.session.name,
                         address: address.rows,
+                        roles: req.session.roles,
                         quantity_foods: [{'count': 0}],
                         errors: errors
                     });
@@ -1950,6 +2009,7 @@ async function route(app){
                     res.render("edit_dia_chi", {
                         name: req.session.name,
                         address: address.rows,
+                        roles: req.session.roles,
                         quantity_foods: quantity_foods.rows,
                         errors: errors
                     });
@@ -2068,6 +2128,7 @@ async function route(app){
                     menu: 'inventory_dashboard',
                     data: qty_food.rows,
                     name: req.session.name, 
+                    roles: req.session.roles,
                     email: req.session.email
                 })
             }
@@ -2093,6 +2154,7 @@ async function route(app){
                     menu: 'inventory_dashboard',
                     data: info_inventory.rows,
                     name: req.session.name, 
+                    roles: req.session.roles,
                     email: req.session.email
                 })
             }
@@ -2145,6 +2207,7 @@ async function route(app){
                             menu: 'product_dashboard',
                             data: result.rows,
                             name: req.session.name, 
+                            roles: req.session.roles,
                             email: req.session.email
                         });
                     });
@@ -2169,6 +2232,7 @@ async function route(app){
                 res.render('category_dashboard_edit', {
                     category: category.rows,
                     name: req.session.name,
+                    roles: req.session.roles,
                     email: req.session.email
                 })
             }
@@ -2212,6 +2276,7 @@ async function route(app){
                     menu: 'edit_users',
                     user: user.rows,
                     name: req.session.name,
+                    roles: req.session.roles,
                     email: req.session.email
                 })
             }
@@ -2252,6 +2317,7 @@ async function route(app){
                     menu: 'order_dashboard',
                     orders: orders.rows,
                     name: req.session.name,
+                    roles: req.session.roles,
                     email: req.session.email
                 })
             }
@@ -2289,6 +2355,7 @@ async function route(app){
                     order: order.rows,
                     order_items: order_items.rows,
                     owner_order: owner_order.rows,
+                    roles: req.session.roles,
                     address: address.rows,
                     foods: foods.rows
                 })
@@ -2308,6 +2375,7 @@ async function route(app){
             res.render('address_dashboard', {
                 addresses: addresses.rows,
                 name: req.session.name,
+                roles: req.session.roles,
                 email: req.session.email
             })
         }
@@ -2331,6 +2399,7 @@ async function route(app){
                     users: users.rows,
                     name: req.session.name,
                     email: req.session.email,
+                    roles: req.session.roles,
                     errors: errors
                 });
             }
@@ -2354,6 +2423,7 @@ async function route(app){
                     users: users.rows,
                     name: req.session.name,
                     email: req.session.email,
+                    roles: req.session.roles,
                     errors: errors
                 });
             }else{
@@ -2405,6 +2475,7 @@ async function route(app){
                     name: req.session.name, 
                     email: req.session.email,
                     user_id: req.session.user_id,
+                    roles: req.session.roles,
                     address: address.rows
                 })
             }
@@ -2427,6 +2498,7 @@ async function route(app){
                 res.render("edit_dia_chi", {
                     name: req.session.name,
                     address: address.rows,
+                    roles: req.session.roles,
                     email: req.session.email,
                     errors: errors
                 });
@@ -2525,6 +2597,7 @@ async function route(app){
                             menu: 'product_dashboard',
                             name: req.session.name, 
                             email: req.session.email,
+                            roles: req.session.roles,
                             errors: [{
                                 code: 200,
                                 message: "None"
@@ -2559,6 +2632,7 @@ async function route(app){
                     data: category.rows, 
                     name: req.session.name, 
                     email: req.session.email,
+                    roles: req.session.roles,
                     menu: 'product_dashboard',
                     errors: errors
                 });
@@ -2641,6 +2715,7 @@ async function route(app){
                         res.render('category_dashboard', {
                             menu: 'category_dashboard',
                             data: result.rows,
+                            roles: req.session.roles,
                             name: req.session.name, 
                             email: req.session.email
                         });
@@ -2680,6 +2755,7 @@ async function route(app){
                     menu:'customer_dashboard',
                     users: users.rows,
                     email: req.session.email,
+                    roles: req.session.roles,
                     name: req.session.name
                 });
             }    
@@ -2709,6 +2785,7 @@ async function route(app){
                 res.render('information_user', {
                     data: information_user.rows, 
                     name: req.session.name, 
+                    roles: req.session.roles,
                     user_id: req.session.user_id,
                     quantity_foods: [{"count": 0}]
                 })
@@ -2722,6 +2799,7 @@ async function route(app){
                 res.render('information_user', {
                     data: information_user.rows, 
                     name: req.session.name, 
+                    roles: req.session.roles,
                     user_id: req.session.user_id,
                     quantity_foods: quantity_foods.rows
                 })
@@ -2753,6 +2831,7 @@ async function route(app){
                 res.render("quen_mat_khau", {
                     name: req.session.name,
                     errors: errors,
+                    roles: req.session.roles,
                     quantity_foods: quantity_foods.rows
                 });
             }
@@ -2780,6 +2859,7 @@ async function route(app){
                     res.render("quen_mat_khau", {
                         name: req.session.name,
                         errors: errors,
+                        roles: req.session.roles,
                         quantity_foods: [{"count": 0}]
                     });
                 }else{
@@ -2792,6 +2872,7 @@ async function route(app){
                     res.render("quen_mat_khau", {
                         name: req.session.name,
                         errors: errors,
+                        roles: req.session.roles,
                         quantity_foods: quantity_foods.rows
                     });
                 }
@@ -2804,6 +2885,7 @@ async function route(app){
                     res.render("quen_mat_khau", {
                         name: req.session.name,
                         errors: errors,
+                        roles: req.session.roles,
                         quantity_foods: [{"count": 0}]
                     });
                 }else{
@@ -2816,6 +2898,7 @@ async function route(app){
                     res.render("quen_mat_khau", {
                         name: req.session.name,
                         errors: errors,
+                        roles: req.session.roles,
                         quantity_foods: quantity_foods.rows
                     });
                 }
@@ -2854,6 +2937,7 @@ async function route(app){
                 res.render("show_dia_chi", {
                     name: req.session.name,
                     quantity_foods: [{'count': 0}],
+                    roles: req.session.roles,
                     list_address: list_address.rows
                 });
             }else{
@@ -2866,6 +2950,7 @@ async function route(app){
                 res.render("show_dia_chi", {
                     name: req.session.name,
                     quantity_foods: quantity_foods.rows,
+                    roles: req.session.roles,
                     list_address: list_address.rows
                 });
             }
