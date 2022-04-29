@@ -1409,6 +1409,7 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            const product_single = await pool.query(`select * from foods where id = $1`, [req.params.id])
             const order_items = await pool.query(`select order_items.id, order_items.food_id, order_items.quantity
             from orders, order_items
             where orders.id = order_items.order_id and order_items.food_id = $1 and orders.owner_id = $2 and orders.states='draft'`, [req.body.id,req.session.user_id])
