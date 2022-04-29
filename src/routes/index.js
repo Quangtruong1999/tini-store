@@ -1377,6 +1377,7 @@ async function route(app){
         const search_order = await pool.query(`select * 
         from orders
         where owner_id = $1 and states = 'draft'`, [req.session.user_id])
+        const category_food = await pool.query(`select * from foods where category_id = $1`, [product_single.rows[0]['category_id']])
         let errors = []
         errors.push({code: 200, message: "nothing!"})
         if (search_order.rows == '') {
@@ -1384,6 +1385,7 @@ async function route(app){
                 data: product_single.rows,
                 quantity_foods: [{"count": 0}],
                 name: req.session.name,
+                category_food:category_food.rows,
                 errors: errors
             })
         }else{
@@ -1397,6 +1399,7 @@ async function route(app){
                 name: req.session.name,
                 quantity_foods: quantity_foods.rows,
                 wishlist: wishlist.rows,
+                category_food:category_food.rows,
                 errors: errors
             })
         }
@@ -1411,8 +1414,11 @@ async function route(app){
             where orders.id = order_items.order_id and order_items.food_id = $1 and orders.owner_id = $2 and orders.states='draft'`, [req.body.id,req.session.user_id])
             const fee_delivery = await pool.query(`select * from type_of_delivery where id = 1`)
             const qty_food_in_inventory = await pool.query(`select * from inventory where food_id = $1`, [req.body.id])
+            const category_food = await pool.query(`select * from foods where category_id = $1`, [product_single.rows[0]['category_id']])
+        
             var flag_order_items = 0
             var quantity_new = 0
+
             //kiểm tra sản phẩm trong kho
             let errors = []
             if(req.body.quantity > qty_food_in_inventory.rows[0]['quantity']){
@@ -1431,6 +1437,7 @@ async function route(app){
                         data: product_single.rows,
                         quantity_foods: [{"count": 0}],
                         name: req.session.name,
+                        category_food: category_food.rows,
                         errors: errors
                     })
                 }else{
@@ -1444,6 +1451,7 @@ async function route(app){
                         name: req.session.name,
                         quantity_foods: quantity_foods.rows,
                         wishlist: wishlist.rows,
+                        category_food: category_food.rows,
                         errors: errors
                     })
                 }
