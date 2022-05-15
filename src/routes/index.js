@@ -1792,6 +1792,7 @@ async function route(app){
 
                 res.render('product_edit', {
                     data: food.rows, 
+                    menu: 'edit_pro',
                     name: req.session.name, 
                     email: req.session.email,
                     roles: req.session.roles,
