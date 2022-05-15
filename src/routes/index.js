@@ -1124,14 +1124,16 @@ async function route(app){
                 if(typeof req.body.discount != 'undefined'){
                     const confirm_order = await pool.query(`update orders
                     set delivery_time = $1, amount = $2, discount = $3
-                    where id = $4;`, [new Intl.DateTimeFormat().format(dates), req.body.amount, req.body.discount, req.body.order_id])
+                    where id = $4;`, [dates, req.body.amount, req.body.discount, req.body.order_id])
+                    // where id = $4;`, [new Intl.DateTimeFormat().format(dates), req.body.amount, req.body.discount, req.body.order_id])
                     
                     // console.log('mua hàng thành công')
                     // res.redirect('/')
                 }else{
                     const confirm_order = await pool.query(`update orders
                     set delivery_time = $1, amount = $2, discount = $3
-                    where id = $4;`, [new Intl.DateTimeFormat().format(dates), req.body.amount, 0, req.body.order_id])
+                    where id = $4;`, [dates, req.body.amount, 0, req.body.order_id])
+                    // where id = $4;`, [new Intl.DateTimeFormat().format(dates), req.body.amount, 0, req.body.order_id])
                     
                     // console.log('mua hàng thành công')
                     // res.redirect('/')
@@ -1763,6 +1765,7 @@ async function route(app){
                 throw err;
             }
             //xóa sản phẩm
+            // const del_pro_inventory = await pool.query(`delete `)
             pool.query(`DELETE FROM foods WHERE id = $1`, [req.params.id], (err, result)=>{
                 if(err){
                     throw err;
