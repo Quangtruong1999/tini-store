@@ -1780,6 +1780,7 @@ async function route(app){
         }else{
             
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -1807,6 +1808,7 @@ async function route(app){
         }else{
             
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2090,6 +2092,7 @@ async function route(app){
     app.get('/del_category/:id', urlencodedParser, async (req, res) => {
         
         const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+        //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
         if(roles_user.rows[0]['roles'] == 1){
             res.redirect('/')
         }else{
@@ -2117,6 +2120,7 @@ async function route(app){
             res.redirect('/login');
         }else{
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2141,6 +2145,7 @@ async function route(app){
             res.redirect('/login');
         }else{
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2166,7 +2171,9 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
+            //lấy thông tin user
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2184,6 +2191,7 @@ async function route(app){
             res.redirect('/login');
         }else{
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2223,6 +2231,7 @@ async function route(app){
         }else{
             
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2246,6 +2255,7 @@ async function route(app){
         }else{
             
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2266,6 +2276,7 @@ async function route(app){
             res.redirect('/login');
         }else{
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2288,12 +2299,16 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //Cập nhật người dùng theo id
-            const edit_users = await pool.query(`update users
-            set name = $1 , phone=$2
-            where id = $3;`, [req.body.name, req.body.phone, req.params.id])
-            console.log('cập nhật thành công')
-            res.redirect('/customer_dashboard')
+            if(req.session.roles != 0){
+                res.redirect('/')
+            }else{
+                //Cập nhật người dùng theo id
+                const edit_users = await pool.query(`update users
+                set name = $1 , phone=$2
+                where id = $3;`, [req.body.name, req.body.phone, req.params.id])
+                console.log('cập nhật thành công')
+                res.redirect('/customer_dashboard')
+            }
         }
     })
 
@@ -2304,6 +2319,7 @@ async function route(app){
             res.redirect('/login');
         }else{
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2329,6 +2345,7 @@ async function route(app){
             res.redirect('/login');
         }else{
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2368,16 +2385,22 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //lấy danh sách địa chỉ
-            const addresses = await pool.query(`select *
-            from addresses`)
-            console.log('address = ', addresses.rows)
-            res.render('address_dashboard', {
-                addresses: addresses.rows,
-                name: req.session.name,
-                roles: req.session.roles,
-                email: req.session.email
-            })
+            if(req.session.roles != 0){
+                res.redirect('/')
+            }else{
+                //lấy danh sách địa chỉ
+                const addresses = await pool.query(`select *
+                from addresses`)
+                console.log('address = ', addresses.rows)
+                res.render('address_dashboard', {
+                    addresses: addresses.rows,
+                    name: req.session.name,
+                    roles: req.session.roles,
+                    menu: 'addresses_dashboard',
+                    email: req.session.email
+                })
+            }
+            
         }
     })
       
@@ -2387,6 +2410,7 @@ async function route(app){
             res.redirect('/login');
         }else{
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2411,47 +2435,52 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            const users = await pool.query(`select * from users where roles = 1`)
-            var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
-            let errors = []
             
-            //Kiểm tra tính hợp lệ của số điện thoại
-            //Nếu sai thì báo lỗi và ngược lại
-            if(regex.test(req.body.phone) != true){
-                errors.push({message: "Phone invalid!"})
-                res.render("address_dashboard_add", {
-                    users: users.rows,
-                    name: req.session.name,
-                    email: req.session.email,
-                    roles: req.session.roles,
-                    errors: errors
-                });
+            if(req.session.roles != 0){
+                res.redirect('/')
             }else{
-                /*
-                Nếu là địa chỉ mặc định thì kiểm tra danh sách địa chỉ trước đó
-                Nếu đã có địa chỉ mặc định thì set địa chỉ vừa tìm đc bằng false rồi set địa chỉ mới là true
-                */
-                if(req.body.address_default == 'on'){
-                    const all_address = await pool.query(`select * from addresses where user_id = $1`, [req.body.user_id])
-                    for(var i=0; i<all_address.rows.length; i++){
-                        console.log('address_default = ', all_address.rows[i]['address_default'])
-                        if(all_address.rows[i]['address_default'] == true){
-                            console.log('all_address = ', all_address.rows)
-                            const update_address_default = await pool.query(`update addresses
-                            set address_default = false
-                            where id = $1`, [all_address.rows[i]['id']])
-                        }
-                    }
-                    
-                    const add_address = await pool.query(`insert into addresses (user_id, address_default, phone, name, wardid, districtid, provinceid, street)
-                    values ($1,$2,$3,$4,$5,$6,$7,$8);`, [req.body.user_id,true,req.body.phone,req.body.name,req.body.wardid,req.body.calc_shipping_district,req.body.calc_shipping_provinces,req.body.street])
-                    console.log('Thêm địa chỉ vào thành công')
-                    res.redirect('/addresses_dashboard')
+                const users = await pool.query(`select * from users where roles = 1`)
+                var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
+                let errors = []
+                
+                //Kiểm tra tính hợp lệ của số điện thoại
+                //Nếu sai thì báo lỗi và ngược lại
+                if(regex.test(req.body.phone) != true){
+                    errors.push({message: "Phone invalid!"})
+                    res.render("address_dashboard_add", {
+                        users: users.rows,
+                        name: req.session.name,
+                        email: req.session.email,
+                        roles: req.session.roles,
+                        errors: errors
+                    });
                 }else{
-                    const add_address = await pool.query(`insert into addresses (user_id, address_default, phone, name, wardid, districtid, provinceid, street)
-                    values ($1,$2,$3,$4,$5,$6,$7,$8);`, [req.body.user_id,false,req.body.phone,req.body.name,req.body.wardid,req.body.calc_shipping_district,req.body.calc_shipping_provinces,req.body.street])
-                    console.log('Thêm địa chỉ vào thành công')
-                    res.redirect('/addresses_dashboard')
+                    /*
+                    Nếu là địa chỉ mặc định thì kiểm tra danh sách địa chỉ trước đó
+                    Nếu đã có địa chỉ mặc định thì set địa chỉ vừa tìm đc bằng false rồi set địa chỉ mới là true
+                    */
+                    if(req.body.address_default == 'on'){
+                        const all_address = await pool.query(`select * from addresses where user_id = $1`, [req.body.user_id])
+                        for(var i=0; i<all_address.rows.length; i++){
+                            console.log('address_default = ', all_address.rows[i]['address_default'])
+                            if(all_address.rows[i]['address_default'] == true){
+                                console.log('all_address = ', all_address.rows)
+                                const update_address_default = await pool.query(`update addresses
+                                set address_default = false
+                                where id = $1`, [all_address.rows[i]['id']])
+                            }
+                        }
+                        
+                        const add_address = await pool.query(`insert into addresses (user_id, address_default, phone, name, wardid, districtid, provinceid, street)
+                        values ($1,$2,$3,$4,$5,$6,$7,$8);`, [req.body.user_id,true,req.body.phone,req.body.name,req.body.wardid,req.body.calc_shipping_district,req.body.calc_shipping_provinces,req.body.street])
+                        console.log('Thêm địa chỉ vào thành công')
+                        res.redirect('/addresses_dashboard')
+                    }else{
+                        const add_address = await pool.query(`insert into addresses (user_id, address_default, phone, name, wardid, districtid, provinceid, street)
+                        values ($1,$2,$3,$4,$5,$6,$7,$8);`, [req.body.user_id,false,req.body.phone,req.body.name,req.body.wardid,req.body.calc_shipping_district,req.body.calc_shipping_provinces,req.body.street])
+                        console.log('Thêm địa chỉ vào thành công')
+                        res.redirect('/addresses_dashboard')
+                    }
                 }
             }
         }
@@ -2462,22 +2491,28 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
-            if(roles_user.rows[0]['roles'] == 1){
+            
+            if(req.session.roles != 0){
                 res.redirect('/')
             }else{
-                
-                //Lấy danh sách các địa chỉ
-                const address = await pool.query(`select * FROM addresses WHERE id = $1`, [req.params.id])
+                const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+                //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
+                if(roles_user.rows[0]['roles'] == 1){
+                    res.redirect('/')
+                }else{
+                    
+                    //Lấy danh sách các địa chỉ
+                    const address = await pool.query(`select * FROM addresses WHERE id = $1`, [req.params.id])
 
-                res.render('address_dashboard_edit', {
-                    menu: 'edit_address_dashboard',
-                    name: req.session.name, 
-                    email: req.session.email,
-                    user_id: req.session.user_id,
-                    roles: req.session.roles,
-                    address: address.rows
-                })
+                    res.render('address_dashboard_edit', {
+                        menu: 'edit_address_dashboard',
+                        name: req.session.name, 
+                        email: req.session.email,
+                        user_id: req.session.user_id,
+                        roles: req.session.roles,
+                        address: address.rows
+                    })
+                }
             }
         }
     })
@@ -2487,52 +2522,57 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            const address = await pool.query(`select * FROM addresses WHERE id = $1`, [req.params.id])
-            var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
-            let errors = []
-            //Kiểm tra tính hợp lệ của số điện thoại
-            //Nếu sai thì báo lỗi và ngược lại
-            if(regex.test(req.body.phone) != true){
-                errors.push({message: "Phone invalid!"})
-                
-                res.render("edit_dia_chi", {
-                    name: req.session.name,
-                    address: address.rows,
-                    roles: req.session.roles,
-                    email: req.session.email,
-                    errors: errors
-                });
+            
+            if(req.session.roles != 0){
+                res.redirect('/')
             }else{
-                
-                const all_address_tmp = await pool.query(`select * from addresses where id = $1`,[req.params.id]);
-                // console.log('all_address_tmp = ', all_address_tmp.rows)
-                const all_address = await pool.query(`select * from addresses where user_id = $1`, [all_address_tmp.rows[0]['user_id']])
-                /*
-                Nếu là địa chỉ mặc định thì kiểm tra danh sách địa chỉ trước đó
-                Nếu đã có địa chỉ mặc định thì set địa chỉ vừa tìm đc bằng false rồi set địa chỉ mới là true
-                */
-                if(req.body.address_default == 'on'){
-                    for(var i=0; i<all_address.rows.length; i++){
-                        console.log('address_default = ', all_address.rows[i]['address_default'])
-                        if(all_address.rows[i]['address_default'] == true){
-                            console.log('all_address = ', all_address.rows)
-                            const update_address_default = await pool.query(`update addresses
-                            set address_default = false
-                            where id = $1`, [all_address.rows[i]['id']])
-                        }
-                    } 
-
-                    const update_address = await pool.query(`update addresses
-                    set provinceid = $1, districtid = $2, wardid=$3, name=$4, phone=$5, address_default=true, street=$6
-                    where id = $7`, [req.body.calc_shipping_provinces, req.body.calc_shipping_district,req.body.ward, req.body.name,req.body.phone,req.body.street,req.params.id])
-                    console.log('Cập nhật địa chỉ thành công')
-                    res.redirect('/addresses_dashboard')
+                const address = await pool.query(`select * FROM addresses WHERE id = $1`, [req.params.id])
+                var regex = /^((09|03|07|08|05)+([0-9]{8})\b)$/
+                let errors = []
+                //Kiểm tra tính hợp lệ của số điện thoại
+                //Nếu sai thì báo lỗi và ngược lại
+                if(regex.test(req.body.phone) != true){
+                    errors.push({message: "Phone invalid!"})
+                    
+                    res.render("edit_dia_chi", {
+                        name: req.session.name,
+                        address: address.rows,
+                        roles: req.session.roles,
+                        email: req.session.email,
+                        errors: errors
+                    });
                 }else{
-                    const update_address = await pool.query(`update addresses
-                    set provinceid = $1, districtid = $2, wardid=$3, name=$4, phone=$5, address_default=false, street=$6
-                    where id = $7`, [req.body.calc_shipping_provinces, req.body.calc_shipping_district,req.body.ward, req.body.name,req.body.phone,req.body.street,req.params.id])
-                    console.log('Cập nhật địa chỉ thành công')
-                    res.redirect('/addresses_dashboard')
+                    
+                    const all_address_tmp = await pool.query(`select * from addresses where id = $1`,[req.params.id]);
+                    // console.log('all_address_tmp = ', all_address_tmp.rows)
+                    const all_address = await pool.query(`select * from addresses where user_id = $1`, [all_address_tmp.rows[0]['user_id']])
+                    /*
+                    Nếu là địa chỉ mặc định thì kiểm tra danh sách địa chỉ trước đó
+                    Nếu đã có địa chỉ mặc định thì set địa chỉ vừa tìm đc bằng false rồi set địa chỉ mới là true
+                    */
+                    if(req.body.address_default == 'on'){
+                        for(var i=0; i<all_address.rows.length; i++){
+                            console.log('address_default = ', all_address.rows[i]['address_default'])
+                            if(all_address.rows[i]['address_default'] == true){
+                                console.log('all_address = ', all_address.rows)
+                                const update_address_default = await pool.query(`update addresses
+                                set address_default = false
+                                where id = $1`, [all_address.rows[i]['id']])
+                            }
+                        } 
+
+                        const update_address = await pool.query(`update addresses
+                        set provinceid = $1, districtid = $2, wardid=$3, name=$4, phone=$5, address_default=true, street=$6
+                        where id = $7`, [req.body.calc_shipping_provinces, req.body.calc_shipping_district,req.body.ward, req.body.name,req.body.phone,req.body.street,req.params.id])
+                        console.log('Cập nhật địa chỉ thành công')
+                        res.redirect('/addresses_dashboard')
+                    }else{
+                        const update_address = await pool.query(`update addresses
+                        set provinceid = $1, districtid = $2, wardid=$3, name=$4, phone=$5, address_default=false, street=$6
+                        where id = $7`, [req.body.calc_shipping_provinces, req.body.calc_shipping_district,req.body.ward, req.body.name,req.body.phone,req.body.street,req.params.id])
+                        console.log('Cập nhật địa chỉ thành công')
+                        res.redirect('/addresses_dashboard')
+                    }
                 }
             }
         }
@@ -2543,8 +2583,13 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            const del_wishlist = await pool.query(`DELETE FROM addresses WHERE id = $1`,[req.params.id]);
-            res.redirect("/addresses_dashboard")
+            
+            if(req.session.roles != 0){
+                res.redirect('/')
+            }else{
+                const del_wishlist = await pool.query(`DELETE FROM addresses WHERE id = $1`,[req.params.id]);
+                res.redirect("/addresses_dashboard")
+            }
         }
     })
 
@@ -2554,6 +2599,7 @@ async function route(app){
             res.redirect('/login');
         }else{
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2579,6 +2625,7 @@ async function route(app){
         }else{
             
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2613,77 +2660,82 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            //Kiểm tra sản phẩm đã tồn tại chưa
-            const foods = await pool.query(`select * from foods`)
-            var food_exist = 0
-            let errors = []
-            for(var i=0; i<foods.rows.length; i++){
-                if(foods.rows[i]['name'].toLowerCase() == req.body.name.toLowerCase()){
-                    food_exist = 1
-                }
-            }
-            if(food_exist != 0){
-                errors.push({
-                    code: 400,
-                    message: "Product already exists!"
-                })
-                const category = await pool.query(`select * from category order by id`)
-                res.render("product_add", {
-                    data: category.rows, 
-                    name: req.session.name, 
-                    email: req.session.email,
-                    roles: req.session.roles,
-                    menu: 'product_dashboard',
-                    errors: errors
-                });
-
+            
+            if(req.session.roles != 0){
+                res.redirect('/')
             }else{
+                //Kiểm tra sản phẩm đã tồn tại chưa
+                const foods = await pool.query(`select * from foods`)
+                var food_exist = 0
+                let errors = []
+                for(var i=0; i<foods.rows.length; i++){
+                    if(foods.rows[i]['name'].toLowerCase() == req.body.name.toLowerCase()){
+                        food_exist = 1
+                    }
+                }
+                if(food_exist != 0){
+                    errors.push({
+                        code: 400,
+                        message: "Product already exists!"
+                    })
+                    const category = await pool.query(`select * from category order by id`)
+                    res.render("product_add", {
+                        data: category.rows, 
+                        name: req.session.name, 
+                        email: req.session.email,
+                        roles: req.session.roles,
+                        menu: 'product_dashboard',
+                        errors: errors
+                    });
 
-                //lưu đường dẫn lưu ảnh
-                const imagePath = path.join(__dirname, '../public/images/');
-                //giảm kích thước ảnh
-                const fileUpload = new Resize(imagePath);
-                if (!req.file) {
-                    // res.status(401).json({error: 'Please provide an image'});
-                    //Nếu người dùng không up file ảnh thì mặc định là ảnh trắng
-                    const insert_food = await pool.query(`INSERT INTO foods (name, description, category_id, price, images)
-                    VALUES ($1,$2,$3,$4,$5);`, [req.body.name, req.body.description, req.body.category, req.body.price, ''])
-                    const search_food = await pool.query(`select * from foods where name = $1`, [req.body.name])
-                    const add_inventory = await pool.query(`insert into inventory (food_id, quantity)
-                    values ($1, $2);`, [search_food.rows[0]['id'], 0])
-                    console.log('Thêm thành công')
-                    res.redirect('/product_dashboard');
-                    
-                    // pool.query(`INSERT INTO foods (name, description, category_id, price, images)
-                    // VALUES ($1,$2,$3,$4,$5);`,
-                    // [req.body.name, req.body.description, req.body.category, req.body.price, ''], (err, result)=>{
-                    //     if(err){
-                    //         throw err;
-                    //     }
-                    //     console.log('Thêm thành công')
-                    //     res.redirect('/product_dashboard');
-                    // });
                 }else{
-                    //Lưu file vào đường dẫn trên 
-                    const filename = await fileUpload.save(req.file.buffer);
-                    //Thêm sản phẩm vào database
-                    const insert_food = await pool.query(`INSERT INTO foods (name, description, category_id, price, images)
-                    VALUES ($1,$2,$3,$4,$5);`, [req.body.name, req.body.description, req.body.category, req.body.price, 'images/'+filename])
-                    const search_food = await pool.query(`select * from foods where name = $1`, [req.body.name])
-                    const add_inventory = await pool.query(`insert into inventory (food_id, quantity)
-                    values ($1, $2);`, [search_food.rows[0]['id'], 0])
-                    console.log('Thêm thành công')
-                    res.redirect('/product_dashboard');
 
-                    // pool.query(`INSERT INTO foods (name, description, category_id, price, images)
-                    // VALUES ($1,$2,$3,$4,$5);`,
-                    // [req.body.name, req.body.description, req.body.category, req.body.price, 'images/'+filename], (err, result)=>{
-                    //     if(err){
-                    //         throw err;
-                    //     }
-                    //     console.log('Thêm thành công')
-                    //     res.redirect('/product_dashboard');
-                    // });
+                    //lưu đường dẫn lưu ảnh
+                    const imagePath = path.join(__dirname, '../public/images/');
+                    //giảm kích thước ảnh
+                    const fileUpload = new Resize(imagePath);
+                    if (!req.file) {
+                        // res.status(401).json({error: 'Please provide an image'});
+                        //Nếu người dùng không up file ảnh thì mặc định là ảnh trắng
+                        const insert_food = await pool.query(`INSERT INTO foods (name, description, category_id, price, images)
+                        VALUES ($1,$2,$3,$4,$5);`, [req.body.name, req.body.description, req.body.category, req.body.price, ''])
+                        const search_food = await pool.query(`select * from foods where name = $1`, [req.body.name])
+                        const add_inventory = await pool.query(`insert into inventory (food_id, quantity)
+                        values ($1, $2);`, [search_food.rows[0]['id'], 0])
+                        console.log('Thêm thành công')
+                        res.redirect('/product_dashboard');
+                        
+                        // pool.query(`INSERT INTO foods (name, description, category_id, price, images)
+                        // VALUES ($1,$2,$3,$4,$5);`,
+                        // [req.body.name, req.body.description, req.body.category, req.body.price, ''], (err, result)=>{
+                        //     if(err){
+                        //         throw err;
+                        //     }
+                        //     console.log('Thêm thành công')
+                        //     res.redirect('/product_dashboard');
+                        // });
+                    }else{
+                        //Lưu file vào đường dẫn trên 
+                        const filename = await fileUpload.save(req.file.buffer);
+                        //Thêm sản phẩm vào database
+                        const insert_food = await pool.query(`INSERT INTO foods (name, description, category_id, price, images)
+                        VALUES ($1,$2,$3,$4,$5);`, [req.body.name, req.body.description, req.body.category, req.body.price, 'images/'+filename])
+                        const search_food = await pool.query(`select * from foods where name = $1`, [req.body.name])
+                        const add_inventory = await pool.query(`insert into inventory (food_id, quantity)
+                        values ($1, $2);`, [search_food.rows[0]['id'], 0])
+                        console.log('Thêm thành công')
+                        res.redirect('/product_dashboard');
+
+                        // pool.query(`INSERT INTO foods (name, description, category_id, price, images)
+                        // VALUES ($1,$2,$3,$4,$5);`,
+                        // [req.body.name, req.body.description, req.body.category, req.body.price, 'images/'+filename], (err, result)=>{
+                        //     if(err){
+                        //         throw err;
+                        //     }
+                        //     console.log('Thêm thành công')
+                        //     res.redirect('/product_dashboard');
+                        // });
+                    }
                 }
             }
 
@@ -2694,33 +2746,39 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
-            if(roles_user.rows[0]['roles'] == 1){
+            
+            if(req.session.roles != 0){
                 res.redirect('/')
             }else{
-                
-                //lấy danh sách cách category của sản phẩm
-                pool.connect(function(err, client, done){
-                    if(err){
-                        return console.error('error fetching client from pool ', err)
-                    }
-                    client.query(`select * from category`, (err, result) => {
-                        done();
+                const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+                //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
+                if(roles_user.rows[0]['roles'] == 1){
+                    res.redirect('/')
+                }else{
                     
+                    //lấy danh sách cách category của sản phẩm
+                    pool.connect(function(err, client, done){
                         if(err){
-                            res.end();
-                            return console.error('error running query ', err)
+                            return console.error('error fetching client from pool ', err)
                         }
-                        console.log('category = ', result.rows);
-                        res.render('category_dashboard', {
-                            menu: 'category_dashboard',
-                            data: result.rows,
-                            roles: req.session.roles,
-                            name: req.session.name, 
-                            email: req.session.email
+                        client.query(`select * from category`, (err, result) => {
+                            done();
+                        
+                            if(err){
+                                res.end();
+                                return console.error('error running query ', err)
+                            }
+                            console.log('category = ', result.rows);
+                            res.render('category_dashboard', {
+                                menu: 'category_dashboard',
+                                data: result.rows,
+                                roles: req.session.roles,
+                                name: req.session.name, 
+                                email: req.session.email
+                            });
                         });
                     });
-                });
+                }
             }
         }
     })  
@@ -2731,6 +2789,7 @@ async function route(app){
         }else{
             
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2745,6 +2804,7 @@ async function route(app){
             res.redirect('/login');
         }else{
             const roles_user = await pool.query(`select * from users where id = $1`, [req.session.user_id])
+            //Nếu là admin sẽ được phép truy cập link, ngược lại trả về trang chủ
             if(roles_user.rows[0]['roles'] == 1){
                 res.redirect('/')
             }else{
@@ -2765,7 +2825,12 @@ async function route(app){
         if(typeof req.session.user == 'undefined'){
             res.redirect('/login');
         }else{
-            res.render("customer_dashboard_add", {name: req.session.name});
+            
+            if(req.session.roles != 0){
+                res.redirect('/')
+            }else{
+                res.render("customer_dashboard_add", {name: req.session.name});
+            }
         }
     }) 
 
