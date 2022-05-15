@@ -1759,21 +1759,28 @@ async function route(app){
     })
 
     //route xóa sản phẩm trong admin
-    app.get('/del_pro/:id', urlencodedParser, (req, res) => {
-        pool.connect(function(err,client, done){
-            if(err){
-                throw err;
-            }
-            //xóa sản phẩm
-            // const del_pro_inventory = await pool.query(`delete `)
-            pool.query(`DELETE FROM foods WHERE id = $1`, [req.params.id], (err, result)=>{
+    app.get('/del_pro/:id', urlencodedParser, async (req, res) => {
+        try {
+            
+            const del_pro_inventory = await pool.query(`delete from inventory where food_id = $1`, [req.params.id])
+            pool.connect(function(err,client, done){
                 if(err){
                     throw err;
                 }
-                console.log('xóa thành công');
-                res.redirect('/product_dashboard');
+                //xóa sản phẩm
+                pool.query(`DELETE FROM foods WHERE id = $1`, [req.params.id], (err, result)=>{
+                    if(err){
+                        throw err;
+                    }
+                    console.log('xóa thành công');
+                    res.redirect('/product_dashboard');
+                })
             })
-        })
+        } catch (error) {
+            console.log('error ', error)
+            res.redirect('/product_dashboard')
+        }
+        
     }) 
 
     //route lấy form sửa sản phẩm trong admin
