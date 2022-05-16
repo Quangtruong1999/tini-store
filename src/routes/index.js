@@ -1018,8 +1018,6 @@ async function route(app){
                 '99': 'Lỗi không xác định.'
             }
             
-            console.log('hello mấy cưng')
-            console.log('request query = ', req.query)
             var status = req.query.resultCode
             if(Number(status) == 0 || Number(status) == 9000){
                 //Nếu thanh toán thành công sẽ cập nhật đơn hàng
@@ -1164,6 +1162,7 @@ async function route(app){
             }
             
             const check_address = await pool.query(`select * from orders where id = $1`, [req.body.order_id])
+            //format datetime
             const dates = new Date(Date.UTC(year, month-1, day,today.getHours(),today.getMinutes(), today.getSeconds()));
             if(check_address.rows[0]['address_id'] != null){
                 
