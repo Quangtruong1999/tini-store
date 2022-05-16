@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Quangtruong1999/website-tini-store.git"
+    "url": ""
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Quangtruong1999/website-tini-store/issues"
+    "url": ""
   },
-  "homepage": "https://github.com/Quangtruong1999/website-tini-store#readme",
+  "homepage": "",
   "dependencies": {
     "alert": "^5.0.10",
     "auth": "^0.0.9",
